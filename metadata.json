@@ -1,0 +1,8 @@
+{
+  "name": "Fast Job Applicant Dashboard",
+  "description": "A modern, intuitive applicant tracking and career growth platform with gamified progress tracking, job recommendations, and AI-powered career insights.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone"
+  ]
+}
