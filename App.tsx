@@ -11,6 +11,8 @@ import LandingPage from './components/LandingPage';
 import Auth from './components/Auth';
 import Settings from './components/Settings';
 import AdminUsers from './components/AdminUsers';
+
+import GameCenter from './components/Game/GameCenter';
 import { NavigationItem } from './types';
 import { Toaster } from 'react-hot-toast';
 
@@ -170,6 +172,8 @@ const App: React.FC = () => {
         return <Settings userData={userData} onUpdate={fetchUserData} />;
       case 'Admin Users':
         return <AdminUsers />;
+      case 'Games':
+        return <GameCenter />;
       default:
         return <Dashboard />;
     }
