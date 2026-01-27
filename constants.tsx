@@ -78,22 +78,22 @@ export const SUBJECTS: Subject[] = [
 export const SUGGESTED_RESOURCES: LearningResource[] = [
   {
     id: "r1",
-    category: "AI",
-    title: "TensorFlow 2.0 Workshop",
-    difficulty: "Hard",
+    category: "Practice",
+    title: "Python Engine",
+    difficulty: "Coding",
     estimatedTime: "1h 20m",
     reward: "800 XP",
-    icon: "🧠",
+    icon: "🐍",
     tags: ["Deep Learning", "Python"]
   },
   {
     id: "r2",
     category: "Python",
     title: "Python 101: Fundamentals",
-    difficulty: "Beginner",
+    difficulty: "Lectures",
     estimatedTime: "2h 30m",
     reward: "1200 XP",
-    icon: "🐍",
+    icon: "🧠",
     tags: ["Python", "Basics"],
     missions: [
       {
@@ -2499,8 +2499,8 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
   {
     id: "r3",
     category: "Coding",
-    title: "FastAPI for Students",
-    difficulty: "Easy",
+    title: "Machine Learning",
+    difficulty: "Hard",
     estimatedTime: "25m",
     reward: "200 XP",
     icon: "🐍",

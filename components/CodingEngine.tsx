@@ -101,7 +101,7 @@ const CodingEngine: React.FC = () => {
             </button>
           </div>
           <div className="h-4 w-[1px] bg-slate-800 mx-2" />
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">TensorFlow 2.0 Workshop</span>
+          <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Python Engine</span>
         </div>
 
         <div className="flex items-center space-x-3">

@@ -25,7 +25,7 @@ const Dashboard: React.FC<{ onNavigate: (tab: NavigationItem) => void }> = ({ on
     
     // If no missions are defined, navigate directly to the engine (backward compatibility)
     if (!currentRes.missions || currentRes.missions.length === 0) {
-      if (currentRes.title === 'TensorFlow 2.0 Workshop' || currentRes.category === 'AI') {
+      if (currentRes.title === 'Python Engine' || currentRes.title === 'TensorFlow 2.0 Workshop' || currentRes.category === 'AI' || currentRes.category === 'Practice') {
         onNavigate('Python Engine');
       } else {
         onNavigate('Block Engine');
@@ -258,7 +258,7 @@ const Dashboard: React.FC<{ onNavigate: (tab: NavigationItem) => void }> = ({ on
                     {res.icon}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h4 className="text-sm font-black text-white truncate">{res.title}</h4>
+                    <h4 className="text-sm font-black text-white truncate tracking-wider">{res.title}</h4>
                     <p className="text-[10px] text-indigo-100 font-bold uppercase opacity-70">{res.category} • {res.difficulty}</p>
                   </div>
                 </div>
