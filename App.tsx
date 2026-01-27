@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import AiTips from './components/AiTips';
@@ -11,6 +11,8 @@ import LandingPage from './components/LandingPage';
 import Auth from './components/Auth';
 import Settings from './components/Settings';
 import AdminUsers from './components/AdminUsers';
+import CodingEngine from './components/CodingEngine';
+import BlockCodingEngine from './components/BlockCodingEngine';
 
 import GameCenter from './components/Game/GameCenter';
 import { NavigationItem } from './types';
@@ -23,6 +25,8 @@ const App: React.FC = () => {
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [userData, setUserData] = useState<any>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
+  const [showScrollTop, setShowScrollTop] = useState(false);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Focus Timer Global State
   const [timeLeft, setTimeLeft] = useState(25 * 60);
@@ -33,7 +37,7 @@ const App: React.FC = () => {
     const authToken = token || localStorage.getItem('token');
     if (!authToken) return;
     try {
-      const response = await fetch('http://localhost:5000/api/user/me', {
+      const response = await fetch('https://futurelab-main-be.vercel.app/api/user/me', {
         headers: { 'x-auth-token': authToken }
       });
       if (response.ok) {
@@ -54,7 +58,7 @@ const App: React.FC = () => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const response = await fetch('http://localhost:5000/api/user/me', {
+          const response = await fetch('https://futurelab-main-be.vercel.app/api/user/me', {
             headers: { 'x-auth-token': token }
           });
           if (response.ok) {
@@ -85,7 +89,7 @@ const App: React.FC = () => {
       if (focusMode === 'Work') {
         const logFocus = async () => {
           try {
-            await fetch('http://localhost:5000/api/analytics/focus', {
+            await fetch('https://futurelab-main-be.vercel.app/api/analytics/focus', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -131,6 +135,29 @@ const App: React.FC = () => {
     setActiveTab('Hub');
   };
 
+  const scrollToTop = () => {
+    scrollContainerRef.current?.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  };
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollContainerRef.current) {
+        setShowScrollTop(scrollContainerRef.current.scrollTop > 200);
+      }
+    };
+
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener('scroll', handleScroll);
+      // Check immediately case tab changed and we are already scrolled
+      handleScroll();
+    }
+    return () => container?.removeEventListener('scroll', handleScroll);
+  }, [isAuthenticated, activeTab]);
+
 
 
   if (isLoadingAuth) {
@@ -147,7 +174,7 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'Hub':
-        return <Dashboard />;
+        return <Dashboard onNavigate={(tab) => setActiveTab(tab)} />;
       case 'Assignments':
         return <Assignments userData={userData} onUpdate={fetchUserData} />;
       case 'Analytics':
@@ -174,6 +201,10 @@ const App: React.FC = () => {
         return <AdminUsers />;
       case 'Games':
         return <GameCenter />;
+      case 'Python Engine':
+        return <CodingEngine />;
+      case 'Block Engine':
+        return <BlockCodingEngine />;
       default:
         return <Dashboard />;
     }
@@ -230,7 +261,10 @@ const App: React.FC = () => {
             userData={userData}
           />
 
-          <main className="flex-1 overflow-y-auto h-screen relative pt-16 md:pt-0">
+          <main 
+            ref={scrollContainerRef}
+            className="flex-1 overflow-y-auto h-screen relative pt-16 md:pt-0"
+          >
             <header className="fixed top-0 left-0 right-0 h-16 bg-slate-900/80 backdrop-blur-xl flex items-center px-6 z-30 border-b border-slate-800 md:hidden">
               <button 
                 onClick={() => setSidebarOpen(true)}
@@ -250,9 +284,28 @@ const App: React.FC = () => {
               </span>
             </header>
 
-            <div className="max-w-7xl mx-auto p-6 md:p-12">
+            <div className={`${(activeTab === 'Block Engine' || activeTab === 'Python Engine') ? 'h-full w-full' : 'max-w-7xl mx-auto p-6 md:p-12'}`}>
               {renderContent()}
             </div>
+
+            {/* Scroll to Top Button */}
+            <button
+              onClick={scrollToTop}
+              className={`fixed bottom-8 right-8 p-4 bg-indigo-600 text-white rounded-2xl shadow-2xl shadow-indigo-600/40 border border-indigo-500 transition-all duration-500 z-50 hover:scale-110 active:scale-95 group ${
+                showScrollTop ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12 pointer-events-none'
+              }`}
+              aria-label="Scroll to top"
+            >
+              <svg 
+                xmlns="http://www.w3.org/2000/svg" 
+                className="h-6 w-6 group-hover:-translate-y-1 transition-transform" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 10l7-7m0 0l7 7m-7-7v18" />
+              </svg>
+            </button>
           </main>
         </div>
       )}

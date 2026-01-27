@@ -42,6 +42,28 @@ export interface Assignment {
   score?: number;
 }
 
+export interface Mission {
+  id: string;
+  title: string;
+  description: string;
+  longDescription?: string;
+  lectureContent?: string;
+  practiceTest?: {
+    question: string;
+    options: string[];
+    correctAnswer: number;
+    explanation?: string;
+  }[];
+  bannerImage?: string;
+  difficulty: 'Elementary' | 'Easy' | 'Medium' | 'Hard';
+  isLocked: boolean;
+  isCompleted: boolean;
+  reward: string;
+  icon: string;
+  tags: string[];
+  unlockRequirement?: string;
+}
+
 export interface LearningResource {
   id: string;
   category: string;
@@ -51,6 +73,7 @@ export interface LearningResource {
   reward: string;
   icon: string;
   tags: string[];
+  missions?: Mission[];
 }
 
 export interface Subject {
@@ -73,4 +96,4 @@ export interface ChartDataPoint {
   codeCommits?: number;
 }
 
-export type NavigationItem = 'Hub' | 'Courses' | 'Assignments' | 'Analytics' |  'Focus' | 'AI Study Coach' | 'Games' | 'Settings' | 'Admin Users';
+export type NavigationItem = 'Hub' | 'Courses' | 'Assignments' | 'Analytics' |  'Focus' | 'AI Study Coach' | 'Games' | 'Settings' | 'Admin Users' | 'Python Engine' | 'Block Engine';

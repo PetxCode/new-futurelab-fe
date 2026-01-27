@@ -29,7 +29,7 @@ const AddCourseModal: React.FC<AddCourseModalProps> = ({ onClose, onSuccess }) =
 
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/courses', {
+      const response = await fetch('https://futurelab-main-be.vercel.app/api/courses', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

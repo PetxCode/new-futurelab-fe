@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import PythonGame from './PythonGame';
 import TypingGame from './TypingGame';
 import DataRacer from './DataRacer';
+import BlockCodingEngine from '../BlockCodingEngine';
 
 interface GameConfig {
   id: string;
@@ -33,6 +34,13 @@ const GAMES: GameConfig[] = [
     description: 'Race through the data stream! Collect specific data types and dodge the rest.',
     icon: '🏎️',
     color: 'from-yellow-500 to-orange-600'
+  },
+  {
+    id: 'maze',
+    title: 'Maze Navigator',
+    description: 'Master ROS2 navigation basics by guiding the blue ball through complex mazes!',
+    icon: '🧭',
+    color: 'from-blue-500 to-indigo-600'
   },
   // Placeholder for future games
   {
@@ -91,6 +99,22 @@ const GameCenter: React.FC = () => {
         </button>
         <div className="w-full h-full max-w-3xl  mt-10">
             <DataRacer />
+        </div>
+      </div>
+    );
+  }
+
+  if (activeGame === 'maze') {
+    return (
+      <div className="relative w-full h-full">
+        <button 
+          onClick={() => setActiveGame(null)}
+          className="absolute top-4 left-4 z-50 px-4 py-2 bg-slate-800/80 backdrop-blur text-white rounded-lg border border-slate-700 hover:bg-slate-700 transition flex items-center gap-2 font-bold text-sm"
+        >
+          <span>←</span> Back to Arcade
+        </button>
+        <div className="w-full h-[calc(100vh-56px)]">
+          <BlockCodingEngine />
         </div>
       </div>
     );

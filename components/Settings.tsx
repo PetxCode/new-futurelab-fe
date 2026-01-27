@@ -29,7 +29,7 @@ const Settings: React.FC<SettingsProps> = ({ userData, onUpdate }) => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5000/api/user/profile', {
+      const response = await fetch('https://futurelab-main-be.vercel.app/api/user/profile', {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -67,7 +67,7 @@ const Settings: React.FC<SettingsProps> = ({ userData, onUpdate }) => {
     formData.append('avatar', avatar);
 
     try {
-      const response = await fetch('http://localhost:5000/api/user/avatar', {
+      const response = await fetch('https://futurelab-main-be.vercel.app/api/user/avatar', {
         method: 'POST',
         headers: { 'x-auth-token': localStorage.getItem('token') || '' },
         body: formData,

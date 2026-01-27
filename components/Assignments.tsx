@@ -218,7 +218,7 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
   const fetchAssignments = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/assignments', {
+      const response = await fetch('https://futurelab-main-be.vercel.app/api/assignments', {
         headers: {
           'x-auth-token': localStorage.getItem('token') || '',
         },
@@ -237,7 +237,7 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
   const handleComplete = async (score: number) => {
     if (activeCbt) {
       try {
-        const response = await fetch(`http://localhost:5000/api/assignments/${activeCbt.id || (activeCbt as any)._id}`, {
+        const response = await fetch(`https://futurelab-main-be.vercel.app/api/assignments/${activeCbt.id || (activeCbt as any)._id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -284,7 +284,7 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
       ];
 
       try {
-        const response = await fetch(`http://localhost:5000/api/assignments/${assignment.id || (assignment as any)._id}`, {
+        const response = await fetch(`https://futurelab-main-be.vercel.app/api/assignments/${assignment.id || (assignment as any)._id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -307,7 +307,7 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:5000/api/assignments/${id}`, {
+      const response = await fetch(`https://futurelab-main-be.vercel.app/api/assignments/${id}`, {
         method: 'DELETE',
         headers: {
           'x-auth-token': localStorage.getItem('token') || '',

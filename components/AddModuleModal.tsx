@@ -26,7 +26,7 @@ const AddModuleModal: React.FC<AddModuleModalProps> = ({ courseId, onClose, onSu
 
     setIsLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/courses/${courseId}/modules`, {
+      const response = await fetch(`https://futurelab-main-be.vercel.app/api/courses/${courseId}/modules`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

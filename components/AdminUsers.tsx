@@ -28,7 +28,7 @@ const AdminUsers: React.FC = () => {
         grade: gradeFilter
       }).toString();
 
-      const response = await fetch(`http://localhost:5000/api/user/list?${query}`, {
+      const response = await fetch(`https://futurelab-main-be.vercel.app/api/user/list?${query}`, {
         headers: {
           'x-auth-token': localStorage.getItem('token') || ''
         }

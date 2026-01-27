@@ -29,7 +29,7 @@ const SubjectsPage: React.FC<CoursesPageProps> = ({ userData, onUpdate }) => {
   const fetchCourses = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('http://localhost:5000/api/courses', {
+      const response = await fetch('https://futurelab-main-be.vercel.app/api/courses', {
         headers: {
           'x-auth-token': localStorage.getItem('token') || '',
         },
@@ -67,7 +67,7 @@ const SubjectsPage: React.FC<CoursesPageProps> = ({ userData, onUpdate }) => {
     
     setIsClaiming(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/courses/${activeSubject!.id || (activeSubject as any)._id}/modules/${lessonToComplete.id}/complete`, {
+      const response = await fetch(`https://futurelab-main-be.vercel.app/api/courses/${activeSubject!.id || (activeSubject as any)._id}/modules/${lessonToComplete.id}/complete`, {
         method: 'PATCH',
         headers: {
           'x-auth-token': localStorage.getItem('token') || '',

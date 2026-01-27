@@ -1,18 +1,81 @@
 import React, { useState, useEffect } from 'react';
-import { SUBJECTS } from '../constants';
+import { SUBJECTS, SUGGESTED_RESOURCES } from '../constants';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { SUGGESTED_RESOURCES } from '../constants';
+import { LearningResource, NavigationItem, Mission } from '../types';
+import MissionDetails from './MissionDetails';
+import CurriculumView from './CurriculumView';
+import toast from 'react-hot-toast';
 
-const Dashboard: React.FC = () => {
+const Dashboard: React.FC<{ onNavigate: (tab: NavigationItem) => void }> = ({ onNavigate }) => {
   const [timeframe, setTimeframe] = useState<'today' | 'week' | 'month'>('week');
   const [data, setData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [resources, setResources] = useState<LearningResource[]>(SUGGESTED_RESOURCES);
+  const [selectedResource, setSelectedResource] = useState<LearningResource | null>(null);
+  const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
+
+  // Sync resources with constants if they change in dev
+  useEffect(() => {
+    setResources(SUGGESTED_RESOURCES);
+  }, []);
+
+  const handleResourceClick = (res: LearningResource) => {
+    // Find the current state of this resource
+    const currentRes = resources.find(r => r.id === res.id) || res;
+    
+    // If no missions are defined, navigate directly to the engine (backward compatibility)
+    if (!currentRes.missions || currentRes.missions.length === 0) {
+      if (currentRes.title === 'TensorFlow 2.0 Workshop' || currentRes.category === 'AI') {
+        onNavigate('Python Engine');
+      } else {
+        onNavigate('Block Engine');
+      }
+      return;
+    }
+
+    setSelectedResource(currentRes);
+    setSelectedMission(null);
+  };
+
+  const handleMissionClick = (mission: Mission) => {
+    setSelectedMission(mission);
+  };
+
+  const handleMissionComplete = () => {
+    if (!selectedMission || !selectedResource) return;
+
+    const updatedResources = resources.map(res => {
+      if (res.id === selectedResource.id) {
+        const updatedMissions = res.missions?.map(m => {
+          if (m.id === selectedMission.id) {
+            return { ...m, isCompleted: true };
+          }
+          // Unlock any mission that requires this one
+          if (m.unlockRequirement === selectedMission.title) {
+            return { ...m, isLocked: false };
+          }
+          return m;
+        });
+        return { ...res, missions: updatedMissions };
+      }
+      return res;
+    });
+
+    setResources(updatedResources);
+    
+    // Update selected resource/mission refs if needed
+    const updatedRes = updatedResources.find(r => r.id === selectedResource.id);
+    if (updatedRes) setSelectedResource(updatedRes);
+    
+    toast.success(`${selectedMission.title} marked as done! Next mission unlocked.`);
+    setSelectedMission(null); // Return to curriculum view
+  };
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`http://localhost:5000/api/analytics?timeframe=${timeframe}`, {
+        const response = await fetch(`https://futurelab-main-be.vercel.app/api/analytics?timeframe=${timeframe}`, {
           headers: { 'x-auth-token': localStorage.getItem('token') || '' }
         });
         if (response.ok) {
@@ -34,6 +97,43 @@ const Dashboard: React.FC = () => {
     { label: 'Lab Hours', value: `${data?.summary?.labHours || 0}h`, color: 'text-fuchsia-400', percentage: 12 },
     { label: 'Robot Efficiency', value: `${data?.summary?.efficiency || 0}%`, color: 'text-cyan-400', percentage: 0 },
   ];
+
+  if (selectedMission && selectedResource) {
+    return (
+      <MissionDetails 
+        mission={{
+           ...selectedResource,
+           title: selectedMission.title,
+           description: selectedMission.description,
+           longDescription: selectedMission.longDescription,
+           lectureContent: selectedMission.lectureContent,
+           practiceTest: selectedMission.practiceTest,
+           bannerImage: selectedMission.bannerImage,
+           difficulty: selectedMission.difficulty,
+           reward: selectedMission.reward,
+           icon: selectedMission.icon,
+           tags: selectedMission.tags
+        }} 
+        onBack={() => setSelectedMission(null)} 
+        onSolve={(tab) => {
+          setSelectedMission(null);
+          setSelectedResource(null);
+          onNavigate(tab);
+        }}
+        onComplete={handleMissionComplete}
+      />
+    );
+  }
+
+  if (selectedResource) {
+    return (
+      <CurriculumView 
+        resource={selectedResource}
+        onBack={() => setSelectedResource(null)}
+        onMissionClick={handleMissionClick}
+      />
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
@@ -147,8 +247,12 @@ const Dashboard: React.FC = () => {
           <p className="text-indigo-100 text-xs mb-6 font-bold relative opacity-80 uppercase tracking-widest">Recommended Challenges</p>
           
           <div className="space-y-4 flex-1">
-            {(data?.recentQuests?.length > 0 ? data.recentQuests : SUGGESTED_RESOURCES).map((res: any) => (
-              <div key={res.id} className="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 hover:bg-white/15 transition-all cursor-pointer group">
+            {(data?.recentQuests?.length > 0 ? data.recentQuests : resources).map((res: any) => (
+              <div 
+                key={res.id} 
+                onClick={() => handleResourceClick(res)}
+                className="p-4 bg-white/10 backdrop-blur-md rounded-2xl border border-white/10 hover:bg-white/15 transition-all cursor-pointer group"
+              >
                 <div className="flex items-center space-x-3">
                   <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-xl">
                     {res.icon}
