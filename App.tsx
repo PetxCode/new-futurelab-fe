@@ -13,10 +13,13 @@ import Settings from './components/Settings';
 import AdminUsers from './components/AdminUsers';
 import CodingEngine from './components/CodingEngine';
 import BlockCodingEngine from './components/BlockCodingEngine';
+import ErrorBoundary from './components/ErrorBoundary';
 
 import GameCenter from './components/Game/GameCenter';
 import { NavigationItem } from './types';
 import { Toaster } from 'react-hot-toast';
+
+export const API_BASE_URL = 'https://futurelab-main-be.vercel.app';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -37,7 +40,7 @@ const App: React.FC = () => {
     const authToken = token || localStorage.getItem('token');
     if (!authToken) return;
     try {
-      const response = await fetch('https://futurelab-main-be.vercel.app/api/user/me', {
+      const response = await fetch(`${API_BASE_URL}/api/user/me`, {
         headers: { 'x-auth-token': authToken }
       });
       if (response.ok) {
@@ -58,7 +61,7 @@ const App: React.FC = () => {
       const token = localStorage.getItem('token');
       if (token) {
         try {
-          const response = await fetch('https://futurelab-main-be.vercel.app/api/user/me', {
+          const response = await fetch(`${API_BASE_URL}/api/user/me`, {
             headers: { 'x-auth-token': token }
           });
           if (response.ok) {
@@ -89,7 +92,7 @@ const App: React.FC = () => {
       if (focusMode === 'Work') {
         const logFocus = async () => {
           try {
-            await fetch('https://futurelab-main-be.vercel.app/api/analytics/focus', {
+            await fetch(`${API_BASE_URL}/api/analytics/focus`, {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
@@ -198,7 +201,9 @@ const App: React.FC = () => {
       case 'Settings':
         return <Settings userData={userData} onUpdate={fetchUserData} />;
       case 'Admin Users':
-        return <AdminUsers />;
+        return <AdminUsers userData={userData} isSchoolContext={false} />;
+      case 'School Registry':
+        return <AdminUsers userData={userData} isSchoolContext={true} />;
       case 'Games':
         return <GameCenter />;
       case 'Python Engine':
@@ -285,7 +290,9 @@ const App: React.FC = () => {
             </header>
 
             <div className={`${(activeTab === 'Block Engine' || activeTab === 'Python Engine') ? 'h-full w-full' : 'max-w-7xl mx-auto p-6 md:p-12'}`}>
-              {renderContent()}
+              <ErrorBoundary>
+                {renderContent()}
+              </ErrorBoundary>
             </div>
 
             {/* Scroll to Top Button */}

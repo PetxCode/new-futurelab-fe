@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TYPING_LEVELS } from './typingData';
 import { soundService } from './services/SoundService';
+import { API_BASE_URL } from '../../App';
 
 interface Lilypad {
   id: number;
@@ -94,6 +95,26 @@ const TypingGame: React.FC = () => {
         setGameState('won');
         soundService.play('win');
         soundService.stopMusic();
+
+        // Log to backend
+        try {
+          fetch(`${API_BASE_URL}/api/analytics/log`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-auth-token': localStorage.getItem('token') || '',
+            },
+            body: JSON.stringify({
+              type: 'game',
+              title: `Froggy Jump: Level ${currentLevel.id}`,
+              category: 'Typing',
+              points: 75,
+              score: 100
+            }),
+          });
+        } catch (err) {
+          console.error('Error logging typing activity:', err);
+        }
     }
   }, [score]);
 

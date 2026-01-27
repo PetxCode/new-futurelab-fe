@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
+import { API_BASE_URL } from '../App';
 
 const Analytics: React.FC = () => {
   const [data, setData] = useState<any>(null);
@@ -8,7 +9,7 @@ const Analytics: React.FC = () => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const response = await fetch('https://futurelab-main-be.vercel.app/api/analytics', {
+        const response = await fetch(`${API_BASE_URL}/api/analytics`, {
           headers: {
             'x-auth-token': localStorage.getItem('token') || '',
           },

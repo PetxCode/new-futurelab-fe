@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { RACER_LEVELS, DATA_ITEMS, DataType } from './dataRacerData';
 import { soundService } from './services/SoundService';
+import { API_BASE_URL } from '../../App';
 
 interface GameItem {
   id: number;
@@ -165,6 +166,26 @@ const DataRacer: React.FC = () => {
         setGameState('levelcomplete');
         soundService.play('win');
         soundService.stopMusic();
+
+        // Log to backend
+        try {
+          fetch(`${API_BASE_URL}/api/analytics/log`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-auth-token': localStorage.getItem('token') || '',
+            },
+            body: JSON.stringify({
+              type: 'game',
+              title: `Data Racer: Track ${currentLevel.title}`,
+              category: 'Data Science',
+              points: 150,
+              score: 100
+            }),
+          });
+        } catch (err) {
+          console.error('Error logging racer activity:', err);
+        }
     }
   }, [health, score]);
 

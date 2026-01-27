@@ -17,7 +17,7 @@ const Settings: React.FC<SettingsProps> = ({ userData, onUpdate }) => {
 
   useEffect(() => {
     if (userData) {
-      setFullName(userData.fullName);
+      setFullName(userData.fullName || '');
       setGrade(userData.grade || '');
       setSchoolName(userData.schoolName || '');
       setAvatarPreview(userData.avatarUrl || null);
@@ -113,7 +113,7 @@ const Settings: React.FC<SettingsProps> = ({ userData, onUpdate }) => {
                   <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
                 ) : (
                   <div className="text-7xl font-black text-indigo-500/30 uppercase">
-                    {fullName.charAt(0) || '?'}
+                    {fullName?.charAt?.(0) || '?'}
                   </div>
                 )}
               </div>

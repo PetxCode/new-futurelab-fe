@@ -9,7 +9,7 @@ interface MissionDetailsProps {
   };
   onBack: () => void;
   onSolve: (tab: NavigationItem) => void;
-  onComplete?: () => void;
+  onComplete?: (score: number) => void;
 }
 
 const MissionDetails: React.FC<MissionDetailsProps> = ({ mission, onBack, onSolve, onComplete }) => {
@@ -231,7 +231,7 @@ const MissionDetails: React.FC<MissionDetailsProps> = ({ mission, onBack, onSolv
                Open Workspace
             </button>
             <button 
-               onClick={onComplete}
+               onClick={() => onComplete?.(scorePercentage)}
                disabled={!isPassing}
                className={`py-6 font-black text-xl rounded-[2rem] shadow-2xl transition-all hover:translate-y-[-2px] disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale disabled:translate-y-0 ${
                   isPassing 

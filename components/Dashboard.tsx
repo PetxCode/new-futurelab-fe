@@ -5,6 +5,7 @@ import { LearningResource, NavigationItem, Mission } from '../types';
 import MissionDetails from './MissionDetails';
 import CurriculumView from './CurriculumView';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../App';
 
 const Dashboard: React.FC<{ onNavigate: (tab: NavigationItem) => void }> = ({ onNavigate }) => {
   const [timeframe, setTimeframe] = useState<'today' | 'week' | 'month'>('week');
@@ -41,8 +42,28 @@ const Dashboard: React.FC<{ onNavigate: (tab: NavigationItem) => void }> = ({ on
     setSelectedMission(mission);
   };
 
-  const handleMissionComplete = () => {
+  const handleMissionComplete = async (score: number) => {
     if (!selectedMission || !selectedResource) return;
+
+    // Log to backend
+    try {
+      await fetch(`${API_BASE_URL}/api/analytics/log`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': localStorage.getItem('token') || '',
+        },
+        body: JSON.stringify({
+          type: 'quiz',
+          title: selectedMission.title,
+          category: selectedResource.category,
+          points: parseInt(selectedMission.reward.replace(' XP', '')) || 250,
+          score: Math.round(score)
+        }),
+      });
+    } catch (err) {
+      console.error('Error logging activity:', err);
+    }
 
     const updatedResources = resources.map(res => {
       if (res.id === selectedResource.id) {
@@ -247,7 +268,9 @@ const Dashboard: React.FC<{ onNavigate: (tab: NavigationItem) => void }> = ({ on
           <p className="text-indigo-100 text-xs mb-6 font-bold relative opacity-80 uppercase tracking-widest">Recommended Challenges</p>
           
           <div className="space-y-4 flex-1">
-            {(data?.recentQuests?.length > 0 ? data.recentQuests : resources).map((res: any) => (
+            {(
+              // data?.recentQuests?.length > 0 ? data.recentQuests : 
+              resources).map((res: any) => (
               <div 
                 key={res.id} 
                 onClick={() => handleResourceClick(res)}

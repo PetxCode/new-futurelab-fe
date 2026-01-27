@@ -6,6 +6,7 @@ import GameGrid from './components/GameGrid';
 import CodeEditor from './components/CodeEditor';
 import { getMentorFeedback } from './services/geminiService';
 import { soundService } from './services/SoundService';
+import { API_BASE_URL } from '../../App';
 
 const PythonGame: React.FC = () => {
   const [currentLevelIdx, setCurrentLevelIdx] = useState(0);
@@ -177,6 +178,26 @@ const PythonGame: React.FC = () => {
         setIsSuccess(true);
         setFeedback("Mission Success! Your code is stellar! 🏆");
         soundService.play('win');
+
+        // Log to backend
+        try {
+          await fetch(`${API_BASE_URL}/api/analytics/log`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-auth-token': localStorage.getItem('token') || '',
+            },
+            body: JSON.stringify({
+              type: 'game',
+              title: `PyQuest: ${currentLevel.title}`,
+              category: 'Coding',
+              points: 50,
+              score: 100
+            }),
+          });
+        } catch (err) {
+          console.error('Error logging game activity:', err);
+        }
       } else {
         throw new Error("Target not reached. Recalculate and try again! 📡");
       }

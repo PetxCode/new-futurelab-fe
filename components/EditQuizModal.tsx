@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { Assignment } from '../types';
+import { API_BASE_URL } from '../App';
 
 interface EditQuizModalProps {
   assignment: Assignment;
@@ -99,7 +100,7 @@ const EditQuizModal: React.FC<EditQuizModalProps> = ({ assignment, onClose, onSu
     
     setIsLoading(true);
     try {
-      const response = await fetch(`https://futurelab-main-be.vercel.app/api/assignments/${assignment.id || (assignment as any)._id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/assignments/${assignment.id || (assignment as any)._id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

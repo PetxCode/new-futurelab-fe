@@ -3,6 +3,7 @@ import { Subject, SubCourse } from '../types';
 import AddCourseModal from './AddCourseModal';
 import AddModuleModal from './AddModuleModal';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../App';
 
 type ViewMode = 'list' | 'outline' | 'content';
 
@@ -29,7 +30,7 @@ const SubjectsPage: React.FC<CoursesPageProps> = ({ userData, onUpdate }) => {
   const fetchCourses = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://futurelab-main-be.vercel.app/api/courses', {
+      const response = await fetch(`${API_BASE_URL}/api/courses`, {
         headers: {
           'x-auth-token': localStorage.getItem('token') || '',
         },

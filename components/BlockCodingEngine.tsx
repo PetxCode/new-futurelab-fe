@@ -3,6 +3,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as Blockly from 'blockly';
 import { javascriptGenerator } from 'blockly/javascript';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../App';
 
 // --- MAZE LEVEL DATA ---
 
@@ -478,6 +479,27 @@ const BlockCodingEngine: React.FC = () => {
             setIsAnimating(false);
             if (actorRef.current.x === currentLevel.goal.x && actorRef.current.y === currentLevel.goal.y) {
                 toast.success(`Level ${currentLevelId} Complete!`);
+                
+                // Log to backend
+                try {
+                  fetch(`${API_BASE_URL}/api/analytics/log`, {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/json',
+                      'x-auth-token': localStorage.getItem('token') || '',
+                    },
+                    body: JSON.stringify({
+                      type: 'game',
+                      title: `Maze Navigator: Level ${currentLevelId}`,
+                      category: 'Robotics',
+                      points: 100,
+                      score: 100
+                    }),
+                  });
+                } catch (err) {
+                  console.error('Error logging maze activity:', err);
+                }
+
                 if (currentLevelId < 15) {
                     setTimeout(() => setCurrentLevelId(id => id + 1), 1500);
                 }

@@ -4,14 +4,7 @@ import AddAssignmentModal from './AddAssignmentModal';
 import EditQuizModal from './EditQuizModal';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import toast from 'react-hot-toast';
-
-interface Question {
-  id: number;
-  text: string;
-  options: string[];
-  correctAnswer: number;
-}
-
+import { API_BASE_URL } from '../App';
 
 interface Question {
   text: string;
@@ -218,7 +211,7 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
   const fetchAssignments = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch('https://futurelab-main-be.vercel.app/api/assignments', {
+      const response = await fetch(`${API_BASE_URL}/api/assignments`, {
         headers: {
           'x-auth-token': localStorage.getItem('token') || '',
         },
@@ -237,7 +230,7 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
   const handleComplete = async (score: number) => {
     if (activeCbt) {
       try {
-        const response = await fetch(`https://futurelab-main-be.vercel.app/api/assignments/${activeCbt.id || (activeCbt as any)._id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/assignments/${activeCbt.id || (activeCbt as any)._id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -284,7 +277,7 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
       ];
 
       try {
-        const response = await fetch(`https://futurelab-main-be.vercel.app/api/assignments/${assignment.id || (assignment as any)._id}`, {
+        const response = await fetch(`${API_BASE_URL}/api/assignments/${assignment.id || (assignment as any)._id}`, {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
@@ -307,7 +300,7 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
 
   const handleDelete = async (id: string) => {
     try {
-      const response = await fetch(`https://futurelab-main-be.vercel.app/api/assignments/${id}`, {
+      const response = await fetch(`${API_BASE_URL}/api/assignments/${id}`, {
         method: 'DELETE',
         headers: {
           'x-auth-token': localStorage.getItem('token') || '',
@@ -444,7 +437,7 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
                           onClick={() => setActiveCbt(task)}
                           className="px-8 py-3 bg-[#0f172a] text-slate-200 text-xs font-black rounded-xl border border-slate-800 hover:bg-indigo-600 hover:border-indigo-600 hover:text-white transition-all shadow-xl active:scale-95"
                         >
-                           {isDone ? 'View Results' : 'Task Quiz'}
+                           {isDone ? 'View Results' : 'Take Quiz'}
                         </button>
                      )}
                    </div>
