@@ -14,7 +14,7 @@ export const ACADEMIC_METRICS: Metric[] = [
   { label: "Current GPA", value: "3.94", trend: 'up', percentage: 4, color: 'text-emerald-400' },
   { label: "Lines of Python", value: "12.4k", trend: 'up', percentage: 22, color: 'text-indigo-400' },
   { label: "Lab Hours", value: "86h", trend: 'up', percentage: 12, color: 'text-violet-400' },
-  { label: "Robot Efficiency", value: "94%", trend: 'neutral', percentage: 0, color: 'text-cyan-400' }
+  { label: "Learning Efficiency", value: "94%", trend: 'neutral', percentage: 0, color: 'text-cyan-400' }
 ];
 
 export const ASSIGNMENTS: Assignment[] = [

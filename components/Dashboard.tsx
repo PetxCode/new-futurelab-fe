@@ -116,7 +116,7 @@ const Dashboard: React.FC<{ onNavigate: (tab: NavigationItem) => void }> = ({ on
     { label: 'Current GPA', value: data?.summary?.gpa || '0.00', color: 'text-indigo-400', percentage: 4 },
     { label: 'Intensity Points', value: (data?.summary?.techChamp * 5).toString() || '0', color: 'text-violet-400', percentage: 22 },
     { label: 'Lab Hours', value: `${data?.summary?.labHours || 0}h`, color: 'text-fuchsia-400', percentage: 12 },
-    { label: 'Robot Efficiency', value: `${data?.summary?.efficiency || 0}%`, color: 'text-cyan-400', percentage: 0 },
+    { label: 'Learning Efficiency', value: `${data?.summary?.efficiency || 0}%`, color: 'text-cyan-400', percentage: 0 },
   ];
 
   if (selectedMission && selectedResource) {

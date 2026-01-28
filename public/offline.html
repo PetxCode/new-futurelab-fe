@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FutureLab - Offline</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background-color: #0f172a;
+        color: #f8fafc;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        letter-spacing: -0.01em;
+      }
+      h1,
+      h2,
+      h3,
+      h4,
+      h5,
+      h6 {
+        font-family: "Outfit", sans-serif;
+        letter-spacing: -0.02em;
+      }
+    </style>
+  </head>
+  <body class="bg-slate-900 text-slate-100 overflow-x-hidden">
+    <div class="min-h-screen flex items-center justify-center px-4">
+      <div class="text-center max-w-md">
+        <div class="mb-6">
+          <svg
+            class="w-24 h-24 mx-auto text-slate-400"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071l3.536-3.536a1 1 0 011.414 0L12 9.172l2.121-2.121a1 1 0 011.414 0l3.536 3.536a1 1 0 01-1.414 1.414L15 9.586l-1.793 1.793a1 1 0 01-1.414 0L12 9.586l-1.793 1.793a1 1 0 01-1.414-1.414zM20 12a8 8 0 11-16 0 8 8 0 0116 0z"
+            ></path>
+          </svg>
+        </div>
+
+        <h1 class="text-4xl font-bold mb-4 font-heading">You're Offline</h1>
+        <p class="text-xl text-slate-400 mb-8">
+          It looks like you've lost your internet connection. FutureLab will
+          automatically sync when you're back online.
+        </p>
+
+        <div class="bg-slate-800 rounded-lg p-6 mb-8 border border-slate-700">
+          <h2 class="text-lg font-semibold mb-4 font-heading">
+            While You're Offline:
+          </h2>
+          <ul class="text-left space-y-2 text-slate-300">
+            <li class="flex items-center">
+              <span class="mr-3">✓</span>
+              <span>View your saved courses and materials</span>
+            </li>
+            <li class="flex items-center">
+              <span class="mr-3">✓</span>
+              <span>Practice coding in the editor</span>
+            </li>
+            <li class="flex items-center">
+              <span class="mr-3">✓</span>
+              <span>Review assignments</span>
+            </li>
+            <li class="flex items-center">
+              <span class="mr-3">✗</span>
+              <span>Sync progress (will happen when online)</span>
+            </li>
+          </ul>
+        </div>
+
+        <div class="space-y-3">
+          <button
+            onclick="location.reload()"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+          >
+            Try Again
+          </button>
+          <button
+            onclick="window.history.back()"
+            class="w-full bg-slate-700 hover:bg-slate-600 text-white font-semibold py-3 px-4 rounded-lg transition-colors"
+          >
+            Go Back
+          </button>
+        </div>
+
+        <p class="text-sm text-slate-500 mt-8">
+          Network Status: <span id="status" class="font-semibold">Offline</span>
+        </p>
+      </div>
+    </div>
+
+    <script>
+      function updateStatus() {
+        const status = navigator.onLine ? "Online" : "Offline";
+        document.getElementById("status").textContent = status;
+        if (navigator.onLine) {
+          setTimeout(() => location.reload(), 1000);
+        }
+      }
+
+      window.addEventListener("online", updateStatus);
+      window.addEventListener("offline", updateStatus);
+      updateStatus();
+    </script>
+  </body>
+</html>
