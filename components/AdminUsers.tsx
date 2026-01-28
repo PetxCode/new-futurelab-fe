@@ -156,26 +156,30 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
     }
   };
 
-  const handleDeleteSchool = async (schoolId: string, schoolName: string) => {
-    if (!confirm(`Are you sure you want to delete ${schoolName}? This will block all students from this school and prevent them from accessing the platform.`)) {
+  const handleToggleSchoolSuspension = async (schoolId: string, schoolName: string, currentlySuspended: boolean) => {
+    const action = currentlySuspended ? 'unsuspend' : 'suspend';
+    const message = currentlySuspended 
+      ? `Are you sure you want to restore access for ${schoolName}? Students will be able to log in again.`
+      : `Are you sure you want to suspend ${schoolName}? This will block all students from this school from accessing the platform.`;
+
+    if (!confirm(message)) {
       return;
     }
 
     try {
-      const response = await fetch(`${"http://localhost:5000"}/api/schools/${schoolId}`, {
-        method: 'DELETE',
+      const response = await fetch(`${API_BASE_URL}/api/schools/${schoolId}/toggle-suspension`, {
+        method: 'PUT',
         headers: {
           'x-auth-token': localStorage.getItem('token') || ''
         }
       });
 
       if (response.ok) {
-        toast.success(`School ${schoolName} deleted and users blocked.`);
+        toast.success(`School ${schoolName} ${currentlySuspended ? 'restored' : 'suspended'} successfully.`);
         fetchSchoolStats(); // Refresh the list
-        fetchUsers(); // Refresh main user list to show blocked status
       } else {
         const data = await response.json();
-        toast.error(data.message || 'Failed to delete school');
+        toast.error(data.message || `Failed to ${action} school`);
       }
     } catch (err) {
       toast.error('Error connecting to server');
@@ -274,7 +278,12 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
                         <tr key={school._id} className="group hover:bg-slate-700/10 transition-colors">
                           <td className="py-6 px-4">
                             <div className="flex flex-col">
-                              <span className="text-lg font-bold text-white group-hover:text-indigo-400 transition-colors">{school.name}</span>
+                              <div className="flex items-center space-x-2">
+                                <span className={`text-lg font-bold ${school.isSuspended ? 'text-slate-500 line-through' : 'text-white'} group-hover:text-indigo-400 transition-colors`}>{school.name}</span>
+                                {school.isSuspended && (
+                                  <span className="px-2 py-0.5 bg-rose-500/10 text-rose-500 text-[8px] font-black uppercase rounded border border-rose-500/20">Suspended</span>
+                                )}
+                              </div>
                               <span className="text-slate-500 text-xs font-medium">{school.address || 'Global Campus'}</span>
                             </div>
                           </td>
@@ -309,13 +318,23 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
                           </td>
                           <td className="py-6 px-4 text-right">
                             <button 
-                              onClick={() => handleDeleteSchool(school._id, school.name)}
-                              className="p-3 bg-red-500/10 text-red-500 rounded-xl hover:bg-red-500 hover:text-white transition-all shadow-sm group/btn"
-                              title="Delete School & Block Users"
+                              onClick={() => handleToggleSchoolSuspension(school._id, school.name, !!school.isSuspended)}
+                              className={`p-3 rounded-xl transition-all shadow-sm group/btn ${
+                                school.isSuspended 
+                                  ? 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500 hover:text-white' 
+                                  : 'bg-rose-500/10 text-rose-500 hover:bg-rose-500 hover:text-white'
+                              }`}
+                              title={school.isSuspended ? 'Restore Institution' : 'Suspend Institution'}
                             >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                              </svg>
+                              {school.isSuspended ? (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              ) : (
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              )}
                             </button>
                           </td>
                         </tr>
