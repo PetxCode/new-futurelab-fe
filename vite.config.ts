@@ -18,6 +18,9 @@ export default defineConfig(({ mode }) => {
         VitePWA({
           registerType: 'autoUpdate',
           includeAssets: ['logo.png', 'favicon.ico', 'robots.txt'],
+          workbox: {
+            maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
+          },
           manifest: {
             name: 'FutureLab',
             short_name: 'FutureLab',
