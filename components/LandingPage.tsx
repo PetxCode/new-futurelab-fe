@@ -36,7 +36,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
               onClick={onStart}
               className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-black rounded-xl shadow-lg shadow-indigo-600/20 transition-all active:scale-95"
             >
-              Join the Quest
+              Get Started
             </button>
           </div>
         </div>

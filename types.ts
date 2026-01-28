@@ -40,6 +40,7 @@ export interface Assignment {
     correctAnswer: number;
   }[];
   score?: number;
+  targetSchool?: string;
 }
 
 export interface Mission {
@@ -96,4 +97,4 @@ export interface ChartDataPoint {
   codeCommits?: number;
 }
 
-export type NavigationItem = 'Hub' | 'Courses' | 'Assignments' | 'Analytics' |  'Focus' | 'AI Study Coach' | 'Games' | 'Settings' | 'Admin Users' | 'School Registry' | 'Python Engine' | 'Block Engine';
+export type NavigationItem = 'Hub' | 'Courses' | 'Assignments' | 'Analytics' |  'Focus' | 'AI Study Coach' | 'Games' | 'Settings' | 'Admin Users' | 'School Registry' | 'Python Engine' | 'Engine Blocks' | 'ML4Kids';

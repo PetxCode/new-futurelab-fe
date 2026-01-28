@@ -121,7 +121,7 @@ const GameCenter: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white p-8 font-inter">
+    <div className="h-full bg-slate-900 text-white p-8 font-inter overflow-y-auto">
       <header className="mb-12 text-center">
         <h1 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-fuchsia-400 mb-4 tracking-tight">
           FutureLab Arcade

@@ -5,14 +5,16 @@ import { API_BASE_URL } from '../App';
 interface AddAssignmentModalProps {
   onClose: () => void;
   onSuccess: () => void;
+  userData?: any;
 }
 
-const AddAssignmentModal: React.FC<AddAssignmentModalProps> = ({ onClose, onSuccess }) => {
+const AddAssignmentModal: React.FC<AddAssignmentModalProps> = ({ onClose, onSuccess, userData }) => {
   const [title, setTitle] = useState('');
   const [subject, setSubject] = useState('');
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState<'Low' | 'Medium' | 'High'>('Medium');
   const [points, setPoints] = useState(100);
+  const [targetSchool, setTargetSchool] = useState(userData?.isSchoolAdmin ? userData.schoolName : 'General');
   const [questions, setQuestions] = useState<{text: string, options: string[], correctAnswer: number}[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -105,7 +107,7 @@ const AddAssignmentModal: React.FC<AddAssignmentModalProps> = ({ onClose, onSucc
           'Content-Type': 'application/json',
           'x-auth-token': localStorage.getItem('token') || '',
         },
-        body: JSON.stringify({ title, subject, dueDate, priority, points, questions }),
+        body: JSON.stringify({ title, subject, dueDate, priority, points, questions, targetSchool }),
       });
 
       if (response.ok) {
@@ -194,6 +196,31 @@ const AddAssignmentModal: React.FC<AddAssignmentModalProps> = ({ onClose, onSucc
                   onChange={(e) => setPoints(parseInt(e.target.value))}
                   className="w-full bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-medium"
                 />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Target School / Visibility</label>
+              <div className="flex flex-col md:flex-row gap-4">
+                <select 
+                  value={targetSchool === 'General' ? 'General' : 'Specific'}
+                  onChange={(e) => setTargetSchool(e.target.value === 'General' ? 'General' : (userData?.schoolName || ''))}
+                  className="flex-1 bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-medium"
+                >
+                  {(userData?.isAdmin || userData?.isInstructor) && <option value="General">General (All Users)</option>}
+                  <option value="Specific">Specific School</option>
+                </select>
+                
+                {targetSchool !== 'General' && (
+                  <input 
+                    type="text"
+                    value={targetSchool}
+                    onChange={(e) => setTargetSchool(e.target.value)}
+                    placeholder="Enter school name..."
+                    disabled={userData?.isSchoolAdmin && !userData?.isAdmin}
+                    className="flex-1 bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-all font-medium disabled:opacity-50"
+                  />
+                )}
               </div>
             </div>
           </div>

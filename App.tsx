@@ -12,7 +12,8 @@ import Auth from './components/Auth';
 import Settings from './components/Settings';
 import AdminUsers from './components/AdminUsers';
 import CodingEngine from './components/CodingEngine';
-import BlockCodingEngine from './components/BlockCodingEngine';
+import EngineBlocks from './components/EngineBlocks';
+import ML4Kids from './components/ML4Kids';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import GameCenter from './components/Game/GameCenter';
@@ -20,6 +21,7 @@ import { NavigationItem } from './types';
 import { Toaster } from 'react-hot-toast';
 
 export const API_BASE_URL = 'https://futurelab-main-be.vercel.app';
+// export const API_BASE_URL = 'http://localhost:5000';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -208,8 +210,10 @@ const App: React.FC = () => {
         return <GameCenter />;
       case 'Python Engine':
         return <CodingEngine />;
-      case 'Block Engine':
-        return <BlockCodingEngine />;
+      case 'Engine Blocks':
+        return <EngineBlocks />;
+      case 'ML4Kids':
+        return <ML4Kids onNavigate={(tab) => setActiveTab(tab)} />;
       default:
         return <Dashboard />;
     }
@@ -245,7 +249,7 @@ const App: React.FC = () => {
       )}
 
       {isAuthenticated && (
-        <div className="flex min-h-screen bg-slate-900 overflow-hidden font-inter text-slate-100 selection:bg-indigo-500/30">
+        <div className="flex h-screen bg-slate-900 overflow-hidden font-inter text-slate-100 selection:bg-indigo-500/30">
           {isSidebarOpen && (
             <div 
               className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 md:hidden"
@@ -268,7 +272,7 @@ const App: React.FC = () => {
 
           <main 
             ref={scrollContainerRef}
-            className="flex-1 overflow-y-auto h-screen relative pt-16 md:pt-0"
+            className={`flex-1 ${activeTab === 'Engine Blocks' || activeTab === 'Block Engine' || activeTab === 'Python Engine' ? 'overflow-hidden' : 'overflow-y-auto'} h-full relative pt-16 md:pt-0`}
           >
             <header className="fixed top-0 left-0 right-0 h-16 bg-slate-900/80 backdrop-blur-xl flex items-center px-6 z-30 border-b border-slate-800 md:hidden">
               <button 
@@ -289,7 +293,7 @@ const App: React.FC = () => {
               </span>
             </header>
 
-            <div className={`${(activeTab === 'Block Engine' || activeTab === 'Python Engine') ? 'h-full w-full' : 'max-w-7xl mx-auto p-6 md:p-12'}`}>
+            <div className={`${(activeTab === 'Engine Blocks' || activeTab === 'Python Engine') ? 'h-full w-full' : 'max-w-7xl mx-auto p-6 md:p-12'}`}>
               <ErrorBoundary>
                 {renderContent()}
               </ErrorBoundary>

@@ -11,6 +11,33 @@ interface AuthProps {
 
 const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) => {
   const [isLoading, setIsLoading] = useState(false);
+  const [schools, setSchools] = useState<any[]>([]);
+  const [selectedSchool, setSelectedSchool] = useState('');
+  const [schoolError, setSchoolError] = useState(false);
+
+  React.useEffect(() => {
+    const fetchSchools = async () => {
+      try {
+        const response = await fetch('https://futurelab-main-be.vercel.app/api/schools');
+        if (response.ok) {
+          const data = await response.json();
+          setSchools(data);
+        }
+      } catch (err) {
+        console.error('Error fetching schools:', err);
+      }
+    };
+    fetchSchools();
+  }, []);
+
+  React.useEffect(() => {
+    if (mode === 'signup' && selectedSchool.trim() !== '') {
+      const exists = schools.some(s => s.name.toLowerCase() === selectedSchool.toLowerCase());
+      setSchoolError(!exists);
+    } else {
+      setSchoolError(false);
+    }
+  }, [selectedSchool, schools, mode]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,7 +46,18 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
     const email = (e.target as any).elements[mode === 'signup' ? 2 : 0].value;
     const password = (e.target as any).elements[mode === 'signup' ? 3 : 1].value;
     const fullName = mode === 'signup' ? (e.target as any).elements[0].value : undefined;
-    const schoolName = mode === 'signup' ? (e.target as any).elements[1].value : undefined;
+    
+    let schoolName = mode === 'signup' ? selectedSchool : undefined;
+    if (mode === 'signup') {
+      const match = schools.find(s => s.name.toLowerCase() === selectedSchool.toLowerCase());
+      if (match) schoolName = match.name;
+    }
+
+    if (mode === 'signup' && schoolError) {
+      toast.error('Please select a registered institution');
+      setIsLoading(false);
+      return;
+    }
 
     try {
       const endpoint = mode === 'signup' ? '/register' : '/login';
@@ -68,7 +106,7 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
               </svg>
             </button>
             <h2 className="text-4xl font-black text-white tracking-tight">
-              {mode === 'login' ? 'Welcome back.' : 'Join the Quest.'}
+              {mode === 'login' ? 'Welcome back.' : 'Get Started'}
             </h2>
             <p className="text-slate-400 font-medium mt-2">
               {mode === 'login' ? 'Continue your engineering mastery.' : 'Create your free learner account today.'}
@@ -88,13 +126,28 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">School Name</label>
-                  <input 
-                    type="text" 
-                    placeholder="Future Academy" 
-                    required
-                    className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-6 py-4 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium"
-                  />
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Official School</label>
+                  <div className="relative group">
+                    <input 
+                      type="text"
+                      list="schools-list"
+                      value={selectedSchool}
+                      onChange={(e) => setSelectedSchool(e.target.value)}
+                      placeholder="Search your Institution"
+                      required
+                      className={`w-full bg-slate-900 border ${schoolError ? 'border-rose-500 ring-4 ring-rose-500/10' : 'border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10'} rounded-2xl px-6 py-4 text-white placeholder-slate-600 focus:outline-none transition-all font-bold`}
+                    />
+                    <datalist id="schools-list">
+                      {schools.map(s => (
+                        <option key={s._id} value={s.name} />
+                      ))}
+                    </datalist>
+                    {schoolError && (
+                      <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-2 ml-1 animate-pulse">
+                        ⚠️ Institution not registered
+                      </p>
+                    )}
+                  </div>
                 </div>
               </>
             )}
@@ -122,8 +175,8 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
 
             <button 
               type="submit"
-              disabled={isLoading}
-              className="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 transition-all active:scale-95 flex items-center justify-center space-x-3 text-lg"
+              disabled={isLoading || (mode === 'signup' && (schoolError || !selectedSchool))}
+              className={`w-full py-5 ${mode === 'signup' && (schoolError || !selectedSchool) ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/20'} font-black rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-3 text-lg`}
             >
               {isLoading ? (
                 <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

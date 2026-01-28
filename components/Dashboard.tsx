@@ -96,7 +96,7 @@ const Dashboard: React.FC<{ onNavigate: (tab: NavigationItem) => void }> = ({ on
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
-        const response = await fetch(`https://futurelab-main-be.vercel.app/api/analytics?timeframe=${timeframe}`, {
+        const response = await fetch(`${API_BASE_URL}/api/analytics?timeframe=${timeframe}&t=${Date.now()}`, {
           headers: { 'x-auth-token': localStorage.getItem('token') || '' }
         });
         if (response.ok) {

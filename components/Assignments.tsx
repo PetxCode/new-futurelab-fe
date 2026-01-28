@@ -211,14 +211,19 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
   const fetchAssignments = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${API_BASE_URL}/api/assignments`, {
+      const response = await fetch(`${API_BASE_URL}/api/assignments?t=${Date.now()}`, {
         headers: {
           'x-auth-token': localStorage.getItem('token') || '',
         },
       });
       if (response.ok) {
         const data = await response.json();
+        console.log('Fetched assignments:', data);
         setAssignments(data);
+      } else {
+        const err = await response.text();
+        console.error('Fetch failed:', err);
+        toast.error('Failed to load tasks');
       }
     } catch (err) {
       console.error('Error fetching assignments:', err);
@@ -320,7 +325,8 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
   };
 
   const filteredAssignments = assignments.filter(task => {
-    const isDone = task.status === 'Completed' || completedTaskIds.has(task.id);
+    const taskId = task.id || (task as any)._id;
+    const isDone = task.status === 'Completed' || (taskId && completedTaskIds.has(taskId));
     if (filter === 'Active') return !isDone;
     return isDone;
   });
@@ -333,7 +339,7 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
           <p className="text-slate-400 mt-1 font-medium italic">Monitor progress and engineering tasks.</p>
         </div>
         <div className="flex items-center space-x-6">
-          {userData?.isAdmin && (
+          {(userData?.isAdmin || userData?.isInstructor) && (
             <button 
               onClick={() => setIsAddModalOpen(true)}
               className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center space-x-2"
@@ -405,7 +411,7 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
                       </span>
                    </div>
                    <div className="flex items-center space-x-3">
-                     {userData?.isAdmin && (
+                     {(userData?.isAdmin || userData?.isInstructor) && (
                        <>
                          <button 
                            onClick={() => setEditQuizAssignment(task)}
@@ -426,12 +432,18 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
                      )}
                      
                      {(!task.questions || task.questions.length === 0) ? (
-                        <button 
-                          onClick={() => setEditQuizAssignment(task)}
-                          className="px-8 py-3 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
-                        >
-                           Create Quiz
-                        </button>
+                        (userData?.isAdmin || userData?.isInstructor) ? (
+                          <button 
+                            onClick={() => setEditQuizAssignment(task)}
+                            className="px-8 py-3 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
+                          >
+                             Create Quiz
+                          </button>
+                        ) : (
+                          <div className="px-6 py-3 bg-slate-800/50 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl border border-slate-700/30">
+                             Waiting for Quiz
+                          </div>
+                        )
                      ) : (
                         <button 
                           onClick={() => setActiveCbt(task)}
@@ -492,6 +504,7 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
         <AddAssignmentModal 
           onClose={() => setIsAddModalOpen(false)}
           onSuccess={fetchAssignments}
+          userData={userData}
         />
       )}
 

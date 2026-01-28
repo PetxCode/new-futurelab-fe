@@ -4,6 +4,7 @@ import AddCourseModal from './AddCourseModal';
 import AddModuleModal from './AddModuleModal';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../App';
+import ModuleBadge from './ModuleBadge';
 
 type ViewMode = 'list' | 'outline' | 'content';
 
@@ -26,6 +27,22 @@ const SubjectsPage: React.FC<CoursesPageProps> = ({ userData, onUpdate }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isAddModuleModalOpen, setIsAddModuleModalOpen] = useState(false);
+  
+  const getEmbedUrl = (url: string) => {
+    if (!url) return '';
+    if (url.includes('youtube.com/embed/')) return url;
+    
+    // Extract video ID from various YouTube URL formats
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    
+    if (match && match[2].length === 11) {
+      const videoId = match[2];
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+    
+    return url;
+  };
 
   const fetchCourses = async () => {
     setIsLoading(true);
@@ -68,7 +85,7 @@ const SubjectsPage: React.FC<CoursesPageProps> = ({ userData, onUpdate }) => {
     
     setIsClaiming(true);
     try {
-      const response = await fetch(`https://futurelab-main-be.vercel.app/api/courses/${activeSubject!.id || (activeSubject as any)._id}/modules/${lessonToComplete.id}/complete`, {
+      const response = await fetch(`${API_BASE_URL}/api/courses/${activeSubject!.id || (activeSubject as any)._id}/modules/${lessonToComplete.id}/complete`, {
         method: 'PATCH',
         headers: {
           'x-auth-token': localStorage.getItem('token') || '',
@@ -152,7 +169,7 @@ const SubjectsPage: React.FC<CoursesPageProps> = ({ userData, onUpdate }) => {
                  ) : (
                    <iframe 
                      className="w-full h-full"
-                     src={`${currentLesson.videoUrl}?autoplay=0&rel=0&modestbranding=1`}
+                     src={`${getEmbedUrl(currentLesson.videoUrl)}?autoplay=0&rel=0&modestbranding=1`}
                      title={currentLesson.title}
                      frameBorder="0"
                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
@@ -176,10 +193,9 @@ const SubjectsPage: React.FC<CoursesPageProps> = ({ userData, onUpdate }) => {
                         </div>
                       )}
                     </div>
-                    <div className={`text-center transition-all ${locked ? 'scale-75 opacity-30 grayscale' : 'animate-pulse'}`}>
-                      <span className="block text-3xl mb-1">{currentLesson.badgeIcon}</span>
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Target Badge</span>
-                    </div>
+                     <div className={`transition-all ${locked ? '' : 'animate-bounce'}`}>
+                        <ModuleBadge icon={currentLesson.badgeIcon} size="lg" locked={locked} />
+                     </div>
                  </div>
                  <div className="pt-6 border-t border-slate-700 flex gap-4">
                     <button 
@@ -258,7 +274,9 @@ const SubjectsPage: React.FC<CoursesPageProps> = ({ userData, onUpdate }) => {
           {showBadge && (
             <div className="fixed bottom-10 right-10 z-[100] bg-slate-800 border-2 border-indigo-500 rounded-3xl p-6 shadow-2xl animate-in slide-in-from-bottom-8 duration-500">
                <div className="flex items-center space-x-6">
-                  <div className="w-20 h-20 bg-indigo-600 rounded-2xl flex items-center justify-center text-4xl shadow-lg animate-bounce ring-4 ring-indigo-500/20">{currentLesson.badgeIcon}</div>
+                  <div className="animate-bounce">
+                     <ModuleBadge icon={currentLesson.badgeIcon} size="xl" />
+                   </div>
                   <div>
                      <h4 className="text-xl font-black text-white">Badge Earned!</h4>
                      <p className="text-slate-400 font-medium">Lesson "{currentLesson.title}" Completed.</p>
@@ -313,7 +331,7 @@ const SubjectsPage: React.FC<CoursesPageProps> = ({ userData, onUpdate }) => {
                    <h3 className="text-2xl font-black text-white">Course Outline</h3>
                    <div className="flex items-center space-x-4">
                       <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">{activeSubject.subCourses.length} Modules Available</span>
-                      {userData?.isAdmin && (
+                      {(userData?.isAdmin || userData?.isSchoolAdmin || userData?.isInstructor) && (
                         <button 
                           onClick={() => setIsAddModuleModalOpen(true)}
                           className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center space-x-2"
@@ -382,7 +400,7 @@ const SubjectsPage: React.FC<CoursesPageProps> = ({ userData, onUpdate }) => {
             <p className="text-slate-400 mt-1 font-medium">Technical modules focused on AI, Robotics, and Python engineering.</p>
           </div>
           
-          {userData?.isAdmin && (
+          {(userData?.isAdmin || userData?.isSchoolAdmin || userData?.isInstructor) && (
             <button 
               onClick={() => setIsAddModalOpen(true)}
               className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg shadow-indigo-600/20 active:scale-95 flex items-center space-x-2"

@@ -40,7 +40,7 @@ const LEVELS = [
         start: { x: 1, y: 3, dir: 1 },
         goal: { x: 5, y: 2 },
         blocks: ['maze_moveForward', 'maze_turn'],
-        maxBlocks: 5,
+        maxBlocks: 6,
     },
     {
         id: 3,
@@ -161,7 +161,7 @@ const LEVELS = [
         start: { x: 2, y: 2, dir: 2 },
         goal: { x: 8, y: 8 },
         blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
-        maxBlocks: 10,
+        maxBlocks: 7,
     },
     {
         id: 10,
@@ -180,7 +180,7 @@ const LEVELS = [
         start: { x: 1, y: 1, dir: 1 },
         goal: { x: 8, y: 7 },
         blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
-        maxBlocks: 5,
+        maxBlocks: 7,
     },
     {
         id: 11,
@@ -375,22 +375,13 @@ const BlockCodingEngine: React.FC = () => {
         };
 
         if (!workspaceRef.current) {
-            const theme = Blockly.Theme.defineTheme('maze_theme', {
-                name: 'maze_theme',
-                base: Blockly.Themes.Classic,
-                componentStyles: {
-                    workspaceBackgroundColour: '#ffffff',
-                    toolboxBackgroundColour: '#ddd',
-                    flyoutBackgroundColour: '#ddd',
-                }
-            });
-
             workspaceRef.current = Blockly.inject(blocklyDivRef.current, {
                 toolbox: { kind: 'flyoutToolbox', contents: [] },
                 scrollbars: true,
-                theme: theme,
+                theme: Blockly.Themes.Classic,
                 trashcan: true,
-                zoom: { startScale: 1.0 }
+                renderer: 'zelos',
+                zoom: { startScale: 0.85, controls: true, wheel: true }
             });
 
             workspaceRef.current.addChangeListener(() => {
@@ -405,14 +396,25 @@ const BlockCodingEngine: React.FC = () => {
         };
 
         window.addEventListener('resize', handleResize);
+        // Force an initial resize after a short delay to solve the visibility issue
+        const timer = setTimeout(handleResize, 100);
 
         updateToolbox();
         reset();
 
         return () => {
             window.removeEventListener('resize', handleResize);
+            clearTimeout(timer);
         };
     }, [currentLevelId]);
+    
+    // Additional effect to catch transitions
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            if (workspaceRef.current) Blockly.svgResize(workspaceRef.current);
+        }, 300);
+        return () => clearTimeout(timer);
+    }, []);
 
     const getGameProxy = (queue: any[], state: any) => {
         let shadowX = state.x;
@@ -536,9 +538,9 @@ const BlockCodingEngine: React.FC = () => {
             // Tiles
             currentLevel.map.forEach((row, y) => {
                 row.forEach((tile, x) => {
-                    ctx.fillStyle = tile === 1 ? '#e1e1e1' : '#fff';
+                    ctx.fillStyle = tile === 1 ? '#334155' : '#1e293b';
                     ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize);
-                    ctx.strokeStyle = '#ccc';
+                    ctx.strokeStyle = '#475569';
                     ctx.strokeRect(x * tileSize, y * tileSize, tileSize, tileSize);
                 });
             });
@@ -565,11 +567,11 @@ const BlockCodingEngine: React.FC = () => {
             ctx.rotate((actorRef.current.dir * 90) * (Math.PI / 180));
             // Actor - Blue Ball (Premium Look)
             const ballGradient = ctx.createRadialGradient(-3, -3, 2, 0, 0, 10);
-            ballGradient.addColorStop(0, '#6ea1f7');
-            ballGradient.addColorStop(1, '#4285f4');
+            ballGradient.addColorStop(0, '#818cf8');
+            ballGradient.addColorStop(1, '#4f46e5');
             
             ctx.shadowBlur = 10;
-            ctx.shadowColor = 'rgba(66, 133, 244, 0.5)';
+            ctx.shadowColor = 'rgba(79, 70, 229, 0.5)';
             ctx.fillStyle = ballGradient;
             ctx.beginPath();
             ctx.arc(0, 0, 10, 0, Math.PI * 2);
@@ -593,91 +595,104 @@ const BlockCodingEngine: React.FC = () => {
     }, [currentLevelId]);
 
     return (
-        <div className="flex flex-col h-[calc(100vh-76px)] rounded-lg bg-white text-black font-sans overflow-hidden pt-14">
-            {/* Nav Header - Responsive wrapping for levels */}
-            <div className="flex flex-col md:flex-row bg-white min-h-12 items-center px-4 border-b border-gray-300 py-2 md:py-0">
-                <div className="flex items-center space-x-2 mb-2 md:mb-0">
-                    <span className="text-blue-600 font-bold text-sm">Navigator</span>
-                    <span className="text-gray-400">:</span>
-                    <span className="text-gray-800 font-bold text-sm">Maze</span>
+        <div className="flex flex-col h-full w-full bg-slate-900 text-white font-inter overflow-hidden border-t border-slate-800">
+            {/* Nav Header */}
+            <div className="flex flex-col md:flex-row bg-slate-900 min-h-[56px] items-center px-6 border-b border-slate-800 py-3 md:py-0">
+                <div className="flex items-center space-x-3 mb-2 md:mb-0">
+                    <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
+                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 21l-8-4.5v-9L12 3l8 4.5v9z" /></svg>
+                    </div>
+                    <span className="text-white font-black uppercase tracking-tighter italic">Maze Navigator</span>
                 </div>
                 
-                <div className="flex flex-wrap items-center justify-center gap-1 mx-2 md:mx-6">
+                <div className="flex flex-wrap items-center justify-center gap-1.5 mx-2 md:mx-10">
                     {Array.from({ length: 15 }, (_, i) => i + 1).map(id => (
-                        <div 
+                        <button 
                             key={id} 
                             onClick={() => setCurrentLevelId(id)}
-                            className={`w-6 h-6 md:w-5 md:h-5 rounded-full flex items-center justify-center text-[10px] font-bold cursor-pointer transition-all ${
-                                currentLevelId === id ? 'bg-indigo-600 text-white scale-110 shadow-md' : 'border border-gray-300 text-gray-400 hover:bg-gray-50'
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black transition-all ${
+                                currentLevelId === id 
+                                    ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.4)]' 
+                                    : 'bg-slate-800 text-slate-500 hover:bg-slate-700 hover:text-slate-300'
                             }`}
                         >
                             {id}
-                        </div>
+                        </button>
                     ))}
                 </div>
 
                 <div className="flex-1 hidden md:block" />
+                <select className="bg-slate-800 text-[10px] font-black border border-slate-700 rounded-lg px-2 outline-none h-7 text-slate-300 uppercase tracking-widest">
+                    <option>English (US)</option>
+                </select>
+            </div>
 
-                <div className="flex items-center justify-between w-full md:w-auto mt-2 md:mt-0">
-                    <div className="flex flex-col items-end mr-4">
-                        <div className={`transition-all duration-300 ${blocksUsed > currentLevel.maxBlocks ? 'text-red-600 text-sm font-extrabold animate-bounce' : 'text-gray-500 text-[11px] font-bold'}`}>
-                            {blocksUsed}/{currentLevel.maxBlocks} blocks
+            <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden relative">
+                {/* Game Side */}
+                <div className="w-full lg:w-[400px] bg-slate-950/50 backdrop-blur-xl flex flex-col items-center p-6 border-b lg:border-b-0 lg:border-r border-slate-800 shrink-0">
+                    <div className="w-full max-w-[320px] aspect-square bg-slate-900 border-4 border-slate-800 relative rounded-3xl shadow-2xl mb-8 overflow-hidden shadow-indigo-500/5">
+                        <canvas ref={canvasRef} width={320} height={320} className="w-full h-full" />
+                    </div>
+
+                    <div className="flex flex-col space-y-3 w-full max-w-[320px]">
+                        <button 
+                            onClick={runProgram}
+                            disabled={isAnimating}
+                            className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black text-sm rounded-2xl shadow-xl shadow-indigo-600/30 transition-all active:scale-[0.98] flex items-center justify-center space-x-2 disabled:opacity-50 uppercase tracking-tight italic"
+                        >
+                            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                            <span>Run Program</span>
+                        </button>
+                        <button onClick={reset} className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm rounded-xl transition-colors">
+                            Reset Level
+                        </button>
+                    </div>
+
+                    <div className="mt-8 p-4 bg-slate-900/50 rounded-2xl border border-slate-800 w-full max-w-[320px]">
+                        <p className="text-[10px] font-black uppercase text-slate-500 mb-2 tracking-widest">Efficiency Goal</p>
+                        <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-slate-400">Blocks Used</span>
+                            <span className={`text-xs font-black ${blocksUsed > currentLevel.maxBlocks ? 'text-red-500' : 'text-indigo-400'}`}>
+                                {blocksUsed} / {currentLevel.maxBlocks}
+                            </span>
                         </div>
-                        <div className="w-24 h-1.5 bg-gray-200 rounded-full mt-0.5 overflow-hidden border border-gray-300">
+                        <div className="w-full h-1.5 bg-slate-800 rounded-full mt-3 overflow-hidden">
                             <div 
-                                className={`h-full transition-all duration-300 ${blocksUsed > currentLevel.maxBlocks ? 'bg-red-500' : 'bg-green-500'}`} 
+                                className={`h-full transition-all duration-300 ${blocksUsed > currentLevel.maxBlocks ? 'bg-red-500' : 'bg-indigo-500 shadow-[0_0_8px_rgba(79,70,229,0.5)]'}`} 
                                 style={{ width: `${Math.min(100, (blocksUsed / currentLevel.maxBlocks) * 100)}%` }}
                             />
                         </div>
                     </div>
-                    <select className="bg-transparent text-[11px] font-bold border border-gray-300 rounded px-1 outline-none h-6"><option>English</option></select>
                 </div>
-            </div>
 
-            <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden relative">
-                {/* Game Side - Full width on mobile, fixed on desktop */}
-                <div className="w-full lg:w-[340px] bg-[#f8f9fa] flex flex-col items-center p-4 lg:p-6 border-b lg:border-b-0 lg:border-r border-gray-300 shrink-0">
-                    <div className="w-full max-w-[300px] aspect-square bg-gray-200 border border-gray-400 relative rounded-sm shadow-inner mb-4 lg:mb-8 overflow-hidden">
-                        <canvas ref={canvasRef} width={300} height={300} className="w-full h-full" />
+                {/* Unified Coding Area */}
+                <div className="flex-1 flex flex-col bg-slate-950 min-h-[500px] lg:min-h-0 border-l border-slate-800">
+                    <div className="h-10 flex bg-slate-900 border-b border-slate-800 shrink-0">
+                        <div className="w-[180px] lg:w-[220px] px-4 flex items-center border-r border-slate-800">
+                            <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Block Library</span>
+                        </div>
+                        <div className="flex-1 px-4 flex items-center justify-between">
+                            <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest">Main Workspace</span>
+                            <div className="flex items-center space-x-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                                <span className="text-[10px] font-bold text-slate-500 uppercase">Live Engine</span>
+                            </div>
+                        </div>
                     </div>
-
-                    <div className="flex space-x-2 w-full max-w-[300px]">
-                        <button 
-                            onClick={runProgram}
-                            disabled={isAnimating}
-                            className="flex-1 py-3 bg-[#d9534f] hover:bg-[#c9302c] text-white font-bold text-sm rounded border border-gray-600 shadow-sm active:translate-y-px transition-all flex items-center justify-center space-x-2 disabled:opacity-50"
-                        >
-                            <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                            <span>Run Program</span>
-                        </button>
-                        <button onClick={reset} className="px-5 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold text-sm rounded border border-gray-400 shadow-sm">
-                            Reset
-                        </button>
-                    </div>
-                </div>
-
-                {/* Blocks Palette - Collapsible or shorter on mobile */}
-                <div className="w-full lg:w-[180px] h-[250px] lg:h-full bg-[#ddd] border-b lg:border-b-0 lg:border-r border-[#bebebe] flex flex-col shrink-0">
-                     <div className="bg-[#2c3333] h-10 flex items-center justify-center"><span className="text-white text-[10px] font-bold uppercase tracking-widest text-center">Blocks</span>
-                     
-                     </div>
-                     <div className="flex-1 relative" id="blocksArea" />
-                </div>
-
-                {/* Workspace - Takes remaining space */}
-                <div className="flex-1 relative flex flex-col bg-white min-h-[400px] lg:min-h-0">
-                    <div className="bg-[#2c3333] h-10 flex items-center justify-center"><span className="text-white text-[10px] font-bold uppercase tracking-widest text-center">Workspace</span></div>
-                    <div className="flex-1" ref={blocklyDivRef} id="blocklyDiv" />
+                    <div className="flex-1" ref={blocklyDivRef} id="blocklyDiv2" />
                 </div>
             </div>
 
             <style dangerouslySetInnerHTML={{ __html: `
-                .blocklyFlyout { width: 180px !important; }
-                .blocklyFlyoutBackground { fill: #ddd !important; fill-opacity: 1 !important; }
                 .blocklyToolboxDiv { display: none !important; }
+                .blocklyFlyout { width: 220px !important; }
+                .blocklyFlyoutBackground { fill: #0f172a !important; fill-opacity: 0.95 !important; }
                 .blocklyMainBackground { stroke: none !important; }
-                #blocksArea .blocklyFlyout { position: absolute !important; height: 100% !important; }
-                .blocklyPath { stroke-width: 1.5px !important; stroke: rgba(0,0,0,0.1) !important; }
+                .blocklyPath { stroke-width: 2px !important; }
+                .blocklyWorkspace { background: #0f172a !important; }
+                .blocklySvg { background: #0f172a !important; }
+                .blocklyText { font-family: 'Inter', sans-serif !important; font-weight: 700 !important; }
+                .blocklyScrollbarHandle { fill: #334155 !important; }
             `}} />
         </div>
     );
