@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Subject, SubCourse } from '../types';
+import { Subject, SubCourse, User } from '../types';
 import AddCourseModal from './AddCourseModal';
 import AddModuleModal from './AddModuleModal';
 import toast from 'react-hot-toast';
@@ -9,10 +9,7 @@ import ModuleBadge from './ModuleBadge';
 type ViewMode = 'list' | 'outline' | 'content';
 
 interface CoursesPageProps {
-  userData?: {
-    isAdmin?: boolean;
-    [key: string]: any;
-  };
+  userData: User | null;
   onUpdate: () => void;
 }
 

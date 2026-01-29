@@ -2,27 +2,8 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import StudentProgressDetail from './StudentProgressDetail';
 import { API_BASE_URL } from '../App';
+import { User } from '../types';
 import moment from 'moment';
-
-export interface User {
-  _id: string;
-  fullName: string;
-  email: string;
-  grade?: string;
-  schoolName?: string;
-  avatarUrl?: string;
-  isAdmin: boolean;
-  isSchoolAdmin?: boolean;
-  createdAt: string;
-  // Progress metrics for at-a-glance view
-  totalXP?: number;
-  missionsCompleted?: number;
-  totalMissions?: number;
-  averageScore?: number;
-  lastActivityAt?: string | null;
-  lastPoints?: number;
-  lastActivityTitle?: string;
-}
 
 interface AdminUsersProps {
   userData?: User | null;
@@ -138,7 +119,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
   const fetchSchoolStats = async () => {
     setIsFetchingStats(true);
     try {
-      const response = await fetch(`${"http://localhost:5000"}/api/schools/stats`, {
+      const response = await fetch(`${"https://futurelab-main-be.vercel.app"}/api/schools/stats`, {
         headers: {
           'x-auth-token': localStorage.getItem('token') || ''
         }

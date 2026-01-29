@@ -7,6 +7,7 @@ export interface SubCourse {
   videoUrl: string;
   isCompleted: boolean;
   badgeIcon: string;
+  content?: string;
 }
 
 export interface StudentProfile {
@@ -56,11 +57,11 @@ export interface Mission {
     explanation?: string;
   }[];
   bannerImage?: string;
-  difficulty: 'Elementary' | 'Easy' | 'Medium' | 'Hard';
+  difficulty: 'Elementary' | 'Junior' | 'Explorer' | 'Beginner' | 'Easy' | 'Medium' | 'Hard' | 'Intermediate' | 'Advanced';
   isLocked: boolean;
   isCompleted: boolean;
   reward: string;
-  icon: string;
+  icon: React.ReactNode | string;
   tags: string[];
   unlockRequirement?: string;
 }
@@ -70,9 +71,10 @@ export interface LearningResource {
   category: string;
   title: string;
   difficulty: string;
+  description?: string;
   estimatedTime: string;
   reward: string;
-  icon: string;
+  icon: React.ReactNode | string;
   tags: string[];
   missions?: Mission[];
 }
@@ -97,4 +99,86 @@ export interface ChartDataPoint {
   codeCommits?: number;
 }
 
-export type NavigationItem = 'Hub' | 'Courses' | 'Assignments' | 'Analytics' |  'Focus' | 'AI Study Coach' | 'Games' | 'Settings' | 'Admin Users' | 'School Registry' | 'Python Engine' | 'Engine Blocks' | 'ML4Kids';
+export interface User {
+  _id: string;
+  fullName: string;
+  email: string;
+  isAdmin: boolean;
+  isInstructor?: boolean;
+  isSchoolAdmin?: boolean;
+  grade?: string;
+  schoolName?: string;
+  avatarUrl?: string;
+  createdAt: string;
+  totalXP?: number;
+  missionsCompleted?: number;
+  totalMissions?: number;
+  averageScore?: number;
+  lastActivityAt?: string | null;
+  lastPoints?: number;
+  lastActivityTitle?: string;
+  school?: string; // Legacy support
+  name?: string;   // Legacy support
+  [key: string]: any;
+}
+
+export interface YouTubeVideo {
+  id: string;
+  title: string;
+  thumbnail: string;
+  channel: string;
+  duration: string;
+  views: string;
+  publishedAt: string;
+  videoId: string;
+  grade: string;
+  subject?: string;
+}
+
+export interface DashboardData {
+  summary: {
+    gpa: string;
+    techChamp: number;
+    labHours: number;
+    efficiency: number;
+  };
+  studyData: {
+    label: string;
+    hours: number;
+    points: number;
+  }[];
+}
+
+export interface Project {
+  _id: string;
+  categoryId: string;
+  title: string;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  time: string;
+  description: string;
+  materials: string[];
+  steps: string[];
+  thumbnail: string;
+  isMock?: boolean;
+}
+
+export interface Category {
+  _id: string;
+  name: string;
+  icon: string;
+  color: string;
+  isMock?: boolean;
+}
+
+export interface ProjectFormData {
+  categoryId: string;
+  title: string;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  time: string;
+  description: string;
+  materials: string[];
+  steps: string[];
+  thumbnail: string;
+}
+
+export type NavigationItem = 'Hub' | 'Courses' | 'Assignments' | 'Analytics' |  'Focus' | 'AI Study Coach' | 'Games' | 'Settings' | 'Admin Users' | 'School Registry' | 'Python Engine' | 'Engine Blocks' | 'ML4Kids' | 'NEXT Teach' | 'Projects';

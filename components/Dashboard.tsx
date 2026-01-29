@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { SUBJECTS, SUGGESTED_RESOURCES } from '../constants';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { LearningResource, NavigationItem, Mission } from '../types';
+import { LearningResource, NavigationItem, Mission, DashboardData } from '../types';
 import MissionDetails from './MissionDetails';
 import CurriculumView from './CurriculumView';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../App';
 
-const Dashboard: React.FC<{ onNavigate: (tab: NavigationItem) => void }> = ({ onNavigate }) => {
+const Dashboard: React.FC<{ onNavigate?: (tab: NavigationItem) => void }> = ({ onNavigate }) => {
   const [timeframe, setTimeframe] = useState<'today' | 'week' | 'month'>('week');
-  const [data, setData] = useState<any>(null);
+  const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [resources, setResources] = useState<LearningResource[]>(SUGGESTED_RESOURCES);
   const [selectedResource, setSelectedResource] = useState<LearningResource | null>(null);
@@ -29,7 +29,7 @@ const Dashboard: React.FC<{ onNavigate: (tab: NavigationItem) => void }> = ({ on
       if (currentRes.title === 'Python Engine' || currentRes.title === 'TensorFlow 2.0 Workshop' || currentRes.category === 'AI' || currentRes.category === 'Practice') {
         onNavigate('Python Engine');
       } else {
-        onNavigate('Block Engine');
+        onNavigate('Engine Blocks');
       }
       return;
     }
@@ -57,7 +57,7 @@ const Dashboard: React.FC<{ onNavigate: (tab: NavigationItem) => void }> = ({ on
           type: 'quiz',
           title: selectedMission.title,
           category: selectedResource.category,
-          points: parseInt(selectedMission.reward.replace(' XP', '')) || 250,
+          points: parseInt(selectedMission.reward.replace(' XP', '')) || 1,
           score: Math.round(score)
         }),
       });
@@ -114,7 +114,7 @@ const Dashboard: React.FC<{ onNavigate: (tab: NavigationItem) => void }> = ({ on
 
   const metrics = [
     { label: 'Current GPA', value: data?.summary?.gpa || '0.00', color: 'text-indigo-400', percentage: 4 },
-    { label: 'Intensity Points', value: (data?.summary?.techChamp * 5).toString() || '0', color: 'text-violet-400', percentage: 22 },
+    { label: 'Intensity Points', value: (data?.summary?.techChamp || 0).toString(), color: 'text-violet-400', percentage: 22 },
     { label: 'Lab Hours', value: `${data?.summary?.labHours || 0}h`, color: 'text-fuchsia-400', percentage: 12 },
     { label: 'Learning Efficiency', value: `${data?.summary?.efficiency || 0}%`, color: 'text-cyan-400', percentage: 0 },
   ];
@@ -268,9 +268,7 @@ const Dashboard: React.FC<{ onNavigate: (tab: NavigationItem) => void }> = ({ on
           <p className="text-indigo-100 text-xs mb-6 font-bold relative opacity-80 uppercase tracking-widest">Recommended Challenges</p>
           
           <div className="space-y-4 flex-1">
-            {(
-              // data?.recentQuests?.length > 0 ? data.recentQuests : 
-              resources).map((res: any) => (
+            {resources.map((res: LearningResource) => (
               <div 
                 key={res.id} 
                 onClick={() => handleResourceClick(res)}
@@ -299,7 +297,7 @@ const Dashboard: React.FC<{ onNavigate: (tab: NavigationItem) => void }> = ({ on
           <button 
             className="mt-6 w-full py-3 bg-white text-indigo-600 font-black rounded-2xl text-sm shadow-xl hover:bg-indigo-50 transition-colors"
           >
-            Discover Library
+            Discover Library <span className='text-[10px] text-red-500'>(coming soon)</span>
           </button>
         </div>
       </div>

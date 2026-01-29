@@ -14,10 +14,12 @@ import AdminUsers from './components/AdminUsers';
 import CodingEngine from './components/CodingEngine';
 import EngineBlocks from './components/EngineBlocks';
 import ML4Kids from './components/ML4Kids';
+import NextTeach from './components/NextTeach';
+import Projects from './components/Projects';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import GameCenter from './components/Game/GameCenter';
-import { NavigationItem } from './types';
+import { NavigationItem, User } from './types';
 import { Toaster } from 'react-hot-toast';
 
 export const API_BASE_URL = 'https://futurelab-main-be.vercel.app';
@@ -28,7 +30,7 @@ const App: React.FC = () => {
   const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
   const [activeTab, setActiveTab] = useState<NavigationItem>('Hub');
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [userData, setUserData] = useState<any>(null);
+  const [userData, setUserData] = useState<User | null>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -214,6 +216,10 @@ const App: React.FC = () => {
         return <EngineBlocks />;
       case 'ML4Kids':
         return <ML4Kids onNavigate={(tab) => setActiveTab(tab)} />;
+      case 'NEXT Teach':
+        return <NextTeach userData={userData} />;
+      case 'Projects':
+        return <Projects userData={userData} />;
       default:
         return <Dashboard />;
     }
@@ -272,7 +278,8 @@ const App: React.FC = () => {
 
           <main 
             ref={scrollContainerRef}
-            className={`flex-1 ${activeTab === 'Engine Blocks' || activeTab === 'Block Engine' || activeTab === 'Python Engine' ? 'overflow-hidden' : 'overflow-y-auto'} h-full relative pt-16 md:pt-0`}
+            style={{ scrollbarGutter: 'stable' }}
+            className={`flex-1 ${activeTab === 'Engine Blocks' || activeTab === 'Python Engine' ? 'overflow-hidden' : 'overflow-y-auto'} h-full relative pt-16 md:pt-0`}
           >
             <header className="fixed top-0 left-0 right-0 h-16 bg-slate-900/80 backdrop-blur-xl flex items-center px-6 z-30 border-b border-slate-800 md:hidden">
               <button 

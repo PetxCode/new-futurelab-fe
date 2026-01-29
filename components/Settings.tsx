@@ -2,8 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 
+import { User } from '../types';
+
 interface SettingsProps {
-  userData: any;
+  userData: User | null;
   onUpdate: () => void;
 }
 

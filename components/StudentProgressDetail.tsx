@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, Cell } from 'recharts';
-import { User } from './AdminUsers';
+import { User } from '../types';
 import { API_BASE_URL } from '../App';
 
 interface StudentProgressDetailProps {

@@ -82,7 +82,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
     title: "Python Engine",
     difficulty: "Coding",
     estimatedTime: "1h 20m",
-    reward: "800 XP",
+    reward: "1 XP",
     icon: "🐍",
     tags: ["Deep Learning", "Python"]
   },
@@ -92,7 +92,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
     title: "Python 101: Fundamentals",
     difficulty: "Lectures",
     estimatedTime: "2h 30m",
-    reward: "1200 XP",
+    reward: "1 XP",
     icon: "🧠",
     tags: ["Python", "Basics"],
     missions: [
@@ -234,7 +234,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Elementary",
         isLocked: false,
         isCompleted: true,
-        reward: "50 XP",
+        reward: "1 XP",
         icon: "📦",
         tags: ["Basics"]
       },
@@ -398,7 +398,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Elementary",
         isLocked: false,
         isCompleted: false,
-        reward: "100 XP",
+        reward: "1 XP",
         icon: "🔢",
         tags: ["Types"],
         unlockRequirement: "Introduction to Variables"
@@ -533,7 +533,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Easy",
         isLocked: true,
         isCompleted: false,
-        reward: "150 XP",
+        reward: "1 XP",
         icon: "🔤",
         tags: ["Strings"],
         unlockRequirement: "Python Datatypes"
@@ -669,7 +669,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Easy",
         isLocked: true,
         isCompleted: false,
-        reward: "150 XP",
+        reward: "1 XP",
         icon: "➕",
         tags: ["Math"],
         unlockRequirement: "Dynamic Strings"
@@ -800,7 +800,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Medium",
         isLocked: true,
         isCompleted: false,
-        reward: "200 XP",
+        reward: "1 XP",
         icon: "📜",
         tags: ["Lists"],
         unlockRequirement: "Numbers & Math"
@@ -920,7 +920,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Medium",
         isLocked: true,
         isCompleted: false,
-        reward: "250 XP",
+        reward: "1 XP",
         icon: "🔀",
         tags: ["Logic"],
         unlockRequirement: "list and it's methods"
@@ -1046,7 +1046,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Medium",
         isLocked: true,
         isCompleted: false,
-        reward: "300 XP",
+        reward: "1 XP",
         icon: "🔁",
         tags: ["Loops"],
         unlockRequirement: "Conditional Logic"
@@ -1165,7 +1165,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Hard",
         isLocked: true,
         isCompleted: false,
-        reward: "400 XP",
+        reward: "1 XP",
         icon: "⚙️",
         tags: ["Functions"],
         unlockRequirement: "Loops: For & While"
@@ -1280,7 +1280,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Hard",
         isLocked: true,
         isCompleted: false,
-        reward: "500 XP",
+        reward: "1 XP",
         icon: "🏛️",
         tags: ["Classes", "OOP"],
         unlockRequirement: "Defining Functions"
@@ -1407,7 +1407,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Medium",
         isLocked: true,
         isCompleted: false,
-        reward: "450 XP",
+        reward: "1 XP",
         icon: "📖",
         tags: ["Data Structures", "Dicts"],
         unlockRequirement: "Object Oriented Python"
@@ -1513,7 +1513,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Medium",
         isLocked: true,
         isCompleted: false,
-        reward: "450 XP",
+        reward: "1 XP",
         icon: "🧩",
         tags: ["Collections"],
         unlockRequirement: "Master Dictionaries"
@@ -1616,7 +1616,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Hard",
         isLocked: true,
         isCompleted: false,
-        reward: "500 XP",
+        reward: "1 XP",
         icon: "⚡",
         tags: ["Functional", "Shortcuts"],
         unlockRequirement: "Tuples & Sets"
@@ -1730,7 +1730,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Hard",
         isLocked: true,
         isCompleted: false,
-        reward: "550 XP",
+        reward: "1 XP",
         icon: "🛡️",
         tags: ["Safety", "Bugs"],
         unlockRequirement: "List Comprehensions"
@@ -1846,7 +1846,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Medium",
         isLocked: true,
         isCompleted: false,
-        reward: "450 XP",
+        reward: "1 XP",
         icon: "📂",
         tags: ["IO", "Files"],
         unlockRequirement: "Error Handling"
@@ -1949,7 +1949,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Medium",
         isLocked: true,
         isCompleted: false,
-        reward: "450 XP",
+        reward: "1 XP",
         icon: "📦",
         tags: ["Modules", "Libraries"],
         unlockRequirement: "Working with Files"
@@ -2058,7 +2058,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Hard",
         isLocked: true,
         isCompleted: false,
-        reward: "500 XP",
+        reward: "1 XP",
         icon: "λ",
         tags: ["Functional", "Functions"],
         unlockRequirement: "Modules & Packages"
@@ -2158,7 +2158,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Hard",
         isLocked: true,
         isCompleted: false,
-        reward: "500 XP",
+        reward: "1 XP",
         icon: "⏰",
         tags: ["Time", "Utils"],
         unlockRequirement: "Lambda Functions"
@@ -2261,7 +2261,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Hard",
         isLocked: true,
         isCompleted: false,
-        reward: "600 XP",
+        reward: "1 XP",
         icon: "🌀",
         tags: ["Logic", "Algorithms"],
         unlockRequirement: "Datetime Mastery"
@@ -2380,7 +2380,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Hard",
         isLocked: true,
         isCompleted: false,
-        reward: "550 XP",
+        reward: "1 XP",
         icon: "🔍",
         tags: ["Strings", "Validation"],
         unlockRequirement: "Introduction to Recursion"
@@ -2489,23 +2489,23 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
         difficulty: "Hard",
         isLocked: true,
         isCompleted: false,
-        reward: "1000 XP (Certificate)",
+        reward: "1 XP",
         icon: "🏆",
         tags: ["Integration", "Final Project"],
         unlockRequirement: "Regular Expressions"
       }
     ]
   },
-  {
-    id: "r3",
-    category: "Coding",
-    title: "Machine Learning",
-    difficulty: "Hard",
-    estimatedTime: "25m",
-    reward: "200 XP",
-    icon: "🐍",
-    tags: ["Python", "Backend"]
-  }
+  // {
+  //   id: "r3",
+  //   category: "Coding",
+  //   title: "Machine Learning",
+  //   difficulty: "Hard",
+  //   estimatedTime: "25m",
+  //   reward: "1 XP",
+  //   icon: "🐍",
+  //   tags: ["Python", "Backend"]
+  // }
 ];
 
 export const STUDY_CHART_DATA: ChartDataPoint[] = [

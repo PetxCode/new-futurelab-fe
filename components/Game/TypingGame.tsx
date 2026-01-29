@@ -27,7 +27,7 @@ const TypingGame: React.FC = () => {
   const [frogSkin, setFrogSkin] = useState(FROG_SKINS[0]);
   
   const padIdCounter = useRef(0);
-  const gameTimerRef = useRef<number>();
+  const gameTimerRef = useRef<number | undefined>(undefined);
 
   // Initialize Pads
   const initPads = () => {
@@ -108,7 +108,7 @@ const TypingGame: React.FC = () => {
               type: 'game',
               title: `Froggy Jump: Level ${currentLevel.id}`,
               category: 'Typing',
-              points: 75,
+              points: 1,
               score: 100
             }),
           });
@@ -249,10 +249,10 @@ const TypingGame: React.FC = () => {
         </div>
 
         {/* Game Area (Scrolls) */}
-        <div className="absolute inset-0 z-10 pt-32 pointer-events-none transition-transform duration-500 ease-out" style={{ transform: `translateX(${cameraOffset}%) mt-10` }}>
+        <div className="absolute inset-0 z-10 pt-32 pointer-events-none transition-transform duration-500 ease-out mt-10" style={{ transform: `translateX(${cameraOffset}%)` }}>
            
            {/* Connection Lines (Stems) */}
-           <svg className="absolute inset-0 w-full mt-16 h-full z-0 opacity-30">
+           <svg className="absolute inset-0 w-full mt-16 h-full z-0 opacity-30 overflow-visible" style={{ overflow: 'visible' }}>
               {pads.map((pad, i) => {
                  if (i === 0) return null;
                  const prev = pads[i-1];

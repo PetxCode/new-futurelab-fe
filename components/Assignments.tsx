@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Assignment } from '../types';
+import { Assignment, User } from '../types';
 import AddAssignmentModal from './AddAssignmentModal';
 import EditQuizModal from './EditQuizModal';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
@@ -187,10 +187,7 @@ const CBTModal: React.FC<{
 };
 
 interface AssignmentsProps {
-  userData?: {
-    isAdmin?: boolean;
-    [key: string]: any;
-  };
+  userData: User | null;
   onUpdate: () => void;
 }
 

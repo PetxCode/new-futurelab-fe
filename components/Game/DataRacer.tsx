@@ -11,6 +11,7 @@ interface GameItem {
   lane: 0 | 1 | 2;
   y: number; // Percentage 0-100
   collected: boolean;
+  color: string; // Tailwind gradient class
 }
 
 const LANES = [0, 1, 2];
@@ -18,6 +19,16 @@ const CAR_Y = 80;
 
 
 const SCENERY_ITEMS = ['🌲', '🌳', '🌴', '🌵', '🏢', '🏠'];
+const VIBRANT_GRADIENTS = [
+  'from-rose-500 to-pink-500 border-rose-700',
+  'from-amber-400 to-orange-500 border-orange-700',
+  'from-emerald-400 to-teal-500 border-teal-700',
+  'from-blue-500 to-indigo-500 border-indigo-700',
+  'from-purple-500 to-violet-600 border-violet-800',
+  'from-cyan-400 to-sky-500 border-sky-700',
+  'from-fuchsia-500 to-purple-600 border-purple-800',
+  'from-lime-400 to-green-500 border-green-700',
+];
 
 const DataRacer: React.FC = () => {
   const [levelIdx, setLevelIdx] = useState(0);
@@ -30,8 +41,9 @@ const DataRacer: React.FC = () => {
   const [items, setItems] = useState<GameItem[]>([]);
   const [combo, setCombo] = useState(0);
   const [speedMultiplier, setSpeedMultiplier] = useState(1);
+  const [difficultyTier, setDifficultyTier] = useState(1);
   
-  const requestRef = useRef<number>();
+  const requestRef = useRef<number | undefined>(undefined);
   const lastSpawnTime = useRef<number>(0);
   const itemIdCounter = useRef(0);
   const playerLaneRef = useRef<0 | 1 | 2>(1);
@@ -70,10 +82,11 @@ const DataRacer: React.FC = () => {
     }
 
     // 1. Spawn Items
-    const effectiveSpawnRate = currentLevel.spawnRate / speedMultiplier;
+    const baseSpawnRate = Math.max(450, currentLevel.spawnRate - (difficultyTier - 1) * 150);
+    const effectiveSpawnRate = baseSpawnRate / speedMultiplier;
     
     if (time - lastSpawnTime.current > effectiveSpawnRate) {
-      const isTarget = Math.random() > 0.5;
+      const isTarget = Math.random() > 0.4; // Slightly more targets as difficulty increases?
       const typeToSpawn: DataType = isTarget 
         ? currentLevel.targetType 
         : (Object.keys(DATA_ITEMS) as DataType[]).filter(t => t !== currentLevel.targetType)[Math.floor(Math.random() * 4)];
@@ -87,7 +100,8 @@ const DataRacer: React.FC = () => {
         value: val,
         lane: Math.floor(Math.random() * 3) as 0 | 1 | 2,
         y: -15, // Start further up
-        collected: false
+        collected: false,
+        color: VIBRANT_GRADIENTS[Math.floor(Math.random() * VIBRANT_GRADIENTS.length)]
       };
       
       setItems(prev => [...prev, newItem]);
@@ -105,8 +119,9 @@ const DataRacer: React.FC = () => {
       prev.forEach(item => {
         if (item.collected) return; 
 
-        // Move down with speed multiplier
-        const nextY = item.y + (currentLevel.speed * 0.1 * speedMultiplier);
+        // Move down with speed multiplier and difficulty tier
+        const baseSpeed = currentLevel.speed + (difficultyTier - 1) * 0.8;
+        const nextY = item.y + (baseSpeed * 0.1 * speedMultiplier);
         
         // Collision Box
         const hitCar = item.lane === playerLaneRef.current && Math.abs(nextY - CAR_Y) < 6; // slightly more forgiving hitbox
@@ -179,7 +194,7 @@ const DataRacer: React.FC = () => {
               type: 'game',
               title: `Data Racer: Track ${currentLevel.title}`,
               category: 'Data Science',
-              points: 150,
+              points: 1,
               score: 100
             }),
           });
@@ -196,6 +211,7 @@ const DataRacer: React.FC = () => {
     setHealth(100);
     setCombo(0);
     setSpeedMultiplier(1);
+    // Note: difficultyTier is NOT reset here, only on manual track change or game restart from menu
     setPlayerLane(1);
     playerLaneRef.current = 1;
     lastSpawnTime.current = performance.now();
@@ -211,13 +227,14 @@ const DataRacer: React.FC = () => {
   }, []);
 
   const nextLevel = () => {
-    if (levelIdx < RACER_LEVELS.length - 1) {
-      setLevelIdx(prev => prev + 1);
-      startGame();
-    } else {
-      setLevelIdx(0);
-      startGame();
-    }
+    setDifficultyTier(prev => prev + 1);
+    startGame();
+  };
+
+  const backToMenu = () => {
+    setGameState('start');
+    setDifficultyTier(1);
+    soundService.stopMusic();
   };
 
   return (
@@ -301,6 +318,10 @@ const DataRacer: React.FC = () => {
         
         <div className="flex gap-6 text-right">
            <div className="flex flex-col items-center">
+             <div className="text-[10px] font-bold text-slate-800">LEVEL</div>
+             <div className="text-2xl font-black text-white drop-shadow-md">{difficultyTier}</div>
+           </div>
+           <div className="flex flex-col items-center">
              <div className="text-[10px] font-bold text-slate-800">SCORE</div>
              <div className="text-2xl font-black text-white drop-shadow-md">{score}</div>
            </div>
@@ -325,13 +346,12 @@ const DataRacer: React.FC = () => {
                scale: `${0.5 + (item.y / 200)}` // Perspective scale effect
              }}
            >
-             <div className={`px-4 py-2 rounded-xl font-bold border-b-4 shadow-xl text-sm transition-transform
-               ${item.type === currentLevel.targetType 
-                 ? 'bg-gradient-to-br from-blue-500 to-cyan-400 text-white border-blue-700 ring-2 ring-white/50' 
-                 : 'bg-slate-700 text-slate-300 border-slate-900'}`}
-             >
-               {item.value}
-             </div>
+              <div className={`px-4 py-2 rounded-xl font-bold border-b-4 shadow-xl text-sm transition-all
+               ${item.type === currentLevel.targetType ? 'ring-4 ring-white ring-offset-2 ring-offset-slate-900 animate-pulse' : ''}
+               bg-gradient-to-br text-white ${item.color}`}
+              >
+                {item.value}
+              </div>
            </div>
          ))}
       </div>
@@ -456,8 +476,16 @@ const DataRacer: React.FC = () => {
              <div className="text-6xl mb-4">🏁</div>
              <h1 className="text-4xl font-black text-white mb-2">FINISH LINE!</h1>
              <p className="text-emerald-400 font-bold mb-8">Data collected successfully.</p>
-             <button onClick={nextLevel} className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xl rounded-xl shadow-[0_4px_0_rgb(6,95,70)] active:shadow-none active:translate-y-1 transition-all">
-                NEXT TRACK 🏆
+             <div className="flex gap-4">
+               <button onClick={startGame} className="flex-1 py-4 bg-slate-800 hover:bg-slate-700 text-white font-black text-xl px-6 rounded-xl shadow-[0_4px_0_rgb(30,41,59)] active:shadow-none active:translate-y-1 transition-all">
+                  REPEAT TRACK 
+               </button>
+               <button onClick={nextLevel} className="flex-1 py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xl px-6 rounded-xl shadow-[0_4px_0_rgb(6,95,70)] active:shadow-none active:translate-y-1 transition-all">
+                  NEXT LEVEL 🏆
+               </button>
+             </div>
+             <button onClick={backToMenu} className="mt-4 w-full py-2 text-slate-400 font-bold hover:text-white transition-colors">
+                EXIT TO MENU 🚪
              </button>
            </div>
         </div>

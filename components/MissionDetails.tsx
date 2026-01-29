@@ -3,6 +3,8 @@ import { LearningResource, NavigationItem, Mission } from '../types';
 
 interface MissionDetailsProps {
   mission: LearningResource & { 
+    description?: string;
+    longDescription?: string;
     lectureContent?: string; 
     practiceTest?: Mission['practiceTest'];
     bannerImage?: string; 
@@ -23,7 +25,7 @@ const MissionDetails: React.FC<MissionDetailsProps> = ({ mission, onBack, onSolv
     if (mission.category === 'Python' || mission.title.toLowerCase().includes('python')) {
       return 'Python Engine';
     }
-    return 'Block Engine';
+    return 'Engine Blocks';
   };
 
   const handleNext = () => {

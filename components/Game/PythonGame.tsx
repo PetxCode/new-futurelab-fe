@@ -191,7 +191,7 @@ const PythonGame: React.FC = () => {
               type: 'game',
               title: `PyQuest: ${currentLevel.title}`,
               category: 'Coding',
-              points: 50,
+              points: 1,
               score: 100
             }),
           });

@@ -159,7 +159,7 @@ const CodingEngine: React.FC = () => {
                 onChange={(value) => setCode(value || '')}
                 options={{
                   minimap: { enabled: false },
-                  fontSize: 14,
+                  fontSize: 18,
                   lineNumbers: 'on',
                   roundedSelection: false,
                   scrollBeyondLastLine: false,
@@ -178,7 +178,7 @@ const CodingEngine: React.FC = () => {
               <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Console Output</span>
               <button onClick={() => setOutput([])} className="text-[10px] font-black text-indigo-400 hover:text-indigo-300 uppercase tracking-widest">Clear</button>
             </div>
-            <div className="flex-1 p-6 font-mono text-sm overflow-y-auto custom-scrollbar">
+            <div className="flex-1 p-6 font-mono text-lg overflow-y-auto custom-scrollbar">
               {output.length === 0 ? (
                 <span className="text-slate-600 italic">No output yet. Click 'Run Code' to execute.</span>
               ) : (

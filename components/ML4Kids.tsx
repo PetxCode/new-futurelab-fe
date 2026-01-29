@@ -7,7 +7,7 @@ interface MLTopic extends Partial<Mission> {
   title: string;
   description: string;
   icon: React.ReactNode;
-  difficulty: any; // Using any to match the dynamic labels in ML4Kids
+  difficulty: 'Elementary' | 'Junior' | 'Explorer' | 'Beginner' | 'Easy' | 'Medium' | 'Hard' | 'Intermediate' | 'Advanced';
   color: string;
   duration: string;
   reward?: string;

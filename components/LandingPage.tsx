@@ -46,16 +46,16 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
       <section className="relative pt-40 pb-20 px-6">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full max-w-6xl aspect-[16/9] bg-indigo-600/10 rounded-full blur-[120px] -z-10 animate-pulse"></div>
         <div className="max-w-7xl mx-auto text-center space-y-8">
-          <div className="inline-flex items-center space-x-2 px-4 py-2 bg-slate-800 rounded-full border border-slate-700 animate-bounce cursor-default">
+          {/* <div className="inline-flex items-center space-x-2 px-4 py-2 bg-slate-800 rounded-full border border-slate-700 animate-bounce cursor-default">
             <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
             <span className="text-[10px] font-black uppercase tracking-widest text-slate-300">New: AI Study Counselor 2.0</span>
-          </div>
-          <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter leading-[0.9] max-w-4xl mx-auto">
-            Master Engineering <br />
-            <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">One Quest at a Time.</span>
+          </div> */}
+          <h1 className="text-67xl md:text-8xl font-black text-white tracking-tighter leading-[0.9] max-w-4xl mx-auto">
+            <span className='text-4xl md:text-6xl'>Where Play Becomes Code. </span><br />
+            <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">Where Future Becomes Yours.</span>
           </h1>
           <p className="text-xl text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed">
-            The world's first gamified learning dashboard for aspiring engineers. Track focus hours, master neural networks, and level up your technical career.
+            Step into the Lab of tomorrow. Master Python, Data Science, and Robotics through an immersive, gamified universe built for the next generation of builders.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
             <button 
@@ -73,10 +73,10 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
           {/* Social Proof/Stats */}
           <div className="pt-20 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
             {[
-              { label: 'Active Learners', val: '12k+' },
-              { label: 'Lines of Code', val: '4.2M' },
-              { label: 'Courses Mastered', val: '850+' },
-              { label: 'Lab Hours', val: '120k' }
+              { label: 'Builders in Training', val: '12k+' },
+              { label: 'Algorithms Deployed', val: '4.2M' },
+              { label: 'Missions Accomplished', val: '850+' },
+              { label: 'XP Accumulated', val: '120k' }
             ].map(s => (
               <div key={s.label}>
                 <p className="text-3xl font-black text-white">{s.val}</p>
@@ -97,20 +97,20 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
               {
-                title: 'Smart Curriculum',
-                desc: 'AI-driven paths through Python, Robotics, and Machine Learning subjects.',
+                title: 'Mission-Driven Learning',
+                desc: 'Forget dry lectures. Conquer coding challenges and data quests designed to turn curiosities into superpowers.',
                 icon: '🧠',
                 color: 'bg-indigo-500'
               },
               {
-                title: 'Deep Focus Mode',
-                desc: 'Built-in Pomodoro timer that tracks your "Flow State" and rewards consistency.',
+                title: 'Hyper-Focus Engine',
+                desc: "Boost your cognitive stamina with our neural-sync timer. Achieve 'Flow State' and earn XP for every minute you spend building.",
                 icon: '⚡',
                 color: 'bg-cyan-500'
               },
               {
-                title: 'Visual Analytics',
-                desc: 'Professional charts and heatmaps to visualize your growth over semesters.',
+                title: 'Evolution Tracking',
+                desc: 'See your potential take shape. Real-time skill mapping and progress analytics visualize your journey from novice to master creator.',
                 icon: '📈',
                 color: 'bg-emerald-500'
               }

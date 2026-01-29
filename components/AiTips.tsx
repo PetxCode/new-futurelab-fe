@@ -12,7 +12,9 @@ const AiTips: React.FC = () => {
     setError(null);
     try {
       // Fix: Strictly follow initialization guidelines by using process.env.API_KEY directly
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+      // Use type assertion to avoid lint errors in Vite/React environment
+      const apiKey = (process.env as any).API_KEY;
+      const ai = new GoogleGenAI({ apiKey });
       const response = await ai.models.generateContent({
         model: 'gemini-3-flash-preview',
         contents: `You are a world-class educational counselor for secondary students. 

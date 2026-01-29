@@ -494,7 +494,7 @@ const BlockCodingEngine: React.FC = () => {
                       type: 'game',
                       title: `Maze Navigator: Level ${currentLevelId}`,
                       category: 'Robotics',
-                      points: 100,
+                      points: 1,
                       score: 100
                     }),
                   });

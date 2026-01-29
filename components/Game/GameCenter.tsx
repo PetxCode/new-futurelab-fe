@@ -4,6 +4,9 @@ import PythonGame from './PythonGame';
 import TypingGame from './TypingGame';
 import DataRacer from './DataRacer';
 import BlockCodingEngine from '../BlockCodingEngine';
+import CodeQuest from './CodeQuest';
+import BotWorkshop from './BotWorkshop';
+import NanoQuest from './NanoQuest';
 
 interface GameConfig {
   id: string;
@@ -11,6 +14,7 @@ interface GameConfig {
   description: string;
   icon: string;
   color: string;
+  isNew?: boolean;
 }
 
 const GAMES: GameConfig[] = [
@@ -20,6 +24,28 @@ const GAMES: GameConfig[] = [
     description: 'Master Python programming by guiding a robot through complex space mazes!',
     icon: '🐍',
     color: 'from-indigo-500 to-emerald-500'
+  },
+  {
+    id: 'nanoquest',
+    title: 'Nano Quest: Terminal Rescue',
+    description: 'Master spatial logic and code efficiency in this high-fidelity rescue mission!',
+    icon: '🛰️',
+    color: 'from-indigo-600 via-blue-700 to-cyan-500',
+    isNew: true
+  },
+  {
+    id: 'codequest',
+    title: 'Code Quest: Glitch Kingdom',
+    description: 'Use your coding spells to repair the magical kingdom of Glitch!',
+    icon: '🔮',
+    color: 'from-violet-600 to-indigo-600'
+  },
+  {
+    id: 'botworkshop',
+    title: 'Bot Workshop: Nano-Rescue',
+    description: 'Program a tiny robot inside a machine to save your Bot-Friends!',
+    icon: '🤖',
+    color: 'from-cyan-600 to-blue-600'
   },
   {
     id: 'typing',
@@ -104,6 +130,54 @@ const GameCenter: React.FC = () => {
     );
   }
 
+  if (activeGame === 'codequest') {
+    return (
+      <div className="relative w-full h-full flex flex-col items-center justify-center p-4 lg:p-12">
+        <button 
+          onClick={() => setActiveGame(null)}
+          className="absolute top-4 left-4 z-10 px-4 py-2 bg-slate-800/80 backdrop-blur text-white rounded-lg border border-slate-700 hover:bg-slate-700 transition flex items-center gap-2 font-bold text-sm"
+        >
+          <span>←</span> Back to Arcade
+        </button>
+        <div className="w-full h-full max-w-6xl mt-10">
+          <CodeQuest />
+        </div>
+      </div>
+    );
+  }
+
+  if (activeGame === 'botworkshop') {
+    return (
+      <div className="relative w-full h-full flex flex-col items-center justify-center p-4 lg:p-12">
+        <button 
+          onClick={() => setActiveGame(null)}
+          className="absolute top-4 left-4 z-10 px-4 py-2 bg-slate-800/80 backdrop-blur text-white rounded-lg border border-slate-700 hover:bg-slate-700 transition flex items-center gap-2 font-bold text-sm"
+        >
+          <span>←</span> Back to Arcade
+        </button>
+        <div className="w-full h-full max-w-6xl mt-10">
+          <BotWorkshop />
+        </div>
+      </div>
+    );
+  }
+
+  if (activeGame === 'nanoquest') {
+    return (
+      <div className="relative w-full h-full p-4 lg:p-8">
+        <button 
+          onClick={() => setActiveGame(null)}
+          className="absolute top-4 left-4 z-50 px-4 py-2 bg-slate-800/80 backdrop-blur text-white rounded-lg border border-slate-700 hover:bg-slate-700 transition flex items-center gap-2 font-bold text-sm"
+        >
+          <span>←</span> Back to Arcade
+        </button>
+        <div className="h-full pt-8">
+            <NanoQuest />
+        </div>
+      </div>
+    );
+  }
+
   if (activeGame === 'maze') {
     return (
       <div className="relative w-full h-full">
@@ -139,7 +213,10 @@ const GameCenter: React.FC = () => {
             `}
             onClick={() => game.id !== 'coming-soon' && setActiveGame(game.id)}
           >
-            <div className={`h-32 bg-gradient-to-br ${game.color} flex items-center justify-center`}>
+            <div className={`h-32 bg-gradient-to-br ${game.color} flex items-center justify-center relative`}>
+              {game.isNew && (
+                <div className="absolute top-2 right-2 px-2 py-1 bg-rose-500 text-[8px] font-black text-white rounded-md shadow-lg animate-pulse">NEW</div>
+              )}
               <span className="text-6xl filter drop-shadow-lg transform group-hover:scale-110 transition-transform duration-300">
                 {game.icon}
               </span>
