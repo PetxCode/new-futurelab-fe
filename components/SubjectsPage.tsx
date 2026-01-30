@@ -424,7 +424,7 @@ const SubjectsPage: React.FC<CoursesPageProps> = ({ userData, onUpdate }) => {
                    <div>
                       <div className="flex justify-between items-start mb-2">
                          <h2 className="text-2xl font-black text-white group-hover:text-indigo-400 transition-colors">{sub.title}</h2>
-                         <span className="text-3xl font-black text-white tracking-tighter">{sub.grade}</span>
+                         {/* <span className="text-3xl font-black text-white tracking-tighter">{sub.grade}</span> */}
                       </div>
                       <p className="text-slate-500 text-xs font-black uppercase tracking-widest mb-6">Instructor: {sub.teacher} • {sub.schedule}</p>
                       <p className="text-slate-400 leading-relaxed font-medium mb-8">

@@ -64,7 +64,7 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
       const response = await fetch(`https://futurelab-main-be.vercel.app/api/auth${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, fullName, schoolName }),
+        body: JSON.stringify({ email: email.toLowerCase(), password, fullName, schoolName }),
       });
 
       const data = await response.json();

@@ -16,6 +16,7 @@ import EngineBlocks from './components/EngineBlocks';
 import ML4Kids from './components/ML4Kids';
 import NextTeach from './components/NextTeach';
 import Projects from './components/Projects';
+import Utilities from './components/Utilities';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import GameCenter from './components/Game/GameCenter';
@@ -220,6 +221,8 @@ const App: React.FC = () => {
         return <NextTeach userData={userData} />;
       case 'Projects':
         return <Projects userData={userData} />;
+      case 'Utilities':
+        return <Utilities />;
       default:
         return <Dashboard />;
     }
@@ -278,7 +281,6 @@ const App: React.FC = () => {
 
           <main 
             ref={scrollContainerRef}
-            style={{ scrollbarGutter: 'stable' }}
             className={`flex-1 ${activeTab === 'Engine Blocks' || activeTab === 'Python Engine' ? 'overflow-hidden' : 'overflow-y-auto'} h-full relative pt-16 md:pt-0`}
           >
             <header className="fixed top-0 left-0 right-0 h-16 bg-slate-900/80 backdrop-blur-xl flex items-center px-6 z-30 border-b border-slate-800 md:hidden">

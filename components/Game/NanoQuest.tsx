@@ -199,14 +199,13 @@ const NanoQuest: React.FC = () => {
             </div>
         </div>
 
-        <div className="absolute top-6 right-8 flex space-x-2 z-10 bg-slate-950 p-2 rounded-xl border border-white/10">
+        <div className="absolute top-6 right-8 flex space-x-2 z-10 bg-slate-950/40 p-2 rounded-xl border border-white/5 backdrop-blur-md">
             {[1, 2, 3].map(s => (
                 <div key={s} className={`text-2xl ${stars >= s ? 'text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]' : 'text-slate-800'}`}>★</div>
             ))}
         </div>
 
-        {/* Stability Anchor: Grid Container */}
-        <div className="flex-1 w-full flex items-center justify-center relative mt-12 overflow-hidden">
+        <div className="w-full h-full flex items-center justify-center relative mt-8">
             <div 
                 className="grid gap-1 bg-slate-950/50 p-1 rounded-xl border border-white/5 relative shadow-inner"
                 style={{ 
@@ -286,7 +285,7 @@ const NanoQuest: React.FC = () => {
             </div>
         </div>
 
-        <div className="absolute bottom-8 left-8 p-4 bg-slate-950 border border-white/10 rounded-2xl max-w-sm shadow-2xl">
+        <div className="absolute bottom-8 left-8 p-4 bg-slate-950/80 rounded-2xl border border-white/5 max-w-sm backdrop-blur-xl">
             <h4 className="text-white text-sm font-black mb-1 uppercase tracking-tighter italic">Mission Intel</h4>
             <p className="text-slate-400 text-[11px] font-medium leading-relaxed">{currentLevel.description}</p>
         </div>
@@ -296,9 +295,8 @@ const NanoQuest: React.FC = () => {
       <div className="lg:w-[450px] bg-slate-910 border-l border-slate-800 flex flex-col relative overflow-hidden">
         
         {/* Success Overlay */}
-        {/* Success Overlay: Non-Blur Solid for Performance */}
         {output && output.success && (
-            <div className="absolute inset-0 bg-slate-900 z-[100] flex flex-col items-center justify-center p-8 text-center border-l border-slate-800">
+            <div className="absolute inset-0 bg-slate-900/98 backdrop-blur-xl z-[100] flex flex-col items-center justify-center p-8 text-center">
                 <div className="text-6xl mb-6">🏆</div>
                 <h3 className="text-3xl font-black text-white mb-1 tracking-tighter">MISSION COMPLETE</h3>
                 <p className="text-emerald-400 font-bold uppercase tracking-widest text-[10px] mb-8 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">Uplink Secured</p>
@@ -321,7 +319,7 @@ const NanoQuest: React.FC = () => {
                     </button>
                     <button 
                         onClick={resetLevel}
-                        className="w-full py-3 bg-slate-800 text-slate-400 font-bold rounded-xl hover:text-white text-xs border border-white/10"
+                        className="w-full py-3 bg-slate-800/50 text-slate-400 font-bold rounded-xl hover:text-white text-xs border border-white/5"
                     >
                         Retake Simulation
                     </button>
@@ -356,7 +354,7 @@ const NanoQuest: React.FC = () => {
             />
 
             {output && !output.success && (
-                <div className="absolute bottom-4 left-14 right-4 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl">
+                <div className="absolute bottom-4 left-14 right-4 p-4 bg-rose-500/10 border border-rose-500/20 rounded-xl backdrop-blur-md">
                     <p className="text-rose-400 text-[10px] font-black mb-1 uppercase tracking-tighter">Status Error</p>
                     <p className="text-slate-300 text-[11px] font-medium leading-tight">{output.message}</p>
                 </div>

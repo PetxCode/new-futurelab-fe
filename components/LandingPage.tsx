@@ -55,7 +55,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
             <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">Where Future Becomes Yours.</span>
           </h1>
           <p className="text-xl text-slate-400 font-medium max-w-2xl mx-auto leading-relaxed">
-            Step into the Lab of tomorrow. Master Python, Data Science, and Robotics through an immersive, gamified universe built for the next generation of builders.
+            Step into the Lab of tomorrow. Master Python, Machine Learning, Artificial Intelligence, and Robotics through an immersive, gamified universe built for the next generation of builders.
           </p>
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-6">
             <button 
