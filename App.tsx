@@ -30,6 +30,7 @@ const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
   const [activeTab, setActiveTab] = useState<NavigationItem>('Hub');
+  const [tabResetKey, setTabResetKey] = useState(0);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const [userData, setUserData] = useState<User | null>(null);
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
@@ -269,7 +270,12 @@ const App: React.FC = () => {
           <Sidebar 
             activeTab={activeTab} 
             setActiveTab={(tab) => {
-              setActiveTab(tab);
+              if (tab === activeTab) {
+                setTabResetKey(prev => prev + 1);
+              } else {
+                setActiveTab(tab);
+                setTabResetKey(0); // Optional: Reset on tab switch
+              }
               setSidebarOpen(false);
             }} 
             isOpen={isSidebarOpen}
@@ -303,7 +309,7 @@ const App: React.FC = () => {
             </header>
 
             <div className={`${(activeTab === 'Engine Blocks' || activeTab === 'Python Engine') ? 'h-full w-full' : 'max-w-7xl mx-auto p-6 md:p-12'}`}>
-              <ErrorBoundary>
+              <ErrorBoundary key={`${activeTab}-${tabResetKey}`}>
                 {renderContent()}
               </ErrorBoundary>
             </div>

@@ -14,11 +14,24 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
   const [schools, setSchools] = useState<any[]>([]);
   const [selectedSchool, setSelectedSchool] = useState('');
   const [schoolError, setSchoolError] = useState(false);
+  const [authView, setAuthView] = useState<'form' | 'reset'>('form');
+  const [showResetModal, setShowResetModal] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+
+  // Use the same base URL as App.tsx if possible, or stick to the one in this file.
+  // The file current uses hardcoded 'https://futurelab-main-be.vercel.app'
+  // const API_URL = 'http://localhost:5000/api/auth'; // Using local for now as per App.tsx
+  const API_URL = 'https://futurelab-main-be.vercel.app/api/auth';
+  // const SCHOOLS_URL = 'http://localhost:5000/api/schools';
+  const SCHOOLS_URL = 'https://futurelab-main-be.vercel.app/api/schools';
+
+
 
   React.useEffect(() => {
     const fetchSchools = async () => {
       try {
-        const response = await fetch('https://futurelab-main-be.vercel.app/api/schools');
+        const response = await fetch(SCHOOLS_URL);
         if (response.ok) {
           const data = await response.json();
           setSchools(data);
@@ -43,25 +56,43 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
     e.preventDefault();
     setIsLoading(true);
 
-    const email = (e.target as any).elements[mode === 'signup' ? 2 : 0].value;
-    const password = (e.target as any).elements[mode === 'signup' ? 3 : 1].value;
-    const fullName = mode === 'signup' ? (e.target as any).elements[0].value : undefined;
-    
-    let schoolName = mode === 'signup' ? selectedSchool : undefined;
-    if (mode === 'signup') {
-      const match = schools.find(s => s.name.toLowerCase() === selectedSchool.toLowerCase());
-      if (match) schoolName = match.name;
-    }
-
-    if (mode === 'signup' && schoolError) {
-      toast.error('Please select a registered institution');
-      setIsLoading(false);
-      return;
-    }
-
     try {
+      if (authView === 'reset') {
+        const response = await fetch(`${API_URL}/reset-password`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: resetEmail.toLowerCase(), newPassword }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+          toast.success('Password updated successfully!');
+          setAuthView('form');
+        } else {
+          toast.error(data.message || 'Error updating password');
+        }
+        return;
+      }
+
+      // Standard Login/Signup
+      const formData = new FormData(e.currentTarget as HTMLFormElement);
+      const email = formData.get('email') as string;
+      const password = formData.get('password') as string;
+      const fullName = (formData.get('fullName') as string) || undefined;
+      
+      let schoolName = mode === 'signup' ? selectedSchool : undefined;
+      if (mode === 'signup') {
+        const match = schools.find(s => s.name.toLowerCase() === selectedSchool.toLowerCase());
+        if (match) schoolName = match.name;
+      }
+
+      if (mode === 'signup' && schoolError) {
+        toast.error('Please select a registered institution');
+        setIsLoading(false);
+        return;
+      }
+
       const endpoint = mode === 'signup' ? '/register' : '/login';
-      const response = await fetch(`https://futurelab-main-be.vercel.app/api/auth${endpoint}`, {
+      const response = await fetch(`${API_URL}${endpoint}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: email.toLowerCase(), password, fullName, schoolName }),
@@ -106,20 +137,50 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
               </svg>
             </button>
             <h2 className="text-4xl font-black text-white tracking-tight">
-              {mode === 'login' ? 'Welcome back.' : 'Get Started'}
+              {authView === 'reset' ? 'Update Password' : mode === 'login' ? 'Welcome back.' : 'Get Started'}
             </h2>
             <p className="text-slate-400 font-medium mt-2">
-              {mode === 'login' ? 'Continue your engineering mastery.' : 'Create your free learner account today.'}
+              {authView === 'reset' ? 'Enter your email and new credentials.' :
+               mode === 'login' ? 'Continue your engineering mastery.' : 'Create your free learner account today.'}
             </p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">
+            {authView === 'reset' ? (
+              <>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Email Address</label>
+                  <input 
+                    type="email" 
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    placeholder="yourname@email.com" 
+                    required
+                    className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-6 py-4 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-all font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">New Password</label>
+                  <input 
+                    type="password" 
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="••••••••" 
+                    required
+                    className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-6 py-4 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-all font-medium"
+                  />
+                </div>
+              </>
+            ) : (
+              // Normal Form Flow
+              <>
             {mode === 'signup' && (
               <>
                 <div>
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Full Name</label>
                   <input 
                     type="text" 
+                    name="fullName"
                     placeholder="Leo Sterling" 
                     required
                     className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-6 py-4 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium"
@@ -155,6 +216,7 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
               <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Email Address</label>
               <input 
                 type="email" 
+                name="email"
                 placeholder="leo@FutureLab.ai" 
                 required
                 className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-6 py-4 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium"
@@ -163,15 +225,26 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
             <div>
               <div className="flex justify-between items-center mb-2 ml-1">
                 <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Password</label>
-                {mode === 'login' && <a href="#" className="text-[10px] font-black text-indigo-400 uppercase tracking-widest hover:underline">Forgot?</a>}
+                {mode === 'login' && (
+                  <button 
+                    type="button"
+                    onClick={() => setShowResetModal(true)}
+                    className="text-[10px] font-black text-indigo-400 uppercase tracking-widest hover:underline"
+                  >
+                    Forgot?
+                  </button>
+                )}
               </div>
               <input 
                 type="password" 
+                name="password"
                 placeholder="••••••••" 
                 required
                 className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-6 py-4 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium"
               />
             </div>
+            </>
+          )}
 
             <button 
               type="submit"
@@ -181,16 +254,26 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
               {isLoading ? (
                 <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
               ) : (
-                <span>{mode === 'login' ? 'Sign In' : 'Create Account'}</span>
+                <span>
+                  {authView === 'reset' ? 'Update Password' : mode === 'login' ? 'Sign In' : 'Create Account'}
+                </span>
               )}
             </button>
             <div className="text-center mt-6">
               <button 
                 type="button"
-                onClick={() => onSwitchMode(mode === 'login' ? 'signup' : 'login')}
+                onClick={() => {
+                  if (authView !== 'form') {
+                    setAuthView('form');
+                  } else {
+                    onSwitchMode(mode === 'login' ? 'signup' : 'login');
+                  }
+                }}
                 className="text-sm font-bold text-slate-400 hover:text-white transition-colors"
               >
-                {mode === 'login' ? (
+                {authView !== 'form' ? (
+                  <>Back to <span className="text-indigo-400">Sign In</span></>
+                ) : mode === 'login' ? (
                   <>Don't have an account? <span className="text-indigo-400">Join Quest</span></>
                 ) : (
                   <>Already have an account? <span className="text-indigo-400">Sign In</span></>
@@ -220,6 +303,46 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
           </div>
         </div>
       </div>
+      {/* Reset Confirmation Modal */}
+      {showResetModal && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="w-full max-w-md bg-slate-900 border border-slate-800 rounded-[2.5rem] p-10 shadow-3xl relative overflow-hidden animate-in zoom-in-95 duration-300">
+            {/* Modal Decor */}
+            <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-indigo-500 to-transparent"></div>
+            
+            <div className="text-center">
+              <div className="w-20 h-20 bg-indigo-600/10 rounded-3xl flex items-center justify-center mx-auto mb-8 border border-indigo-500/20">
+                <svg className="w-10 h-10 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              
+              <h3 className="text-2xl font-black text-white mb-4">Reset Password?</h3>
+              <p className="text-slate-400 font-medium leading-relaxed mb-10">
+                You are about to initiate a password reset. This will allow you to set a new credential for your account. Continue?
+              </p>
+              
+              <div className="grid grid-cols-2 gap-4">
+                <button 
+                  onClick={() => setShowResetModal(false)}
+                  className="py-4 px-6 bg-slate-800 hover:bg-slate-700 text-slate-300 font-black rounded-2xl transition-all active:scale-95 uppercase tracking-widest text-xs"
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={() => {
+                    setShowResetModal(false);
+                    setAuthView('reset');
+                  }}
+                  className="py-4 px-6 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/20 transition-all active:scale-95 uppercase tracking-widest text-xs"
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

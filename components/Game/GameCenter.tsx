@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import PythonGame from './PythonGame';
+import CodedexGame from './CodedexGame';
 import TypingGame from './TypingGame';
 import DataRacer from './DataRacer';
 import BlockCodingEngine from '../BlockCodingEngine';
@@ -20,10 +21,18 @@ interface GameConfig {
 const GAMES: GameConfig[] = [
   {
     id: 'pyquest',
-    title: 'PyQuest: Code Chronicles',
-    description: 'Master Python programming by guiding a robot through complex space mazes!',
-    icon: '🐍',
+    title: 'PyQuest: Robot Chronicles',
+    description: 'Master spatial logic by guiding Byte the robot through complex space mazes!',
+    icon: '🤖',
     color: 'from-indigo-500 to-emerald-500'
+  },
+  {
+    id: 'codedex',
+    title: 'Codedex: Python Legend',
+    description: 'Complete the ultimate 50-level Python curriculum. Learn variables, loops, and more!',
+    icon: '🐍',
+    color: 'from-emerald-500 to-teal-600',
+    isNew: true
   },
   {
     id: 'nanoquest',
@@ -91,8 +100,23 @@ const GameCenter: React.FC = () => {
           <span>←</span> Back to Arcade
         </button>
         <div className="pt- x-2">
+          <PythonGame />
+        </div>
+      </div>
+    );
+  }
 
-        <PythonGame />
+  if (activeGame === 'codedex') {
+    return (
+      <div className="relative w-full h-full">
+        <button 
+          onClick={() => setActiveGame(null)}
+          className="absolute top-4 left-4 z-10 px-4 py-2 bg-slate-800/80 backdrop-blur text-white rounded-lg border border-slate-700 hover:bg-slate-700 transition flex items-center gap-2 font-bold text-sm "
+        >
+          <span>←</span> Back to Arcade
+        </button>
+        <div className="pt- x-2">
+          <CodedexGame />
         </div>
       </div>
     );
