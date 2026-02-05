@@ -88,19 +88,21 @@ const MissionDetails: React.FC<MissionDetailsProps> = ({ mission, onBack, onSolv
             </div>
          </div>
          
-         <div className="flex bg-slate-800 p-1 rounded-2xl border border-slate-700">
-            {(['details', 'lecture', 'quiz'] as const).map((tab) => (
-               <button
-                  key={tab}
-                  onClick={() => setActiveTab(tab)}
-                  className={`px-4 py-2 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${
-                     activeTab === tab ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'
-                  }`}
-               >
-                  {tab}
-               </button>
-            ))}
-         </div>
+         {!mission.id?.startsWith('cur-') && (
+           <div className="flex bg-slate-800 p-1 rounded-2xl border border-slate-700">
+              {(['details', 'lecture', 'quiz'] as const).map((tab) => (
+                 <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`px-4 py-2 text-xs font-black uppercase tracking-widest rounded-xl transition-all ${
+                       activeTab === tab ? 'bg-indigo-600 text-white shadow-lg' : 'text-slate-400 hover:text-white'
+                    }`}
+                 >
+                    {tab}
+                 </button>
+              ))}
+           </div>
+         )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -225,25 +227,27 @@ const MissionDetails: React.FC<MissionDetailsProps> = ({ mission, onBack, onSolv
             )}
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
-            <button 
-               onClick={() => onSolve(getTargetEngine())}
-               className="py-6 bg-slate-800 text-white font-black text-xl rounded-[2rem] border border-slate-700 shadow-xl hover:bg-slate-700 transition-all hover:translate-y-[-2px]"
-            >
-               Open Workspace
-            </button>
-            <button 
-               onClick={() => onComplete?.(scorePercentage)}
-               disabled={!isPassing}
-               className={`py-6 font-black text-xl rounded-[2rem] shadow-2xl transition-all hover:translate-y-[-2px] disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale disabled:translate-y-0 ${
-                  isPassing 
-                     ? 'bg-emerald-600 text-white shadow-emerald-600/20 hover:bg-emerald-500' 
-                     : 'bg-indigo-600 text-white shadow-indigo-600/20'
-               }`}
-            >
-               {isPassing ? 'Mark as Done' : 'Complete Quiz to Unlock'}
-            </button>
-          </div>
+          {!mission.id?.startsWith('cur-') && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-12">
+              <button 
+                 onClick={() => onSolve(getTargetEngine())}
+                 className="py-6 bg-slate-800 text-white font-black text-xl rounded-[2rem] border border-slate-700 shadow-xl hover:bg-slate-700 transition-all hover:translate-y-[-2px]"
+              >
+                 Open Workspace
+              </button>
+              <button 
+                 onClick={() => onComplete?.(scorePercentage)}
+                 disabled={!isPassing}
+                 className={`py-6 font-black text-xl rounded-[2rem] shadow-2xl transition-all hover:translate-y-[-2px] disabled:opacity-50 disabled:cursor-not-allowed disabled:grayscale disabled:translate-y-0 ${
+                    isPassing 
+                       ? 'bg-emerald-600 text-white shadow-emerald-600/20 hover:bg-emerald-500' 
+                       : 'bg-indigo-600 text-white shadow-indigo-600/20'
+                 }`}
+              >
+                 {isPassing ? 'Mark as Done' : 'Complete Quiz to Unlock'}
+              </button>
+            </div>
+          )}
         </div>
 
         {/* Sidebar */}

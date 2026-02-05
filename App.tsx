@@ -183,7 +183,7 @@ const App: React.FC = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'Hub':
-        return <Dashboard onNavigate={(tab) => setActiveTab(tab)} />;
+        return <Dashboard userData={userData} onNavigate={(tab) => setActiveTab(tab)} />;
       case 'Assignments':
         return <Assignments userData={userData} onUpdate={fetchUserData} />;
       case 'Analytics':
@@ -225,7 +225,7 @@ const App: React.FC = () => {
       case 'Utilities':
         return <Utilities />;
       default:
-        return <Dashboard />;
+        return <Dashboard userData={userData} />;
     }
   };
 

@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { SUBJECTS, SUGGESTED_RESOURCES } from '../constants';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { LearningResource, NavigationItem, Mission, DashboardData } from '../types';
+import { LearningResource, NavigationItem, Mission, DashboardData, User } from '../types';
 import MissionDetails from './MissionDetails';
 import CurriculumView from './CurriculumView';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../App';
 
-const Dashboard: React.FC<{ onNavigate?: (tab: NavigationItem) => void }> = ({ onNavigate }) => {
+const Dashboard: React.FC<{ userData: User | null; onNavigate?: (tab: NavigationItem) => void }> = ({ userData, onNavigate }) => {
   const [timeframe, setTimeframe] = useState<'today' | 'week' | 'month'>('week');
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -149,6 +149,7 @@ const Dashboard: React.FC<{ onNavigate?: (tab: NavigationItem) => void }> = ({ o
   if (selectedResource) {
     return (
       <CurriculumView 
+        user={userData}
         resource={selectedResource}
         onBack={() => setSelectedResource(null)}
         onMissionClick={handleMissionClick}

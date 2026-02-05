@@ -2496,16 +2496,854 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
       }
     ]
   },
-  // {
-  //   id: "r3",
-  //   category: "Coding",
-  //   title: "Machine Learning",
-  //   difficulty: "Hard",
-  //   estimatedTime: "25m",
-  //   reward: "1 XP",
-  //   icon: "🐍",
-  //   tags: ["Python", "Backend"]
-  // }
+  {
+    id: "r3",
+    category: "Coding",
+    title: "Curriculum",
+    difficulty: "Hard",
+    estimatedTime: "25m",
+    reward: "1 XP",
+    icon: "🐍",
+    tags: ["Python", "Backend"],
+    missions: [
+      {
+        id: "cur-p4",
+        title: "Primary 4: Logic & Foundations",
+        description: "Introduction to Computational Thinking & Scratch.",
+        longDescription: `
+          <div class="space-y-8 text-slate-300">
+            <div class="p-8 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-500/20">🧩</div>
+                <h4 class="text-emerald-400 font-black uppercase text-sm tracking-widest">1st Term: Computational Thinking</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Learning to think like a computer scientist by breaking down problems into solvable chunks."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>What is Coding?</strong> Understanding logic, sequences, and how instructions drive technology.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Algorithms in Life:</strong> Recognizing patterns in daily routines like brushing teeth or making a sandwich.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Scratch Jr Mastery:</strong> Introduction to block-based coding and visual storytelling.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Debugging Basics:</strong> Learning that errors are just "puzzles" waiting to be solved.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-indigo-500/10 rounded-3xl border border-indigo-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/20">🎮</div>
+                <h4 class="text-indigo-400 font-black uppercase text-sm tracking-widest">2nd Term: Interactive Projects</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Transforming static code into dynamic, interactive experiences using event-driven logic."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Loops & Patterns:</strong> Mastering repetition to make characters dance or move autonomously.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Event Interactions:</strong> Triggering actions using the keyboard, mouse-clicks, or "When Green Flag Clicked."</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Decision Logic:</strong> Using 'If/Then' statements to create interactive stories with multiple paths.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><span>Broadcast Messages:</strong> Coordinating multiple sprites to talk and react to each other.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-cyan-500/20">🤖</div>
+                <h4 class="text-cyan-400 font-black uppercase text-sm tracking-widest">3rd Term: Creative Computing</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Exploring data memory and the early seeds of Artificial Intelligence."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Variables & Scores:</strong> Creating the first "Game Engine" logic by storing scores and timers.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Intro to AI:</strong> How do computers learn? Fun experiments with image recognition concepts.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Capstone Project:</strong> Designing, coding, and presenting an original game or animated card.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Peer Review:</strong> Learning to give and receive constructive feedback on code.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        `,
+        difficulty: "Elementary",
+        isLocked: false,
+        isCompleted: false,
+        reward: "1 XP",
+        icon: "🧱",
+        tags: ["Primary 4", "Logic", "Scratch"]
+      },
+      {
+        id: "cur-p5",
+        title: "Primary 5: Python Explorer",
+        description: "Transitioning from blocks to text-based coding.",
+        longDescription: `
+          <div class="space-y-8 text-slate-300">
+            <div class="p-8 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-500/20">🐚</div>
+                <h4 class="text-emerald-400 font-black uppercase text-sm tracking-widest">1st Term: Intro to Python</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Saying goodbye to blocks and hello to real text-based Python syntax."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>The Python Shell:</strong> Setting up the environment and writing your first 'print' command.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Variables & Types:</strong> How computers store text (Strings) and numbers (Integers).</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Turtle Graphics:</strong> Using code to draw shapes, geometric patterns, and digital art.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Input logic:</strong> Writing programs that ask the user questions and store their answers.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-indigo-500/10 rounded-3xl border border-indigo-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/20">⚡</div>
+                <h4 class="text-indigo-400 font-black uppercase text-sm tracking-widest">2nd Term: Coding Fundamentals</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Mastering the 'Brain' of Python—Logic, Control, and Functions."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Conditionals:</strong> If, Elif, and Else—making decisions based on data.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Python Loops:</strong> Harnessing 'For' and 'While' loops to automate repetitive tasks.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Functions:</strong> Learning to package code into reusable "tools" with parameters.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Operator Logic:</strong> Using AND/OR/NOT to create complex search conditions.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-cyan-500/20">👁️</div>
+                <h4 class="text-cyan-400 font-black uppercase text-sm tracking-widest">3rd Term: Data & AI Visuals</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Bridging the gap between raw data and visual AI perception."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>What is Data?</strong> Understanding how info is collected and sorted in lists.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>AI Recognition:</strong> Building early models that can recognize colors and simple objects.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Creative Graphics:</strong> Combining loops and Turtle to create generative snowflakes.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Tech Ethics:</strong> Discussing how coding choices affect real people.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        `,
+        difficulty: "Elementary",
+        isLocked: true,
+        isCompleted: false,
+        reward: "2 XP",
+        icon: "🎨",
+        tags: ["Primary 5", "Python", "Graphics"],
+        unlockRequirement: "Primary 4: Logic & Foundations"
+      },
+      {
+        id: "cur-p6",
+        title: "Primary 6: Data & Web Early",
+        description: "Mastering algorithms and early web concepts.",
+        longDescription: `
+          <div class="space-y-8 text-slate-300">
+            <div class="p-8 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-500/20">⌨️</div>
+                <h4 class="text-emerald-400 font-black uppercase text-sm tracking-widest">1st Term: Command Mastery</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Advancing into complex data structures and robust file manipulation."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Advanced Structures:</strong> Mastering Dictionaries and nested Lists for better data organization.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>File Handling:</strong> Learning to read from and write to text files (.txt).</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>String Hacks:</strong> Using indexing and slicing to manipulate and clean text data.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Error Handling:</strong> Using 'Try/Except' to prevent programs from crashing.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-indigo-500/10 rounded-3xl border border-indigo-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/20">📈</div>
+                <h4 class="text-indigo-400 font-black uppercase text-sm tracking-widest">2nd Term: Data Science Start</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Using code to find stories in numbers and predict simple outcomes."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>CSV Analysis:</strong> Opening and reading tabular data like spreadsheets using code.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Stats with Python:</strong> Calculating Mean, Median, and Mode using the 'Statistics' library.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Predictive Basics:</strong> Introduction to Linear Regression—finding the line of best fit.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Classification:</strong> Training a simple model to distinguish between different categories of data.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-cyan-500/20">🌐</div>
+                <h4 class="text-cyan-400 font-black uppercase text-sm tracking-widest">3rd Term: Web & Ethics</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Building for the internet and defining the ethics of a digital future."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>HTML/CSS:</strong> Building and stylizing your first personal biodata webpage.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Web Interaction:</strong> Introduction to how Python can interact with web pages.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>AI Governance:</strong> Understanding Bias, Fairness, and Privacy in Artificial Intelligence.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Senior Capstone:</strong> Building a Large-scale multi-file Python project for graduation.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        `,
+        difficulty: "Beginner",
+        isLocked: true,
+        isCompleted: false,
+        reward: "3 XP",
+        icon: "📊",
+        tags: ["Primary 6", "Web", "Data"],
+        unlockRequirement: "Primary 5: Python Explorer"
+      },
+      {
+        id: "cur-j1",
+        title: "JSS 1: Algorithm Architect",
+        description: "Deep dive into OOP and Data Analysis.",
+        longDescription: `
+          <div class="space-y-8 text-slate-300">
+            <div class="p-8 bg-indigo-500/10 rounded-3xl border border-indigo-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/20">🏗️</div>
+                <h4 class="text-indigo-400 font-black uppercase text-sm tracking-widest">1st Term: Object Oriented Programming</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Stepping into the professional paradigm of OOP—organizing code around real-world objects."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Classes & Objects:</strong> Building blueprints and spawning interactive entities in your code.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Inheritance:</strong> Reusing code efficiently by creating parent and child class relationships.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Advanced Sorting:</strong> Implementing and comparing Bubble Sort, Insertion Sort, and Merge Sort.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Big O Notation:</strong> Understanding time complexity—how code performance changes with more data.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-cyan-500/20">📊</div>
+                <h4 class="text-cyan-400 font-black uppercase text-sm tracking-widest">2nd Term: Data Science Foundations</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Harnessing industrial tools like NumPy and Pandas to manipulate massive datasets."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>NumPy Mastery:</strong> Using N-Dimensional arrays for lightning-fast mathematical computations.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Pandas DataFrames:</strong> Cleaning, filtering, and joining tables from real-world datasets.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Advanced Plotting:</strong> Creating Heatmaps and Violin plots with Seaborn for deeper insights.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Data Integrity:</strong> Learning to handle missing values and outliers in scientific data.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-500/20">🧠</div>
+                <h4 class="text-emerald-400 font-black uppercase text-sm tracking-widest">3rd Term: ML Intro</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Entering the world of automated learning through Scikit-Learn pipelines."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Learning Paradigms:</strong> Distinguishing Supervised, Unsupervised, and Semi-supervised learning.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Decision Trees:</strong> Building models that categorize data like a digital flowchart.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Model Validation:</strong> Using Training and Testing splits to ensure your AI isn't just memorizing.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Ethical Deployment:</strong> Discussing the social impacts of automated decision-making.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        `,
+        difficulty: "Junior",
+        isLocked: true,
+        isCompleted: false,
+        reward: "5 XP",
+        icon: "🏗️",
+        tags: ["JSS 1", "OOP", "ML"],
+        unlockRequirement: "Primary 6: Data & Web Early"
+      },
+      {
+        id: "cur-j2",
+        title: "JSS 2: Intelligent Apps",
+        description: "Neural networks and web framework integration.",
+        longDescription: `
+          <div class="space-y-8 text-slate-300">
+            <div class="p-8 bg-indigo-500/10 rounded-3xl border border-indigo-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/20">💾</div>
+                <h4 class="text-indigo-400 font-black uppercase text-sm tracking-widest">1st Term: Advanced Data & SQL</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Connecting Python to the persistence layer: Master of Databases."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>SQL Essentials:</strong> Writing queries to Select, Join, and Filter data in relational databases.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Web Scraping:</strong> Using BeautifulSoup4 to extract structured data from websites.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>SQLite in Python:</strong> Creating and managing local databases within your software.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Data Pipelines:</strong> Building scripts that automatically clean and store scraped web data.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-cyan-500/20">🕸️</div>
+                <h4 class="text-cyan-400 font-black uppercase text-sm tracking-widest">2nd Term: Neural Networks Start</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"De-mystifying the 'Block Box'—how neurons learn patterns from raw pixels."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Perceptrons:</strong> Understanding the fundamental 'Atom' of deep learning.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Multilayer Networks:</strong> Linking neurons to capture complex, non-linear relationships.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Activation Functions:</strong> Mastering Sigmoid, ReLU, and Tanh—the 'on/off' switches of AI.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Image Classification:</strong> Building a neural net that identifies handwritten digits (MNIST).</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-500/20">🚀</div>
+                <h4 class="text-emerald-400 font-black uppercase text-sm tracking-widest">3rd Term: Fullstack AI</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Bringing AI out of the terminal and onto the live web."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Flask Framework:</strong> Setting up a Python server that handles web requests.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>API Integration:</strong> Allowing your website to send data to your AI model and get answers back.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Frontend Basics:</strong> Simple CSS/JS to make your AI app look professional and responsive.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Deployment:</strong> Releasing your Fullstack AI app for others to use globally.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        `,
+        difficulty: "Intermediate",
+        isLocked: true,
+        isCompleted: false,
+        reward: "10 XP",
+        icon: "🧠",
+        tags: ["JSS 2", "Neural", "Web"],
+        unlockRequirement: "JSS 1: Algorithm Architect"
+      },
+      {
+        id: "cur-j3",
+        title: "JSS 3: Deep Learning Path",
+        description: "Advanced AI domains and specialization.",
+        longDescription: `
+          <div class="space-y-8 text-slate-300">
+            <div class="p-8 bg-indigo-500/10 rounded-3xl border border-indigo-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/20">🗨️</div>
+                <h4 class="text-indigo-400 font-black uppercase text-sm tracking-widest">1st Term: Language & Vision</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Teaching machines to understand human language and see the world."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>NLP Intro:</strong> Tokenization, Stopwords, and building a simple Sentiment Analyzer.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Computer Vision:</strong> Edge detection and Object localization using OpenCV libraries.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Reinforcement Learning:</strong> Principles of Q-Learning—how AI learns via rewards and penalties.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Sequence Modeling:</strong> How AI predicts the next word in a sentence.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-cyan-500/20">☁️</div>
+                <h4 class="text-cyan-400 font-black uppercase text-sm tracking-widest">2nd Term: Specialized Domains</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Forecasting the future and organizing recommendations."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Time Series:</strong> Analyzing temporal trends to forecast weather or stock movements.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Recommender Systems:</strong> Building Collaborative Filtering models (the Netflix logic).</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Cloud Fundamentals:</strong> Using Google Colab and AWS to train models on high-end GPUs.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>AutoML:</strong> Exploring tools that help find the best AI model automatically.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-500/20">🎓</div>
+                <h4 class="text-emerald-400 font-black uppercase text-sm tracking-widest">3rd Term: Path Graduation</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Mastering professional documentation and governance."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>AI Governance:</strong> Deep dive into Global AI laws, Safety, and Alignment protocols.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Technical Writing:</strong> Creating high-quality 'README' and API documentation for projects.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Agile for AI:</strong> Introduction to Scrum and Kanban management for engineering teams.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Project Showcase:</strong> Final JSS graduation project—integrating all skills into one solution.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        `,
+        difficulty: "Advanced",
+        isLocked: true,
+        isCompleted: false,
+        reward: "20 XP",
+        icon: "🚀",
+        tags: ["JSS 3", "NLP", "Cloud"],
+        unlockRequirement: "JSS 2: Intelligent Apps"
+      },
+      {
+        id: "cur-s1",
+        title: "SSS 1: Software Pro",
+        description: "Industrial software engineering with AI.",
+        longDescription: `
+          <div class="space-y-8 text-slate-300">
+            <div class="p-8 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-500/20">⚙️</div>
+                <h4 class="text-emerald-400 font-black uppercase text-sm tracking-widest">1st Term: Professional Standards</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Transitioning from 'Coding' to 'Software Engineering' using industry-grade workflows."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Advanced Git:</strong> Mastering Branching, Merging, Rebasing, and collaborative Pull Requests.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Design Patterns:</strong> Implementing SOLID principles and common patterns like Singleton and Factory.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Unit Testing:</strong> Writing robust test suites using Pytest to ensure code reliability.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>CI/CD Pipelines:</strong> Introduction to automated deployment using GitHub Actions.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-indigo-500/10 rounded-3xl border border-indigo-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/20">✨</div>
+                <h4 class="text-indigo-400 font-black uppercase text-sm tracking-widest">2nd Term: Transformer Models</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Exploring the architecture behind ChatGPT—Attention and Generative AI."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Attention Mechanisms:</strong> How Transformers focus on different parts of a sequence.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Generative AI:</strong> Introduction to LLMs and Image synthesis (Stable Diffusion concepts).</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Model Tuning:</strong> Fine-tuning pre-trained models for specific niche tasks.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Explainable AI (XAI):</strong> Techniques to help humans understand why a model made a decision.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-cyan-500/20">💡</div>
+                <h4 class="text-cyan-400 font-black uppercase text-sm tracking-widest">3rd Term: Industry Innovation</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Deploying AI solve real-world problems in Health, Finance, and IoT."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Domain-Specific AI:</strong> Analyzing how AI transforms medical diagnostics and fraud detection.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Edge AI:</strong> Training and deploying lightweight models on Raspberry Pi and mobile devices.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>AI Entrepreneurship:</strong> Building a Minimum Viable Product (MVP) and the basics of SaaS models.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><span>Industry Collaboration:</strong> Working on a real-world case study from an industry partner.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        `,
+        difficulty: "Explorer",
+        isLocked: true,
+        isCompleted: false,
+        reward: "50 XP",
+        icon: "👨‍💻",
+        tags: ["SSS 1", "Engineering", "GenAI"],
+        unlockRequirement: "JSS 3: Deep Learning Path"
+      },
+      {
+        id: "cur-s2",
+        title: "SSS 2: ML Infrastructure",
+        description: "Deploying and scaling AI systems.",
+        longDescription: `
+          <div class="space-y-8 text-slate-300">
+            <div class="p-8 bg-indigo-500/10 rounded-3xl border border-indigo-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/20">🏗️</div>
+                <h4 class="text-indigo-400 font-black uppercase text-sm tracking-widest">1st Term: Neural Architectures</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Mastering deep-dive architectures: from ResNet to Real-time Detection."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>ResNet & CNNs:</strong> Building deep residual networks for high-accuracy image recognition.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>YOLO Architecture:</strong> Implementing Real-time object detection pipelines.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>LSTMs & RNNs:</strong> Capturing temporal information for complex sequence modeling.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Tuning & Pruning:</strong> Optimizing model size and speed without sacrificing accuracy.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-cyan-500/20">🛠️</div>
+                <h4 class="text-cyan-400 font-black uppercase text-sm tracking-widest">2nd Term: MLOps & Pipelines</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Scaling AI solutions for millions of users with robust infrastructure."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Containerization:</strong> Packaging AI models using Docker for consistent cross-platform deployment.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Kubernetes:</strong> Orchestrating clusters of AI models to handle massive traffic spikes.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Model Monitoring:</strong> Detecting 'Data Drift' and automatically retraining models in production.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Data Automation:</strong> Building ETL pipelines using tools like Apache Airflow.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-500/20">📄</div>
+                <h4 class="text-emerald-400 font-black uppercase text-sm tracking-widest">3rd Term: Specialization Thesis</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Formulating independent research and mastering academic technical writing."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Research Design:</strong> Formulating hypotheses and designing reproducible AI experiments.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Benchmarking:</strong> Using industry-standard metrics (SOTA) to evaluate model performance.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Academic Writing:</strong> Mastering LaTeX and the structure of peer-reviewed AI journals.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><span>Proposal Defense:</strong> Presenting and defending your research area for the SSS 3 final thesis.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        `,
+        difficulty: "Advanced",
+        isLocked: true,
+        isCompleted: false,
+        reward: "100 XP",
+        icon: "🛠️",
+        tags: ["SSS 2", "MLOps", "Scale"],
+        unlockRequirement: "SSS 1: Software Pro"
+      },
+      {
+        id: "cur-s3",
+        title: "SSS 3: AI Frontiers",
+        description: "Preparing for industry and higher ed.",
+        longDescription: `
+          <div class="space-y-8 text-slate-300">
+            <div class="p-8 bg-indigo-500/10 rounded-3xl border border-indigo-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-indigo-500/20">🔬</div>
+                <h4 class="text-indigo-400 font-black uppercase text-sm tracking-widest">1st Term: Frontier Research</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Mastering the mathematical foundations of the next generation of AI."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>AI Mathematics:</strong> Deep dive into Linear Algebra, Multi-variable Calculus, and Probability for ML.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Federated Learning:</strong> Learning how to train models across decentralized devices while maintaining privacy.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>Zero-Shot Learning:</strong> Principles of models that can recognize objects they've never seen before.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-indigo-500 mt-1">✓</span>
+                  <span><strong>AI Safety & Ethics:</strong> Advanced theory on AGI alignment and preventing catastrophic model failure.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-cyan-500/10 rounded-3xl border border-cyan-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-cyan-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-cyan-500/20">🚀</div>
+                <h4 class="text-cyan-400 font-black uppercase text-sm tracking-widest">2nd Term: Professional Launch</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Acquiring global certifications and preparing for elite industry roles."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Global Certifications:</strong> Intensive prep for TensorFlow Developer and Google Cloud ML Engineer exams.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Portfolio Excellence:</strong> Finalizing a high-end GitHub portfolio and technical engineering blog.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Technical Interviewing:</strong> Mastering LeetCode-style algorithms and System Design mock interviews.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-cyan-500 mt-1">✓</span>
+                  <span><strong>Mentorship:</strong> Connecting with industry experts for career guidance and networking.</span>
+                </li>
+              </ul>
+            </div>
+
+            <div class="p-8 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 shadow-inner">
+              <div class="flex items-center gap-4 mb-6">
+                <div class="w-12 h-12 bg-emerald-500 rounded-2xl flex items-center justify-center text-white text-xl shadow-lg shadow-emerald-500/20">🏆</div>
+                <h4 class="text-emerald-400 font-black uppercase text-sm tracking-widest">3rd Term: Graduation Capstone</h4>
+              </div>
+              <p class="text-sm leading-relaxed mb-6 italic text-slate-400">"Releasing a production-ready AI solution and transitioning to Higher Education."</p>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Production Release:</strong> Launching a fully-featured, scalable AI product to the public.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Technical Defense:</strong> Presenting your final 3rd-year research thesis to a panel of engineers.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><strong>Mentorship Leadership:</strong> Guiding Junior Secondary students in their first coding projects.</span>
+                </li>
+                <li class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-white/5">
+                  <span class="text-emerald-500 mt-1">✓</span>
+                  <span><span>Future Roadmap:</strong> Finalizing University applications or early-career engineering placements.</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        `,
+        difficulty: "Advanced",
+        isLocked: true,
+        isCompleted: false,
+        reward: "250 XP",
+        icon: "🎓",
+        tags: ["SSS 3", "University", "Expert"],
+        unlockRequirement: "SSS 2: ML Infrastructure"
+      },
+    ]
+  }
 ];
 
 export const STUDY_CHART_DATA: ChartDataPoint[] = [
