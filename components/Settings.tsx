@@ -163,13 +163,23 @@ const Settings: React.FC<SettingsProps> = ({ userData, onUpdate }) => {
                 </div>
                 <div className="space-y-2">
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Current Grade / Level</label>
-                  <input 
-                    type="text" 
-                    value={grade}
-                    onChange={(e) => setGrade(e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold"
-                    placeholder="E.g. Senior Year, Level 4"
-                  />
+                  <div className="relative">
+                    <select 
+                      value={grade}
+                      onChange={(e) => setGrade(e.target.value)}
+                      className="w-full bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold appearance-none cursor-pointer"
+                    >
+                      <option value="" disabled className="bg-slate-900">Select Grade</option>
+                      {['Primary 4', 'Primary 5', 'Primary 6', 'JSS 1', 'JSS 2', 'JSS 3', 'SSS 1', 'SSS 2', 'SSS 3'].map(g => (
+                        <option key={g} value={g} className="bg-slate-900">{g}</option>
+                      ))}
+                    </select>
+                    <div className="absolute right-6 top-1/2 -translate-y-1/2 pointer-events-none text-slate-500">
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M19 9l-7 7-7-7" />
+                      </svg>
+                    </div>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Institution / School Name</label>

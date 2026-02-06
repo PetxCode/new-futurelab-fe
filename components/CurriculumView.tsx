@@ -12,7 +12,7 @@ const CurriculumView: React.FC<CurriculumViewProps> = ({ user, resource, onBack,
   const isRoadmap = resource.title === 'Curriculum' || resource.tags?.includes('Roadmap');
 
   const isAccessible = (mission: Mission) => {
-    if (user?.isAdmin) return true;
+    if (user?.isAdmin || user?.isInstructor || user?.isSchoolAdmin) return true;
     if (!isRoadmap) return true; // General resources are always accessible (sequential lock is local)
     if (!user?.grade) return false;
     
@@ -145,23 +145,24 @@ const CurriculumView: React.FC<CurriculumViewProps> = ({ user, resource, onBack,
                       {/* Content Card */}
                       <div className={`ml-10 md:ml-6 flex-1 bg-slate-800/20 backdrop-blur-xl rounded-[3rem] border-2 p-10 md:p-12 transition-all duration-700 group-hover:duration-300 ${
                         !isAccessible(mission) 
-                          ? 'border-white/[0.02] opacity-40 bg-transparent grayscale-[0.5]' 
-                          : 'border-white/[0.05] hover:border-white/10 group-hover:bg-slate-800/40 group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] group-hover:-translate-y-2'
+                          ? 'border-white/[0.02] opacity-40 bg-transparent grayscale pointer-events-none' 
+                          : 'border-white/[0.05] hover:border-indigo-500/30 group-hover:bg-slate-800/40 group-hover:shadow-[0_20px_60px_rgba(99,102,241,0.2)] group-hover:-translate-y-2'
                       }`}>
                         <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
                           <div className="space-y-2">
-                            <h3 className={`text-2xl md:text-3xl font-black tracking-tight ${mission.isLocked ? 'text-slate-600' : 'text-white group-hover:text-indigo-400'} transition-colors`}>
+                            <h3 className={`text-2xl md:text-3xl font-black tracking-tight ${!isAccessible(mission) ? 'text-slate-600' : 'text-white group-hover:text-indigo-400'} transition-colors`}>
                               {mission.title}
                             </h3>
                             <div className="flex items-center gap-3">
                                <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                                 !isAccessible(mission) ? 'bg-slate-800 text-slate-600' :
                                  mission.difficulty === 'Elementary' ? 'bg-emerald-500/10 text-emerald-400' :
                                  mission.difficulty === 'Junior' ? 'bg-indigo-500/10 text-indigo-400' :
                                  'bg-slate-500/10 text-slate-400'
                                }`}>
                                  {mission.difficulty}
                                </span>
-                               {mission.reward && (
+                               {mission.reward && isAccessible(mission) && (
                                  <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 rounded-lg">
                                    <span className="text-amber-400 text-xs text-[10px] font-black uppercase tracking-widest">+{mission.reward}</span>
                                  </div>
@@ -170,13 +171,15 @@ const CurriculumView: React.FC<CurriculumViewProps> = ({ user, resource, onBack,
                           </div>
                         </div>
 
-                        <p className="text-slate-400 font-medium leading-relaxed max-w-3xl mb-10 text-lg">
+                        <p className={`font-medium leading-relaxed max-w-3xl mb-10 text-lg ${!isAccessible(mission) ? 'text-slate-700' : 'text-slate-400'}`}>
                           {mission.description}
                         </p>
 
                         <div className="flex flex-wrap gap-2.5">
                           {mission.tags.map((tag, i) => (
-                            <span key={i} className="px-4 py-1.5 rounded-xl bg-[#0f172a]/80 text-[10px] font-black text-slate-500 uppercase tracking-wider border border-white/5">
+                            <span key={i} className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border ${
+                              !isAccessible(mission) ? 'bg-slate-900/40 text-slate-700 border-white/5' : 'bg-[#0f172a]/80 text-slate-500 border-white/5'
+                            }`}>
                               {tag}
                             </span>
                           ))}
@@ -200,60 +203,66 @@ const CurriculumView: React.FC<CurriculumViewProps> = ({ user, resource, onBack,
               </div>
 
               <div className="space-y-16">
-                {generalMissions.map((mission) => (
-                  <div 
-                    key={mission.id}
-                    onClick={() => {
-                      const accessible = isAccessible(mission);
-                      if (accessible) {
-                        onMissionClick(mission);
-                      }
-                    }}
-                    className={`relative flex items-start group ${isAccessible(mission) ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                  >
-                    <div className={`absolute -left-12 md:-left-20 w-16 h-16 md:w-20 md:h-20 rounded-[1.8rem] md:rounded-[2.2rem] flex items-center justify-center text-2xl md:text-3xl z-10 border-8 border-[#0f172a] transition-all duration-700 group-hover:duration-300 ${
-                      mission.isCompleted ? 'bg-emerald-500 text-white shadow-[0_0_40px_rgba(16,185,129,0.3)] rotate-3' :
-                      mission.isLocked ? 'bg-slate-800 text-slate-600 scale-90 grayscale' : 
-                      `bg-indigo-600 text-white group-hover:scale-110 group-hover:rotate-12 group-hover:shadow-2xl shadow-[0_0_30px_rgba(79,70,229,0.3)]`
-                    }`}>
-                      {mission.isLocked ? '🔒' : mission.icon}
-                    </div>
+                {generalMissions.map((mission) => {
+                  const accessible = isAccessible(mission);
+                  return (
+                    <div 
+                      key={mission.id}
+                      onClick={() => {
+                        if (accessible) {
+                          onMissionClick(mission);
+                        }
+                      }}
+                      className={`relative flex items-start group ${accessible ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                    >
+                      <div className={`absolute -left-12 md:-left-20 w-16 h-16 md:w-20 md:h-20 rounded-[1.8rem] md:rounded-[2.2rem] flex items-center justify-center text-2xl md:text-3xl z-10 border-8 border-[#0f172a] transition-all duration-700 group-hover:duration-300 ${
+                        mission.isCompleted ? 'bg-emerald-500 text-white shadow-[0_0_40px_rgba(16,185,129,0.3)] rotate-3' :
+                        !accessible ? 'bg-slate-800 text-slate-600 scale-90 grayscale' : 
+                        `bg-indigo-600 text-white group-hover:scale-110 group-hover:rotate-12 group-hover:shadow-2xl shadow-[0_0_30px_rgba(79,70,229,0.3)]`
+                      }`}>
+                        {!accessible ? '🔒' : mission.icon}
+                      </div>
 
-                    <div className={`ml-10 md:ml-6 flex-1 bg-slate-800/20 backdrop-blur-xl rounded-[3rem] border-2 p-10 md:p-12 transition-all duration-700 group-hover:duration-300 ${
-                      mission.isLocked 
-                        ? 'border-white/[0.02] opacity-40 bg-transparent grayscale-[0.5]' 
-                        : 'border-white/[0.05] hover:border-white/10 group-hover:bg-slate-800/40 group-hover:shadow-[0_20px_50px_rgba(0,0,0,0.3)] group-hover:-translate-y-2'
-                    }`}>
-                      <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
-                        <div className="space-y-2">
-                          <h3 className={`text-2xl md:text-3xl font-black tracking-tight ${mission.isLocked ? 'text-slate-600' : 'text-white group-hover:text-indigo-400'} transition-colors`}>
-                            {mission.title}
-                          </h3>
-                          <div className="flex items-center gap-3">
-                             <span className="px-2.5 py-1 rounded-lg bg-slate-500/10 text-slate-400 text-[9px] font-black uppercase tracking-widest">
-                               {mission.difficulty}
-                             </span>
-                             {mission.reward && (
-                               <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 rounded-lg">
-                                 <span className="text-amber-400 text-xs text-[10px] font-black uppercase tracking-widest">+{mission.reward}</span>
-                               </div>
-                             )}
+                      <div className={`ml-10 md:ml-6 flex-1 bg-slate-800/20 backdrop-blur-xl rounded-[3rem] border-2 p-10 md:p-12 transition-all duration-700 group-hover:duration-300 ${
+                        !accessible 
+                          ? 'border-white/[0.02] opacity-40 bg-transparent grayscale pointer-events-none' 
+                          : 'border-white/[0.05] hover:border-indigo-500/30 group-hover:bg-slate-800/40 group-hover:shadow-[0_20px_60px_rgba(99,102,241,0.2)] group-hover:-translate-y-2'
+                      }`}>
+                        <div className="flex flex-col md:flex-row md:items-start justify-between gap-6 mb-8">
+                          <div className="space-y-2">
+                            <h3 className={`text-2xl md:text-3xl font-black tracking-tight ${!accessible ? 'text-slate-600' : 'text-white group-hover:text-indigo-400'} transition-colors`}>
+                              {mission.title}
+                            </h3>
+                            <div className="flex items-center gap-3">
+                               <span className={`px-2.5 py-1 rounded-lg text-[9px] font-black uppercase tracking-widest ${
+                                 !accessible ? 'bg-slate-800 text-slate-600' : 'bg-slate-500/10 text-slate-400'
+                               }`}>
+                                 {mission.difficulty}
+                               </span>
+                               {mission.reward && accessible && (
+                                 <div className="flex items-center gap-1.5 px-2.5 py-1 bg-amber-500/10 rounded-lg">
+                                   <span className="text-amber-400 text-xs text-[10px] font-black uppercase tracking-widest">+{mission.reward}</span>
+                                 </div>
+                               )}
+                            </div>
                           </div>
                         </div>
-                      </div>
-                      <p className="text-slate-400 font-medium leading-relaxed max-w-3xl mb-10 text-lg">
-                        {mission.description}
-                      </p>
-                      <div className="flex flex-wrap gap-2.5">
-                        {mission.tags.map((tag, i) => (
-                          <span key={i} className="px-4 py-1.5 rounded-xl bg-[#0f172a]/80 text-[10px] font-black text-slate-500 uppercase tracking-wider border border-white/5">
-                            {tag}
-                          </span>
-                        ))}
+                        <p className={`font-medium leading-relaxed max-w-3xl mb-10 text-lg ${!accessible ? 'text-slate-700' : 'text-slate-400'}`}>
+                          {mission.description}
+                        </p>
+                        <div className="flex flex-wrap gap-2.5">
+                          {mission.tags.map((tag, i) => (
+                            <span key={i} className={`px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider border ${
+                              !accessible ? 'bg-slate-900/40 text-slate-700 border-white/5' : 'bg-[#0f172a]/80 text-slate-500 border-white/5'
+                            }`}>
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           )}

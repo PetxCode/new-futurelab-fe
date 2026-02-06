@@ -108,6 +108,7 @@ const SubjectsPage: React.FC<CoursesPageProps> = ({ userData, onUpdate }) => {
   };
 
   const isLocked = (lesson: SubCourse, index: number): boolean => {
+    if (userData?.isAdmin || userData?.isInstructor || userData?.isSchoolAdmin) return false;
     if (!activeSubject) return true;
     if (index === 0) return false; // First lesson is never locked
     const previousLesson = activeSubject.subCourses[index - 1];

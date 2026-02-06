@@ -23,8 +23,9 @@ import GameCenter from './components/Game/GameCenter';
 import { NavigationItem, User } from './types';
 import { Toaster } from 'react-hot-toast';
 
-export const API_BASE_URL = 'https://futurelab-main-be.vercel.app';
-// export const API_BASE_URL = 'http://localhost:5000';
+export const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
+  ? 'http://localhost:5000' 
+  : 'https://futurelab-main-be.vercel.app';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -52,7 +53,7 @@ const App: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setUserData(data);
-      } else {
+      } else if (response.status === 401 || response.status === 403) {
         localStorage.removeItem('token');
         setIsAuthenticated(false);
         setUserData(null);
@@ -74,12 +75,12 @@ const App: React.FC = () => {
             const data = await response.json();
             setUserData(data);
             setIsAuthenticated(true);
-          } else {
+          } else if (response.status === 401 || response.status === 403) {
             localStorage.removeItem('token');
             setIsAuthenticated(false);
           }
         } catch (error) {
-          console.error("Auth check failed", error);
+          console.error("Auth check failed (network/server error)", error);
         }
       }
       setIsLoadingAuth(false);
@@ -161,11 +162,12 @@ const App: React.FC = () => {
     const container = scrollContainerRef.current;
     if (container) {
       container.addEventListener('scroll', handleScroll);
-      // Check immediately case tab changed and we are already scrolled
+      // Auto-scroll to top on navigation/tab change
+      container.scrollTo(0, 0);
       handleScroll();
     }
     return () => container?.removeEventListener('scroll', handleScroll);
-  }, [isAuthenticated, activeTab]);
+  }, [activeTab]); // Remove isAuthenticated if not strictly needed for scroll reset
 
 
 

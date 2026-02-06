@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../App';
 
 interface AuthProps {
   mode: 'login' | 'signup';
@@ -20,12 +20,8 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
   const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
-  // Use the same base URL as App.tsx if possible, or stick to the one in this file.
-  // The file current uses hardcoded 'https://futurelab-main-be.vercel.app'
-  // const API_URL = 'http://localhost:5000/api/auth'; // Using local for now as per App.tsx
-  const API_URL = 'https://futurelab-main-be.vercel.app/api/auth';
-  // const SCHOOLS_URL = 'http://localhost:5000/api/schools';
-  const SCHOOLS_URL = 'https://futurelab-main-be.vercel.app/api/schools';
+  const API_URL = `${API_BASE_URL}/api/auth`;
+  const SCHOOLS_URL = `${API_BASE_URL}/api/schools`;
 
 
 

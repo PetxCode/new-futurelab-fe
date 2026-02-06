@@ -41,7 +41,7 @@ export interface Assignment {
     correctAnswer: number;
   }[];
   score?: number;
-  targetSchool?: string;
+  targetSchools: string[];
 }
 
 export interface Mission {
