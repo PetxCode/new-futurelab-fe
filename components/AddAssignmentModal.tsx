@@ -14,11 +14,27 @@ const AddAssignmentModal: React.FC<AddAssignmentModalProps> = ({ onClose, onSucc
   const [dueDate, setDueDate] = useState('');
   const [priority, setPriority] = useState<'Low' | 'Medium' | 'High'>('Medium');
   const [points, setPoints] = useState(100);
-  const [targetSchool, setTargetSchool] = useState(userData?.isSchoolAdmin ? userData.schoolName : 'General');
-  const [questions, setQuestions] = useState<{text: string, options: string[], correctAnswer: number}[]>([]);
+  const [targetSchools, setTargetSchools] = useState<string[]>(userData?.isSchoolAdmin ? [userData.schoolName] : ['General']);
+  const [availableSchools, setAvailableSchools] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [bulkText, setBulkText] = useState('');
+
+  React.useEffect(() => {
+    fetchSchools();
+  }, []);
+
+  const fetchSchools = async () => {
+    try {
+      const resp = await fetch(`${API_BASE_URL}/api/schools`);
+      if (resp.ok) {
+        const data = await resp.json();
+        setAvailableSchools(data.map((s: any) => s.name));
+      }
+    } catch (err) {
+      console.error('Failed to fetch schools', err);
+    }
+  };
 
   const parseBulkQuestions = () => {
     if (!bulkText.trim()) return;
@@ -107,7 +123,7 @@ const AddAssignmentModal: React.FC<AddAssignmentModalProps> = ({ onClose, onSucc
           'Content-Type': 'application/json',
           'x-auth-token': localStorage.getItem('token') || '',
         },
-        body: JSON.stringify({ title, subject, dueDate, priority, points, questions, targetSchool }),
+        body: JSON.stringify({ title, subject, dueDate, priority, points, questions, targetSchools }),
       });
 
       if (response.ok) {
@@ -200,27 +216,47 @@ const AddAssignmentModal: React.FC<AddAssignmentModalProps> = ({ onClose, onSucc
             </div>
 
             <div>
-              <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Target School / Visibility</label>
-              <div className="flex flex-col md:flex-row gap-4">
-                <select 
-                  value={targetSchool === 'General' ? 'General' : 'Specific'}
-                  onChange={(e) => setTargetSchool(e.target.value === 'General' ? 'General' : (userData?.schoolName || ''))}
-                  className="flex-1 bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-medium"
-                >
-                  {(userData?.isAdmin || userData?.isInstructor) && <option value="General">General (All Users)</option>}
-                  <option value="Specific">Specific School</option>
-                </select>
+              <label className="block text-xs font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Target Schools / Visibility</label>
+              <div className="space-y-3">
+                <div className="flex flex-wrap gap-2 mb-2 p-3 bg-slate-900/50 border border-slate-700 rounded-2xl min-h-[50px]">
+                  {targetSchools.map(school => (
+                    <span key={school} className="px-3 py-1 bg-indigo-600 text-white text-[10px] font-black uppercase rounded-lg flex items-center gap-2">
+                      {school}
+                      {(targetSchools.length > 1 || school !== 'General') && (
+                        <button 
+                          type="button"
+                          onClick={() => setTargetSchools(targetSchools.filter(s => s !== school))}
+                          className="hover:text-rose-400"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </span>
+                  ))}
+                  {targetSchools.length === 0 && <span className="text-slate-600 text-[10px] font-bold uppercase italic p-1">No schools selected</span>}
+                </div>
                 
-                {targetSchool !== 'General' && (
-                  <input 
-                    type="text"
-                    value={targetSchool}
-                    onChange={(e) => setTargetSchool(e.target.value)}
-                    placeholder="Enter school name..."
-                    disabled={userData?.isSchoolAdmin && !userData?.isAdmin}
-                    className="flex-1 bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 transition-all font-medium disabled:opacity-50"
-                  />
-                )}
+                <div className="flex gap-3">
+                  <select 
+                    className="flex-1 bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-medium appearance-none cursor-pointer"
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (!val) return;
+                      if (val === 'General') {
+                        setTargetSchools(['General']);
+                      } else if (!targetSchools.includes(val)) {
+                        setTargetSchools(targetSchools.filter(s => s !== 'General').concat(val));
+                      }
+                      e.target.value = "";
+                    }}
+                  >
+                    <option value="">Add School...</option>
+                    {(userData?.isAdmin || userData?.isInstructor) && <option value="General">General (All Schools)</option>}
+                    {availableSchools.map(s => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
           </div>

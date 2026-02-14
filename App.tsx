@@ -17,6 +17,8 @@ import ML4Kids from './components/ML4Kids';
 import NextTeach from './components/NextTeach';
 import Projects from './components/Projects';
 import Utilities from './components/Utilities';
+import JuniorCode from './components/JuniorCode';
+import CodeBattle from './components/CodeBattle';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import GameCenter from './components/Game/GameCenter';
@@ -25,7 +27,8 @@ import { Toaster } from 'react-hot-toast';
 
 export const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000' 
-  : 'https://futurelab-main-be.vercel.app';
+  // ? 'https://futurelab-main-be.onrender.com' 
+  : 'https://futurelab-main-be.onrender.com';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -214,6 +217,10 @@ const App: React.FC = () => {
         return <AdminUsers userData={userData} isSchoolContext={true} />;
       case 'Games':
         return <GameCenter />;
+      case 'Junior Code':
+        return <JuniorCode />;
+      case 'Code Battle':
+        return <CodeBattle />;
       case 'Python Engine':
         return <CodingEngine />;
       case 'Engine Blocks':
@@ -289,7 +296,7 @@ const App: React.FC = () => {
 
           <main 
             ref={scrollContainerRef}
-            className={`flex-1 ${activeTab === 'Engine Blocks' || activeTab === 'Python Engine' ? 'overflow-hidden' : 'overflow-y-auto'} h-full relative pt-16 md:pt-0`}
+            className={`flex-1 ${activeTab === 'Engine Blocks' || activeTab === 'Python Engine' || activeTab === 'Junior Code' ? 'overflow-hidden' : 'overflow-y-auto'} h-full relative pt-16 md:pt-0`}
           >
             <header className="fixed top-0 left-0 right-0 h-16 bg-slate-900/80 backdrop-blur-xl flex items-center px-6 z-30 border-b border-slate-800 md:hidden">
               <button 
@@ -310,7 +317,7 @@ const App: React.FC = () => {
               </span>
             </header>
 
-            <div className={`${(activeTab === 'Engine Blocks' || activeTab === 'Python Engine') ? 'h-full w-full' : 'max-w-7xl mx-auto p-6 md:p-12'}`}>
+            <div className={`${(activeTab === 'Engine Blocks' || activeTab === 'Python Engine' || activeTab === 'Junior Code') ? 'h-full w-full' : 'max-w-7xl mx-auto p-6 md:p-12'}`}>
               <ErrorBoundary key={`${activeTab}-${tabResetKey}`}>
                 {renderContent()}
               </ErrorBoundary>

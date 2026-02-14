@@ -119,6 +119,42 @@ const Sidebar: React.FC<SidebarProps> = ({
     //   ),
     // },
     {
+      id: "Junior Code",
+      icon: (
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      ),
+    },
+    {
+      id: "Code Battle",
+      icon: (
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M13 10V3L4 14h7v7l9-11h-7z"
+          />
+        </svg>
+      ),
+    },
+    {
       id: "Games",
       icon: (
         <svg
@@ -355,7 +391,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       ${isOpen ? "translate-x-0" : "-translate-x-full"}
     `}
     >
-      <div className="p-6 flex items-center space-x-3">
+      <div className="p-4 md:p-6 flex items-center space-x-3">
         <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
           <svg viewBox="0 0 24 24" className="w-6 h-6 text-white fill-current">
             <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
@@ -366,14 +402,14 @@ const Sidebar: React.FC<SidebarProps> = ({
         </span>
       </div>
 
-      <div className="px-6 py-4 flex flex-col items-center border-b border-slate-700/50">
-        <div className="relative p-1 bg-gradient-to-tr from-indigo-500 to-cyan-500 rounded-full">
-          <img
-            src={userData?.avatarUrl || MOCK_STUDENT.avatar}
-            alt={userData?.fullName || MOCK_STUDENT.name}
-            className="w-20 h-20 rounded-full bg-slate-800 object-cover"
-          />
-          <div className="absolute -bottom-1 -right-1 bg-indigo-600 text-[10px] font-black text-white px-2 py-0.5 rounded-full border-2 border-slate-800">
+        <div className="px-4 md:px-6 py-4 flex flex-col items-center border-b border-slate-700/50">
+          <div className="relative p-1 bg-gradient-to-tr from-indigo-500 to-cyan-500 rounded-full">
+            <img
+              src={userData?.avatarUrl || MOCK_STUDENT.avatar}
+              alt={userData?.fullName || MOCK_STUDENT.name}
+              className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-slate-800 object-cover"
+            />
+            <div className="absolute -bottom-1 -right-1 bg-indigo-600 text-[10px] font-black text-white px-2 py-0.5 rounded-full border-2 border-slate-800">
             LVL {Math.floor((userData?.totalPoints || 0) / 100) + 1}
           </div>
         </div>
@@ -386,7 +422,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           {userData?.schoolName || "Independent Learner"}
         </p>
 
-        <div className="flex flex-wrap gap-2 mt-4 justify-center">
+        <div className="hidden md:flex flex-wrap gap-2 mt-4 justify-center">
           {MOCK_STUDENT.achievements.map((ach) => (
             <span
               key={ach}
@@ -397,7 +433,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           ))}
         </div>
 
-        <div className="w-full mt-6">
+        <div className="w-full mt-4 md:mt-6">
           <div className="flex justify-between items-center text-xs mb-1.5">
             {(() => {
               const points = userData?.totalPoints || 0;
@@ -427,7 +463,7 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         <button
           onClick={() => setActiveTab("Focus")}
-          className={`w-full mt-6 py-3 px-4 text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center space-x-3 active:scale-95 group ${
+          className={`w-full mt-4 md:mt-6 py-2 md:py-3 px-4 text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center space-x-3 active:scale-95 group ${
             timerState.isActive
               ? "bg-indigo-600/10 text-indigo-400 border border-indigo-500/30"
               : activeTab === "Focus"

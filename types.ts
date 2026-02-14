@@ -181,4 +181,4 @@ export interface ProjectFormData {
   thumbnail: string;
 }
 
-export type NavigationItem = 'Hub' | 'Courses' | 'Assignments' | 'Analytics' |  'Focus' | 'AI Study Coach' | 'Games' | 'Settings' | 'Admin Users' | 'School Registry' | 'Python Engine' | 'Engine Blocks' | 'ML4Kids' | 'NEXT Teach' | 'Projects' | 'Utilities';
+export type NavigationItem = 'Hub' | 'Courses' | 'Assignments' | 'Analytics' |  'Focus' | 'AI Study Coach' | 'Games' | 'Settings' | 'Admin Users' | 'School Registry' | 'Python Engine' | 'Engine Blocks' | 'Junior Code' | 'ML4Kids' | 'NEXT Teach' | 'Projects' | 'Utilities' | 'Code Battle';

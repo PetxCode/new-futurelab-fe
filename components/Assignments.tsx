@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Assignment, User } from '../types';
 import AddAssignmentModal from './AddAssignmentModal';
+import EditAssignmentModal from './EditAssignmentModal';
 import EditQuizModal from './EditQuizModal';
 import DeleteConfirmationModal from './DeleteConfirmationModal';
 import toast from 'react-hot-toast';
@@ -198,6 +199,7 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
   const [completedTaskIds, setCompletedTaskIds] = useState<Set<string>>(new Set());
   const [filter, setFilter] = useState<'Active' | 'Completed'>('Active');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [editAssignment, setEditAssignment] = useState<Assignment | null>(null);
   const [editQuizAssignment, setEditQuizAssignment] = useState<Assignment | null>(null);
   const [deleteModalAssignment, setDeleteModalAssignment] = useState<Assignment | null>(null);
 
@@ -215,7 +217,6 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
       });
       if (response.ok) {
         const data = await response.json();
-        console.log('Fetched assignments:', data);
         setAssignments(data);
       } else {
         const err = await response.text();
@@ -253,51 +254,6 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
         console.error('Error saving score:', err);
       }
     }
-  };
-
-  const handleGenerateExistingQuiz = async (assignment: Assignment) => {
-    toast.loading('Generating assessment...', { id: 'gen-quiz' });
-    
-    // Mocking an AI generation delay (reusing the logic from modal)
-    setTimeout(async () => {
-      const gQuestions = [
-        {
-          text: `Evaluate the primary concept of ${assignment.title}. What is the fundamental principle?`,
-          options: ["First Approach", "Second Strategy", "Core Principle", "Alternative Method"],
-          correctAnswer: 2
-        },
-        {
-          text: `In the context of ${assignment.subject}, what is the most critical variable?`,
-          options: ["Consistency", "Scale", "Complexity", "External Factors"],
-          correctAnswer: 0
-        },
-        {
-          text: `What is the expected outcome after completing this ${assignment.subject} module?`,
-          options: ["Skill Mastery", "Knowledge Transfer", "Practical Application", "All of the above"],
-          correctAnswer: 3
-        }
-      ];
-
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/assignments/${assignment.id || (assignment as any)._id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-            'x-auth-token': localStorage.getItem('token') || '',
-          },
-          body: JSON.stringify({ questions: gQuestions }),
-        });
-
-        if (response.ok) {
-          toast.success('Quiz generated!', { id: 'gen-quiz' });
-          fetchAssignments();
-        } else {
-          toast.error('Failed to save quiz.', { id: 'gen-quiz' });
-        }
-      } catch (err) {
-        toast.error('Network error.', { id: 'gen-quiz' });
-      }
-    }, 1500);
   };
 
   const handleDelete = async (id: string) => {
@@ -368,7 +324,7 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
         {isLoading ? (
           <div className="flex flex-col items-center justify-center py-24 space-y-4">
             <div className="w-12 h-12 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
-            <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Syncing Tasks...</p>
+            <p className="text-slate-500 font-bold uppercase tracking-widest text-xs">Syncing Assignments...</p>
           </div>
         ) : filteredAssignments.length > 0 ? (
           filteredAssignments.map((task) => {
@@ -394,6 +350,14 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
                         <span className="text-slate-500 text-xs font-medium">Due: {task.dueDate}</span>
                         <div className="w-1 h-1 bg-slate-700 rounded-full"></div>
                         <span className="text-indigo-400 text-xs font-black">{task.points} EXP</span>
+                        {(userData?.isAdmin || userData?.isInstructor) && (
+                          <>
+                            <div className="w-1 h-1 bg-slate-700 rounded-full"></div>
+                            <span className="px-2 py-0.5 bg-slate-800 text-slate-400 text-[10px] font-black uppercase rounded border border-slate-700">
+                              {(task.targetSchools?.includes('General') ? 'General' : task.targetSchools?.join(', '))}
+                            </span>
+                          </>
+                        )}
                       </div>
                    </div>
                 </div>
@@ -409,46 +373,54 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
                    </div>
                    <div className="flex items-center space-x-3">
                      {(userData?.isAdmin || userData?.isInstructor) && (
-                       <>
-                         <button 
-                           onClick={() => setEditQuizAssignment(task)}
-                           className="p-3 text-slate-500 hover:text-indigo-500 hover:bg-indigo-500/10 rounded-xl transition-all active:scale-95"
-                           title="Edit Quiz"
-                         >
-                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
-                         </button>
+                        <>
+                          <button 
+                            onClick={() => setEditAssignment(task)}
+                            className="p-3 text-slate-500 hover:text-indigo-500 hover:bg-indigo-500/10 rounded-xl transition-all active:scale-95"
+                            title="Edit Assignment"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+                          </button>
 
-                         <button 
-                           onClick={() => setDeleteModalAssignment(task)}
-                           className="p-3 text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all active:scale-95"
-                           title="Delete Assignment"
-                         >
-                           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                         </button>
-                       </>
-                     )}
-                     
-                     {(!task.questions || task.questions.length === 0) ? (
-                        (userData?.isAdmin || userData?.isInstructor) ? (
                           <button 
                             onClick={() => setEditQuizAssignment(task)}
-                            className="px-8 py-3 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
+                            className="p-3 text-slate-500 hover:text-amber-500 hover:bg-amber-500/10 rounded-xl transition-all active:scale-95"
+                            title="Edit Quiz"
                           >
-                             Create Quiz
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" /></svg>
                           </button>
-                        ) : (
-                          <div className="px-6 py-3 bg-slate-800/50 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl border border-slate-700/30">
-                             Waiting for Quiz
-                          </div>
-                        )
-                     ) : (
-                        <button 
-                          onClick={() => setActiveCbt(task)}
-                          className="px-8 py-3 bg-[#0f172a] text-slate-200 text-xs font-black rounded-xl border border-slate-800 hover:bg-indigo-600 hover:border-indigo-600 hover:text-white transition-all shadow-xl active:scale-95"
-                        >
-                           {isDone ? 'View Results' : 'Take Quiz'}
-                        </button>
-                     )}
+
+                          <button 
+                            onClick={() => setDeleteModalAssignment(task)}
+                            className="p-3 text-slate-500 hover:text-rose-500 hover:bg-rose-500/10 rounded-xl transition-all active:scale-95"
+                            title="Delete Assignment"
+                          >
+                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                          </button>
+                        </>
+                      )}
+                      
+                      {(!task.questions || task.questions.length === 0) ? (
+                         (userData?.isAdmin || userData?.isInstructor) ? (
+                           <button 
+                             onClick={() => setEditQuizAssignment(task)}
+                             className="px-8 py-3 bg-indigo-600 text-white text-xs font-black uppercase tracking-widest rounded-xl hover:bg-indigo-500 transition-all shadow-xl shadow-indigo-600/20 active:scale-95"
+                           >
+                              Create Quiz
+                           </button>
+                         ) : (
+                           <div className="px-6 py-3 bg-slate-800/50 text-slate-500 text-[10px] font-black uppercase tracking-widest rounded-xl border border-slate-700/30">
+                              Waiting for Quiz
+                           </div>
+                         )
+                      ) : (
+                         <button 
+                           onClick={() => setActiveCbt(task)}
+                           className="px-8 py-3 bg-[#0f172a] text-slate-200 text-xs font-black rounded-xl border border-slate-800 hover:bg-indigo-600 hover:border-indigo-600 hover:text-white transition-all shadow-xl active:scale-95"
+                         >
+                            {isDone ? 'View Results' : 'Take Quiz'}
+                         </button>
+                      )}
                    </div>
                 </div>
               </div>
@@ -460,14 +432,16 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
                 {filter === 'Active' ? '🎯' : '📭'}
              </div>
              <div>
-                <h3 className="text-2xl font-black text-white">No {filter.toLowerCase()} tasks</h3>
+                <h3 className="text-2xl font-black text-white">No {filter.toLowerCase()} Assignments</h3>
                 <p className="text-slate-500 max-w-xs mx-auto mt-2 font-medium">
-                  {filter === 'Active' ? 'You have cleared all your assignments for now. Good job!' : 'Complete your active tasks to see them here.'}
+                  {filter === 'Active' ? 'You have cleared all your assignments for now. Good job!' : 'Complete your active assignments to see them here.'}
                 </p>
              </div>
           </div>
         )}
-        {/* Edit Quiz Modal */}
+      </div>
+
+      {/* Edit Quiz Modal */}
       {editQuizAssignment && (
         <EditQuizModal 
           assignment={editQuizAssignment}
@@ -475,7 +449,16 @@ const Assignments: React.FC<AssignmentsProps> = ({ userData, onUpdate }) => {
           onSuccess={fetchAssignments}
         />
       )}
-    </div>
+
+      {/* Edit Assignment Modal */}
+      {editAssignment && (
+        <EditAssignmentModal 
+          assignment={editAssignment}
+          onClose={() => setEditAssignment(null)}
+          onSuccess={fetchAssignments}
+          userData={userData}
+        />
+      )}
 
       {/* Bonus Area */}
       <div className="p-10 bg-gradient-to-br from-indigo-600 to-indigo-700 rounded-[3rem] shadow-2xl shadow-indigo-600/20 flex flex-col md:flex-row items-center justify-between text-center md:text-left relative overflow-hidden group">
