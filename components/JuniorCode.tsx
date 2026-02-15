@@ -8,9 +8,10 @@ import LogicLab from './LogicLab';
 import StringDecoder from './StringDecoder';
 import WordFactory from './WordFactory';
 import CargoTycoon from './CargoTycoon';
+import CodingFundamentals from './CodingFundamentals';
 
 const JuniorCode: React.FC = () => {
-  const [activeView, setActiveView] = useState<'menu' | 'maze' | 'flappy' | 'breakout' | 'dino' | 'battle' | 'logic' | 'decoder' | 'factory' | 'cargo'>('menu');
+  const [activeView, setActiveView] = useState<'menu' | 'maze' | 'flappy' | 'breakout' | 'dino' | 'battle' | 'logic' | 'decoder' | 'factory' | 'cargo' | 'fundamentals'>('menu');
   const [decoderMode, setDecoderMode] = useState<'solo' | 'battle'>('solo');
 
   if (activeView === 'maze') {
@@ -173,6 +174,26 @@ const JuniorCode: React.FC = () => {
     );
   }
 
+
+  if (activeView === 'fundamentals') {
+    return (
+      <div className="h-full flex flex-col">
+         <div className="bg-slate-900 border-b border-slate-800 p-2 flex items-center">
+            <button 
+            onClick={() => setActiveView('menu')}
+            className="text-slate-400 hover:text-white px-4 py-2 flex items-center space-x-2 transition-colors rounded-lg hover:bg-slate-800"
+            >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            <span className="text-xs font-black uppercase tracking-wider">Back to Hub</span>
+            </button>
+        </div>
+        <div className="flex-1 overflow-hidden relative">
+           <CodingFundamentals />
+        </div>
+      </div>
+    );
+  }
+
   if (activeView === 'cargo') {
     return (
       <div className="h-full flex flex-col">
@@ -203,7 +224,7 @@ const JuniorCode: React.FC = () => {
              <span className="text-[10px] uppercase font-black tracking-widest text-slate-400">Junior Developer Zone</span>
           </div>
           <h1 className="text-4xl md:text-6xl font-black tracking-tighter text-white mb-2 italic uppercase">
-            FutureLab <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-500">Junior</span>
+            FutureLab <span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-indigo-500 px-2">Junior</span>
           </h1>
           <p className="text-slate-400 text-lg font-medium max-w-2xl mx-auto leading-relaxed">
             Welcome to the coding playground! Choose your mission and start building amazing things with blocks. No typing required!
@@ -215,12 +236,15 @@ const JuniorCode: React.FC = () => {
             {/* Instructor 1 */}
             <div className="bg-slate-900/40 rounded-3xl p-6 border border-slate-800 flex items-center space-x-6 hover:border-sky-500/30 transition-all hover:bg-slate-900/60 group relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-sky-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"/>
-                <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Commander&backgroundColor=b6e3f4" alt="Commander" className="w-24 h-24 rounded-2xl bg-slate-800 border-4 border-slate-800 shadow-xl group-hover:scale-105 transition-transform rotate-3" />
+                <img src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${"t"}&backgroundColor=b6e3f4`} alt="Commander" className="w-24 h-24 rounded-2xl bg-slate-800 border-4 border-slate-800 shadow-xl group-hover:scale-105 transition-transform rotate-3" />
+
+
+
                 <div className="space-y-2 relative z-10">
                         <div className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider w-fit bg-sky-500/10 text-sky-400 border border-sky-500/20">
                         Logic & Algorithms
                         </div>
-                        <h3 className="text-2xl font-black text-white italic tracking-tight">Code Commander</h3>
+                        <h3 className="text-2xl font-black text-white italic tracking-tight">Code Commander2</h3>
                         <p className="text-slate-400 text-sm font-medium leading-relaxed">"Report for duty! We'll navigate complex mazes using loops and logic."</p>
                 </div>
             </div>
@@ -228,7 +252,7 @@ const JuniorCode: React.FC = () => {
              {/* Instructor 2 */}
              <div className="bg-slate-900/40 rounded-3xl p-6 border border-slate-800 flex items-center space-x-6 hover:border-purple-500/30 transition-all hover:bg-slate-900/60 group relative overflow-hidden">
                 <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"/>
-                <img src="https://api.dicebear.com/9.x/avataaars/svg?seed=Pixie&backgroundColor=c0aede" alt="Pixie" className="w-24 h-24 rounded-2xl bg-slate-800 border-4 border-slate-800 shadow-xl group-hover:scale-105 transition-transform -rotate-3" />
+                <img src={`https://api.dicebear.com/9.x/avataaars/svg?seed=${"zeus"}&backgroundColor=b6e3f4`} alt="Pixie" className="w-24 h-24 rounded-2xl bg-slate-800 border-4 border-slate-800 shadow-xl group-hover:scale-105 transition-transform -rotate-3" />
                 <div className="space-y-2 relative z-10">
                         <div className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider w-fit bg-purple-500/10 text-purple-400 border border-purple-500/20">
                         Game Design
@@ -248,6 +272,37 @@ const JuniorCode: React.FC = () => {
             </div>
             
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* Code Dojo Card */}
+                <button 
+                    onClick={() => setActiveView('fundamentals')}
+                    className="group relative h-80 rounded-[2rem] overflow-hidden border border-slate-800 transition-all hover:border-violet-500 hover:shadow-2xl hover:shadow-violet-500/20 text-left bg-slate-900 md:col-span-2 lg:col-span-1"
+                >
+                    <div className="absolute inset-0 bg-slate-900"/>
+                    <div className="absolute inset-0 bg-gradient-to-br from-violet-600/20 to-purple-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"/>
+                    
+                    {/* Background Pattern */}
+                    <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(139,92,246,0.15) 1px, transparent 0)', backgroundSize: '20px 20px' }}></div>
+
+                    <div className="absolute inset-0 flex flex-col p-8 z-10 w-full mb-auto">
+                        <div className="flex justify-between items-start">
+                            <div className="w-12 h-12 bg-violet-600 rounded-2xl flex items-center justify-center shadow-lg shadow-violet-600/30 group-hover:scale-110 transition-transform duration-300">
+                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+                            </div>
+                            <span className="bg-slate-950/50 backdrop-blur border border-slate-700 text-slate-300 text-[10px] font-black uppercase px-3 py-1 rounded-full">New Recruit</span>
+                        </div>
+
+                        <div className="space-y-4 mt-8">
+                            <h3 className="text-4xl font-black text-white italic tracking-tighter uppercase group-hover:text-violet-400 transition-colors">Code<br/>Dojo</h3>
+                            <p className="text-slate-400 font-medium leading-relaxed group-hover:text-slate-300 max-w-xs">Master basic Variables, Conditions, and Loops.</p>
+                            
+                            <div className="flex items-center space-x-2 text-violet-400 font-bold uppercase text-xs tracking-wider group-hover:translate-x-2 transition-transform">
+                                <span>Enter Dojo</span>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                            </div>
+                        </div>
+                    </div>
+                </button>
+
                 {/* Maze Card */}
                 <button 
                     onClick={() => setActiveView('maze')}

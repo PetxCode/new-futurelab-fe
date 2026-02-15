@@ -547,124 +547,155 @@ result = cargo
     };
 
     return (
-        <div className="flex flex-col h-full bg-[#111827] font-inter select-none overflow-hidden border-t border-teal-950">
+        <div className="flex flex-col h-full bg-slate-950 font-inter select-none overflow-hidden border-t border-slate-900">
             {/* Header */}
-            <div className="h-16 bg-[#1f2937] border-b-2 border-teal-600/30 flex items-center px-8 justify-between shrink-0 shadow-2xl relative">
+            <div className="h-16 bg-slate-900 border-b border-slate-800 flex items-center px-8 justify-between shrink-0 shadow-2xl relative z-20">
                 <div className="flex items-center space-x-4 relative z-10">
-                    <div className="w-10 h-10 bg-teal-600 rounded-lg flex items-center justify-center text-white shadow-lg shadow-teal-900/50 border-2 border-teal-500/40 transform -rotate-3">
+                    <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-lg shadow-indigo-600/30 border border-indigo-400/40 transform -rotate-3 group-hover:rotate-0 transition-transform">
                          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg>
                     </div>
                     <div>
-                        <h2 className="text-teal-500 font-black uppercase tracking-tighter leading-none text-xl drop-shadow-md">Cargo Tycoon</h2>
-                        <span className="text-slate-500 text-[10px] font-black uppercase tracking-widest flex items-center">
-                            <span className="w-2 h-2 bg-teal-500 rounded-full animate-pulse mr-2" />
-                            Work Order {order.id}: {order.title}
+                        <h2 className="text-white font-black uppercase italic tracking-tighter leading-none text-2xl group-hover:text-indigo-400 transition-colors">Cargo<br/>Tycoon</h2>
+                    </div>
+                    <div className="h-8 w-px bg-slate-800 mx-2" />
+                    <div>
+                        <span className="text-indigo-400 text-[10px] font-black uppercase tracking-widest flex items-center">
+                            <span className="w-2 h-2 bg-indigo-500 rounded-full animate-pulse mr-2" />
+                            MISSION {order.id}: {order.title}
                         </span>
+                        <p className="text-slate-500 text-[9px] font-bold uppercase tracking-widest mt-0.5">Efficiency Protocol Active</p>
                     </div>
                 </div>
 
-                <div className="flex flex-col items-end">
-                    <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">Efficiency Rating</span>
-                    <div className="flex space-x-0.5 mt-1 overflow-x-auto max-w-[200px] h-2 pb-1">
-                        {cargoOrders.map((l, i) => (
-                            <div key={l.id} className={`w-1.5 h-1 rounded-full transition-all duration-500 shrink-0 ${i <= currentLevelIdx ? 'bg-teal-500' : 'bg-slate-800'}`} />
-                        ))}
+                <div className="flex items-center space-x-6">
+                    <div className="flex flex-col items-end">
+                        <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Fleet Progress</span>
+                        <div className="flex space-x-1">
+                            {cargoOrders.map((l, i) => (
+                                <div key={l.id} className={`w-2 h-1 rounded-full transition-all duration-500 ${i <= currentLevelIdx ? 'bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.6)]' : 'bg-slate-800'}`} />
+                            ))}
+                        </div>
+                    </div>
+                    <div className="w-10 h-10 rounded-full border border-slate-800 flex items-center justify-center bg-slate-900/50">
+                        <span className="text-xs font-black text-indigo-400">{Math.round(((currentLevelIdx + 1) / cargoOrders.length) * 100)}%</span>
                     </div>
                 </div>
             </div>
 
             <div className="flex flex-1 overflow-hidden">
                 {/* Briefing */}
-                <div className="w-80 border-r border-teal-900/20 flex flex-col bg-[#111827] shrink-0">
+                <div className="w-80 border-r border-slate-900 flex flex-col bg-slate-950 shrink-0 relative z-10 shadow-2xl">
                     <div className="p-6 space-y-6 flex-1 overflow-y-auto">
-                        <div className="space-y-3 bg-[#1f2937] p-4 rounded-xl border border-teal-900/30">
-                             <div className="flex items-center space-x-2">
-                                <span className="text-[10px] font-black text-teal-400 uppercase tracking-[2px]">Requirements</span>
-                             </div>
-                             <p className="text-slate-300 text-xs leading-relaxed font-medium italic">"{order.description}"</p>
+                        {/* Instructor Chat */}
+                        <div className="space-y-4">
+                            <div className="flex items-start space-x-3">
+                                <img 
+                                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=Commander&backgroundColor=6366f1&skinColor=614335&mouth=smile&top=shortHair" 
+                                    alt="Commander" 
+                                    className="w-10 h-10 rounded-xl bg-indigo-500/20 p-1 border border-indigo-500/30"
+                                />
+                                <div className="flex-1 bg-slate-900 rounded-2xl p-3 rounded-tl-none border border-slate-800">
+                                    <h4 className="text-indigo-400 font-black text-[8px] uppercase tracking-widest mb-1">Code Commander</h4>
+                                    <p className="text-slate-300 text-[11px] font-medium leading-relaxed italic">"{order.description}"</p>
+                                </div>
+                            </div>
+
+                            <div className="flex items-start space-x-3 flex-row-reverse space-x-reverse">
+                                <img 
+                                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=Pixie&backgroundColor=ec4899&skinColor=ae5d29&mouth=smile&top=longHair" 
+                                    alt="Pixie" 
+                                    className="w-10 h-10 rounded-xl bg-pink-500/20 p-1 border border-pink-500/30"
+                                />
+                                <div className="flex-1 bg-slate-900 rounded-2xl p-3 rounded-tr-none border border-slate-800">
+                                    <h4 className="text-pink-400 font-black text-[8px] uppercase tracking-widest mb-1 text-right">Pixel Pixie</h4>
+                                    <p className="text-slate-400 text-[10px] font-bold leading-relaxed text-right">"Need a hint? {order.hint}"</p>
+                                </div>
+                            </div>
                         </div>
 
-                        <div className="space-y-4 p-4 bg-[#030712] rounded-xl border border-slate-800 shadow-inner">
+                        <div className="h-px bg-slate-900 w-full" />
+
+                        <div className="space-y-4 p-5 bg-slate-900/50 rounded-2xl border border-slate-800 shadow-inner">
                             <div>
-                                <span className="text-[9px] font-black text-slate-500 uppercase block mb-2 tracking-widest opacity-60">Raw Material Bin</span>
-                                <div className="bg-[#1f2937] p-3 rounded-lg border-b-4 border-teal-900/50">
-                                    <code className="text-xs font-mono text-teal-400 break-all">{JSON.stringify(order.input)}</code>
+                                <span className="text-[9px] font-black text-slate-500 uppercase block mb-2 tracking-widest opacity-60">Input Sequence</span>
+                                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
+                                    <code className="text-xs font-mono text-indigo-400 break-all">{JSON.stringify(order.input)}</code>
                                 </div>
                             </div>
                             <div>
-                                <span className="text-[9px] font-black text-slate-500 uppercase block mb-2 tracking-widest opacity-60">Manifest Target</span>
-                                <div className="bg-[#1f2937] p-3 rounded-lg border-b-4 border-emerald-900/50">
+                                <span className="text-[9px] font-black text-slate-500 uppercase block mb-2 tracking-widest opacity-60">Expected Manifest</span>
+                                <div className="bg-slate-950 p-3 rounded-xl border border-slate-800">
                                     <code className="text-xs font-mono text-emerald-400 break-all">{JSON.stringify(order.expected)}</code>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="p-4 bg-teal-500/5 rounded-xl border border-teal-500/10 space-y-3">
-                            <span className="text-[10px] font-black text-teal-400 uppercase block mb-1 tracking-widest italic">Live Processing</span>
+                        <div className="p-5 bg-indigo-500/5 rounded-2xl border border-indigo-500/10 space-y-4">
+                            <div className="flex justify-between items-center">
+                                <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest italic tracking-wider">Live Processing</span>
+                                <div className="flex space-x-1">
+                                    <div className="w-1 h-1 bg-indigo-500 rounded-full animate-ping" />
+                                    <div className="w-1 h-1 bg-indigo-500 rounded-full opacity-50" />
+                                </div>
+                            </div>
                             <div className="space-y-3 relative z-10">
                                 <div className="flex justify-between items-center px-1">
-                                    <span className="text-[10px] text-slate-500 font-bold uppercase">Finished Product:</span>
-                                    <span className={`text-xs font-mono font-bold ${JSON.stringify(currentOutput) === JSON.stringify(order.expected) ? 'text-emerald-400' : 'text-teal-400'} break-all`}>
-                                        {currentOutput !== "" ? JSON.stringify(currentOutput) : '---'}
+                                    <span className="text-[10px] text-slate-500 font-bold uppercase">Current Payload:</span>
+                                    <span className={`text-xs font-mono font-black ${JSON.stringify(currentOutput) === JSON.stringify(order.expected) ? 'text-emerald-400' : 'text-indigo-400'} break-all`}>
+                                        {currentOutput !== "" ? JSON.stringify(currentOutput) : 'READY'}
                                     </span>
                                 </div>
-                                <div className="h-2 bg-slate-900 rounded-full overflow-hidden">
+                                <div className="h-2 bg-slate-950 rounded-full overflow-hidden border border-slate-800">
                                      <div 
-                                        className="h-full bg-teal-500 shadow-[0_0_10px_rgba(20,184,166,0.5)] transition-all duration-500" 
-                                        style={{ width: `${(JSON.stringify(currentOutput).length / JSON.stringify(order.expected).length) * 100}%` }}
+                                        className="h-full bg-gradient-to-r from-indigo-600 to-blue-500 shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all duration-700 ease-out" 
+                                        style={{ width: `${currentOutput === "" ? 0 : (JSON.stringify(currentOutput).length / JSON.stringify(order.expected).length) * 100}%` }}
                                      />
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <div className="p-6 bg-[#1f2937] border-t border-teal-900/20">
+                    <div className="p-6 bg-slate-900 border-t border-slate-800">
                          {isLevelComplete ? (
                                 <button 
                                 onClick={nextLevel}
-                                className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase italic tracking-tighter rounded-xl shadow-lg transition-all animate-bounce"
+                                className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase italic tracking-widest rounded-2xl shadow-xl shadow-emerald-500/20 transition-all transform hover:-translate-y-1 active:translate-y-0"
                                 >
-                                    <span>Next Level</span>
+                                    <span>Deploy Next Order</span>
                                 </button>
                          ) : (
                                 <button 
                                 onClick={checkSolution}
                                 disabled={!isPyodideLoaded}
-                                className="w-full py-4 bg-teal-600 hover:bg-teal-500 text-white font-black uppercase italic tracking-[2px] rounded-xl shadow-lg transition-all"
+                                className="w-full py-4 bg-indigo-600 hover:bg-indigo-500 text-white font-black uppercase italic tracking-widest rounded-2xl shadow-xl shadow-indigo-600/20 transition-all disabled:opacity-50 transform hover:-translate-y-1 active:translate-y-0"
                                 >
-                                    {!isPyodideLoaded ? 'Loading Crawler...' : 'Run code'}
+                                    {!isPyodideLoaded ? 'Warming Engine...' : 'Run Simulation'}
                                 </button>
                          )}
-                         <p className="text-[9px] text-slate-600 text-center font-black tracking-widest mt-4 opacity-50 uppercase">Junior Code by NEXT</p>
+                         <p className="text-[8px] text-slate-600 text-center font-black tracking-[4px] mt-4 opacity-50 uppercase">NextGen Engine v4.2</p>
                     </div>
                 </div>
 
                 {/* Workspace area */}
-                <div className="flex-1 relative flex flex-col bg-[#030712]">
+                <div className="flex-1 relative flex flex-col bg-slate-950">
                     <div className="flex-1 relative">
                         <div ref={blocklyDivRef} className="absolute inset-0" />
                         
-                        {/* Hint */}
-                        <div className="absolute bottom-6 left-6 z-10 max-w-sm pointer-events-none">
-                            <div className="bg-[#1f2937]/90 backdrop-blur-md border border-teal-900/30 p-3 rounded-xl flex items-start space-x-3 shadow-2xl">
-                                <div className="w-8 h-8 rounded-full bg-teal-500/20 flex items-center justify-center shrink-0 border border-teal-500/20">
-                                    <span className="text-teal-400 font-black">?</span>
-                                </div>
-                                <div>
-                                    <span className="text-[8px] font-black text-teal-500 uppercase tracking-widest block mb-0.5">Instruction Manual</span>
-                                    <p className="text-[10px] text-slate-400 font-bold italic leading-tight">"{order.hint}"</p>
-                                </div>
-                            </div>
-                        </div>
+                        {/* Status Grid Overlay */}
+                        <div className="absolute inset-0 pointer-events-none opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 1.5px 1.5px, rgba(99,102,241,0.2) 1px, transparent 0)', backgroundSize: '30px 30px' }} />
                     </div>
 
-                    <div className="h-32 bg-[#020617] border-t border-teal-900/20 flex flex-col overflow-hidden font-mono text-xs">
-                        <div className="px-6 py-2 bg-[#0f172a] border-b border-teal-900/10 flex items-center">
-                            <span className="text-[10px] font-black text-teal-500 uppercase tracking-widest">Scanner Code Output</span>
+                    <div className="h-32 bg-slate-900 border-t border-slate-800 flex flex-col overflow-hidden font-mono text-xs">
+                        <div className="px-6 py-2 bg-slate-950/50 border-b border-slate-800 flex items-center justify-between">
+                            <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest flex items-center">
+                                <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full mr-2 shadow-[0_0_5px_rgba(99,102,241,1)]" />
+                                Python Generator Output
+                            </span>
+                            <span className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">Compiler_v5.0</span>
                         </div>
-                        <div className="flex-1 p-4 overflow-y-auto">
-                            <pre className="text-teal-400/80 italic leading-relaxed">
-                                {generatedCode || "# Assemble blocks to scan cargo manifest..."}
+                        <div className="flex-1 p-4 overflow-y-auto bg-slate-950/20">
+                            <pre className="text-indigo-300/80 italic leading-relaxed">
+                                {generatedCode || "# Assemble blocks to compile manifest logic..."}
                             </pre>
                         </div>
                     </div>
@@ -672,12 +703,16 @@ result = cargo
             </div>
 
             <style dangerouslySetInnerHTML={{ __html: `
-                .blocklyToolboxDiv { background-color: #030712 !important; border-right: 1px solid #111827 !important; }
-                .blocklyTreeLabel { font-family: 'Inter', sans-serif; font-weight: 700; color: #5eead4 !important; }
-                .blocklyFlyoutBackground { fill: #030712 !important; fill-opacity: 0.9 !important; }
-                .blocklyWorkspace { background: #030712 !important; }
+                .blocklyToolboxDiv { background-color: #020617 !important; border-right: 1px solid #1e293b !important; padding-top: 1rem; }
+                .blocklyTreeLabel { font-family: 'Inter', sans-serif; font-weight: 700; color: #94a3b8 !important; text-transform: uppercase; font-size: 10px; letter-spacing: 1px; }
+                .blocklyTreeRow:hover { background-color: #1e293b !important; }
+                .blocklyTreeRow.blocklyTreeSelected { background-color: #312e81 !important; border-left: 4px solid #6366f1 !important; }
+                .blocklyTreeRow.blocklyTreeSelected .blocklyTreeLabel { color: #fff !important; }
+                .blocklyFlyoutBackground { fill: #020617 !important; fill-opacity: 0.95 !important; }
+                .blocklyWorkspace { background: #020617 !important; }
                 .blocklySvg { background: transparent !important; }
-                .blocklyPath { stroke-width: 2px !important; }
+                .blocklyPath { stroke-width: 2.5px !important; }
+                .blocklyMainBackground { stroke: none !important; }
             `}} />
         </div>
     );
