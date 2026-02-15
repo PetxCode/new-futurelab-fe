@@ -141,6 +141,7 @@ const WordFactory: React.FC = () => {
     const [generatedCode, setGeneratedCode] = useState("");
     const [isLevelComplete, setIsLevelComplete] = useState(false);
     const [isPyodideLoaded, setIsPyodideLoaded] = useState(false);
+    const [isOutputExpanded, setIsOutputExpanded] = useState(false);
     const pyodideRef = useRef<any>(null);
     const orderRef = useRef(workOrders[currentLevelIdx]);
 
@@ -806,8 +807,11 @@ const WordFactory: React.FC = () => {
                     </div>
 
                     {/* Machine Logic Readout */}
-                    <div className="h-28 bg-[#0f0f0f] border-t-4 border-[#262626] flex flex-col overflow-hidden relative">
-                        <div className="px-6 py-2 bg-[#1a1a1a] border-b border-orange-900/20 flex items-center justify-between shadow-md">
+                    <div className={`${isOutputExpanded ? 'h-96' : 'h-28'} bg-[#0f0f0f] border-t-4 border-[#262626] flex flex-col overflow-hidden relative transition-all duration-300 ease-in-out`}>
+                        <div 
+                            className="px-6 py-2 bg-[#1a1a1a] border-b border-orange-900/20 flex items-center justify-between shadow-md cursor-pointer hover:bg-[#222] transition-colors"
+                            onClick={() => setIsOutputExpanded(!isOutputExpanded)}
+                        >
                             <div className="flex items-center space-x-3">
                                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
                                 <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Compiler Output: Python V3.x</span>
@@ -815,6 +819,11 @@ const WordFactory: React.FC = () => {
                             <div className="flex items-center space-x-2">
                                 <span className="text-[8px] font-black text-slate-600 uppercase tracking-wider">Module Status:</span>
                                 <span className="text-[8px] font-black text-orange-500 uppercase tracking-wider px-2 py-0.5 bg-orange-500/5 rounded border border-orange-500/10">ACTIVE</span>
+                                <button className="text-slate-500 hover:text-orange-500 transition-colors ml-2">
+                                    <svg className={`w-4 h-4 transform transition-transform duration-300 ${isOutputExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+                                    </svg>
+                                </button>
                             </div>
                         </div>
                         <div className="flex-1 p-4 overflow-y-auto font-mono text-xs custom-scrollbar">

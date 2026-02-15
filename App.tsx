@@ -218,7 +218,7 @@ const App: React.FC = () => {
       case 'Games':
         return <GameCenter />;
       case 'Junior Code':
-        return <JuniorCode />;
+        return <JuniorCode userData={userData} />;
       case 'Code Battle':
         return <CodeBattle />;
       case 'Python Engine':

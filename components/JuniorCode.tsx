@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { User } from '../types';
 import BlockCodingEngine from './BlockCodingEngine';
 import EngineBlocks from './EngineBlocks';
 import BreakoutGame from './BreakoutGame';
@@ -9,9 +10,14 @@ import StringDecoder from './StringDecoder';
 import WordFactory from './WordFactory';
 import CargoTycoon from './CargoTycoon';
 import CodingFundamentals from './CodingFundamentals';
+import ScratchPad from './ScratchPad';
 
-const JuniorCode: React.FC = () => {
-  const [activeView, setActiveView] = useState<'menu' | 'maze' | 'flappy' | 'breakout' | 'dino' | 'battle' | 'logic' | 'decoder' | 'factory' | 'cargo' | 'fundamentals'>('menu');
+interface JuniorCodeProps {
+  userData?: User | null;
+}
+
+const JuniorCode: React.FC<JuniorCodeProps> = ({ userData }) => {
+  const [activeView, setActiveView] = useState<'menu' | 'maze' | 'flappy' | 'breakout' | 'dino' | 'battle' | 'logic' | 'decoder' | 'factory' | 'cargo' | 'fundamentals' | 'scratch'>('menu');
   const [decoderMode, setDecoderMode] = useState<'solo' | 'battle'>('solo');
 
   if (activeView === 'maze') {
@@ -188,7 +194,26 @@ const JuniorCode: React.FC = () => {
             </button>
         </div>
         <div className="flex-1 overflow-hidden relative">
-           <CodingFundamentals />
+           <CodingFundamentals userData={userData} />
+        </div>
+      </div>
+    );
+  }
+
+  if (activeView === 'scratch') {
+    return (
+      <div className="h-full flex flex-col">
+         <div className="bg-slate-900 border-b border-slate-800 p-2 flex items-center">
+            <button 
+            onClick={() => setActiveView('menu')}
+            className="text-slate-400 hover:text-white px-4 py-2 flex items-center space-x-2 transition-colors rounded-lg hover:bg-slate-800"
+            >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            <span className="text-xs font-black uppercase tracking-wider">Back to Hub</span>
+            </button>
+        </div>
+        <div className="flex-1 overflow-hidden relative">
+           <ScratchPad />
         </div>
       </div>
     );
@@ -591,6 +616,38 @@ const JuniorCode: React.FC = () => {
                             
                             <div className="flex items-center space-x-2 text-teal-400 font-bold uppercase text-xs tracking-wider group-hover:translate-x-2 transition-transform">
                                 <span>Start Shipping</span>
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                            </div>
+                        </div>
+                     </div>
+                </button>
+
+                
+                {/* Creative Lab Card */}
+                <button 
+                    onClick={() => setActiveView('scratch')}
+                    className="group relative h-80 rounded-[2rem] overflow-hidden border border-slate-800 transition-all hover:border-purple-500 hover:shadow-2xl hover:shadow-purple-500/20 text-left bg-slate-900"
+                >
+                     <div className="absolute inset-0 bg-slate-900"/>
+                     <div className="absolute inset-0 bg-gradient-to-br from-purple-600/20 to-pink-600/20 opacity-0 group-hover:opacity-100 transition-opacity duration-500"/>
+                     
+                     {/* Background Pattern */}
+                    <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 2px 2px, rgba(255,255,255,0.15) 1px, transparent 0)', backgroundSize: '20px 20px' }}></div>
+
+                    <div className="absolute inset-0 flex flex-col p-8 z-10">
+                        <div className="flex justify-between items-start mb-auto">
+                            <div className="w-12 h-12 bg-purple-600 rounded-2xl flex items-center justify-center shadow-lg shadow-purple-500/30 group-hover:scale-110 transition-transform duration-300">
+                                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3zM9.5 5C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+                            </div>
+                            <span className="bg-slate-950/50 backdrop-blur border border-slate-700 text-slate-300 text-[10px] font-black uppercase px-3 py-1 rounded-full">Creative Workshop</span>
+                        </div>
+
+                        <div className="space-y-4">
+                            <h3 className="text-4xl font-black text-white italic tracking-tighter uppercase group-hover:text-purple-400 transition-colors">Creative<br/>Lab</h3>
+                            <p className="text-slate-400 font-medium leading-relaxed group-hover:text-slate-300 max-w-xs">Build your own stories and games! Use blocks to create anything you can imagine.</p>
+                            
+                            <div className="flex items-center space-x-2 text-purple-400 font-bold uppercase text-xs tracking-wider group-hover:translate-x-2 transition-transform">
+                                <span>Enter Lab</span>
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
                             </div>
                         </div>

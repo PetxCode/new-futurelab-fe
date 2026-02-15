@@ -11,6 +11,7 @@ const LogicLab: React.FC = () => {
     const [generatedCode, setGeneratedCode] = useState("");
     const [isRunning, setIsRunning] = useState(false);
     const [isPyodideLoaded, setIsPyodideLoaded] = useState(false);
+    const [isOutputExpanded, setIsOutputExpanded] = useState(false);
     const pyodideRef = useRef<any>(null);
 
     useEffect(() => {
@@ -245,9 +246,17 @@ const LogicLab: React.FC = () => {
                     </div>
                     
                     {/* Live Code Preview for Workshop */}
-                    <div className="h-32 bg-slate-950 border-t border-slate-800 flex flex-col overflow-hidden">
-                        <div className="px-4 py-1.5 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between">
+                    <div className={`${isOutputExpanded ? 'h-96' : 'h-32'} bg-slate-950 border-t border-slate-800 flex flex-col overflow-hidden transition-all duration-300 ease-in-out`}>
+                        <div 
+                            className="px-4 py-1.5 bg-slate-900/50 border-b border-slate-800 flex items-center justify-between cursor-pointer hover:bg-slate-900/80 transition-colors"
+                            onClick={() => setIsOutputExpanded(!isOutputExpanded)}
+                        >
                             <span className="text-[9px] font-black text-amber-500 uppercase tracking-widest italic">Generated Python Logic</span>
+                            <button className="text-slate-500 hover:text-amber-500 transition-colors">
+                                <svg className={`w-4 h-4 transform transition-transform duration-300 ${isOutputExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+                                </svg>
+                            </button>
                         </div>
                         <div className="flex-1 p-4 overflow-y-auto">
                             <pre className="font-mono text-[11px] text-amber-100/60 leading-relaxed italic">
