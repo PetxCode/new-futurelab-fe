@@ -119,7 +119,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
   const fetchSchoolStats = async () => {
     setIsFetchingStats(true);
     try {
-      const response = await fetch(`${"https://futurelab-main-be.vercel.app"}/api/schools/stats`, {
+      const response = await fetch(`${API_BASE_URL}/api/schools/stats`, {
         headers: {
           'x-auth-token': localStorage.getItem('token') || ''
         }
@@ -265,7 +265,11 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
                                   <span className="px-2 py-0.5 bg-rose-500/10 text-rose-500 text-[8px] font-black uppercase rounded border border-rose-500/20">Suspended</span>
                                 )}
                               </div>
-                              <span className="text-slate-500 text-xs font-medium">{school.address || 'Global Campus'}</span>
+                              <span className="text-slate-500 text-xs font-medium">
+                                {school.address || 'Global Campus'} 
+                                <span className="mx-2 opacity-30">|</span> 
+                                <span className="text-indigo-400 font-black">Code: {school.schoolCode}</span>
+                              </span>
                             </div>
                           </td>
                           <td className="py-6 px-4 text-center">

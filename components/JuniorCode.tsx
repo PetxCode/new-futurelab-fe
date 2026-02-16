@@ -269,7 +269,7 @@ const JuniorCode: React.FC<JuniorCodeProps> = ({ userData }) => {
                         <div className="px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider w-fit bg-sky-500/10 text-sky-400 border border-sky-500/20">
                         Logic & Algorithms
                         </div>
-                        <h3 className="text-2xl font-black text-white italic tracking-tight">Code Commander2</h3>
+                        <h3 className="text-2xl font-black text-white italic tracking-tight">Code Commander</h3>
                         <p className="text-slate-400 text-sm font-medium leading-relaxed">"Report for duty! We'll navigate complex mazes using loops and logic."</p>
                 </div>
             </div>
