@@ -26,48 +26,48 @@ interface Level {
 
 const levels: Level[] = [
     // === VARIABLES (1-20) ===
-    { id: 1, title: "The Box", category: "Variables", description: "Variables are like boxes. Create a variable named 'score' and put the number 10 in it.", expectedOutput: 10, allowedBlocks: ['variables_set', 'math_number'], hint: "Use the 'set variable' block and a number block.", validationType: 'output' },
+    { id: 1, title: "The Box", category: "Variables", description: "Variables are like boxes. Create a variable named 'score' and put the number 10 in it.", expectedOutput: 10, allowedBlocks: ['variables_set', 'math_number'], hint: "Use the 'set variable' block and a number block.", validationType: 'output', targetVar: 'score' },
     { id: 2, title: "Name Tag", category: "Variables", description: "Create a variable named 'player' and store your name (as a text string) in it.", expectedOutput: "Player1", allowedBlocks: ['variables_set', 'text'], hint: "Use 'set variable' and a 'text' block.", validationType: 'manual' },
-    { id: 3, title: "Level Up", category: "Variables", description: "The 'score' is 10. Change it to 20.", initialCode: "score = 10", expectedOutput: 20, allowedBlocks: ['variables_set', 'math_number'], hint: "Set 'score' to 20.", validationType: 'output' },
-    { id: 4, title: "Math Magic", category: "Variables", description: "Set 'a' to 5 and 'b' to 3. Create a variable 'total' that is a + b.", expectedOutput: 8, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Use the math block to add 'a' and 'b'.", validationType: 'output' },
+    { id: 3, title: "Level Up", category: "Variables", description: "The 'score' is 10. Change it to 20.", initialCode: "score = 10", expectedOutput: 20, allowedBlocks: ['variables_set', 'math_number'], hint: "Set 'score' to 20.", validationType: 'output', targetVar: 'score' },
+    { id: 4, title: "Math Magic", category: "Variables", description: "Set 'a' to 5 and 'b' to 3. Create a variable 'total' that is a + b.", expectedOutput: 8, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Use the math block to add 'a' and 'b'.", validationType: 'output', targetVar: 'total' },
     { id: 5, title: "Swap", category: "Variables", description: "Swap the values! Set x=1, y=2. Then make x=2 and y=1.", expectedOutput: [2, 1], allowedBlocks: ['variables_set', 'math_number'], hint: "Just re-assign the variables.", validationType: 'manual' },
-    { id: 6, title: "Subtraction", category: "Variables", description: "Set 'x' to 100 and 'y' to 25. Create 'result' that is x - y.", expectedOutput: 75, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Use the subtraction operator.", validationType: 'output' },
-    { id: 7, title: "Multiply", category: "Variables", description: "Set 'width' to 7 and 'height' to 4. Create 'area' that is width * height.", expectedOutput: 28, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Use multiplication.", validationType: 'output' },
-    { id: 8, title: "Division", category: "Variables", description: "Set 'total' to 50 and 'parts' to 5. Create 'each' that is total / parts.", expectedOutput: 10, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Use division.", validationType: 'output' },
-    { id: 9, title: "Text Join", category: "Variables", description: "Set 'first' to 'Hello' and 'second' to 'World'. Create 'message' that joins them.", expectedOutput: "HelloWorld", allowedBlocks: ['variables_set', 'text', 'text_join', 'variables_get'], hint: "Use the text join block.", validationType: 'manual' },
-    { id: 10, title: "Counter", category: "Variables", description: "Set 'count' to 0. Then increase it by 1, three times.", expectedOutput: 3, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Add 1 to count, then reassign.", validationType: 'output' },
-    { id: 11, title: "Double It", category: "Variables", description: "Set 'num' to 7. Then double it (multiply by 2).", expectedOutput: 14, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Multiply num by 2 and reassign.", validationType: 'output' },
-    { id: 12, title: "Triple Math", category: "Variables", description: "Set a=2, b=3, c=4. Create 'sum' that is a+b+c.", expectedOutput: 9, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Add all three variables.", validationType: 'output' },
-    { id: 13, title: "Average", category: "Variables", description: "Set x=10, y=20. Create 'avg' that is (x+y)/2.", expectedOutput: 15, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Add then divide by 2.", validationType: 'output' },
-    { id: 14, title: "Remainder", category: "Variables", description: "Set 'num' to 17 and 'div' to 5. Create 'rem' that is the remainder.", expectedOutput: 2, allowedBlocks: ['variables_set', 'math_number', 'math_modulo', 'variables_get'], hint: "Use the modulo (%) operator.", validationType: 'output' },
-    { id: 15, title: "Power Up", category: "Variables", description: "Set 'base' to 2 and 'exp' to 3. Create 'power' that is base^exp (2^3=8).", expectedOutput: 8, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Use power/exponent operator.", validationType: 'output' },
-    { id: 16, title: "Negative", category: "Variables", description: "Set 'positive' to 42. Create 'negative' that is -positive.", expectedOutput: -42, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Multiply by -1 or use negation.", validationType: 'output' },
-    { id: 17, title: "Absolute", category: "Variables", description: "Set 'num' to -15. Create 'abs' that is the absolute value (15).", expectedOutput: 15, allowedBlocks: ['variables_set', 'math_number', 'math_single', 'variables_get'], hint: "Use the absolute value function.", validationType: 'output' },
-    { id: 18, title: "Round", category: "Variables", description: "Set 'decimal' to 3.7. Create 'rounded' that rounds it to 4.", expectedOutput: 4, allowedBlocks: ['variables_set', 'math_number', 'math_round', 'variables_get'], hint: "Use the round function.", validationType: 'output' },
-    { id: 19, title: "Max Value", category: "Variables", description: "Set a=5, b=12. Create 'max' that is the larger of the two.", expectedOutput: 12, allowedBlocks: ['variables_set', 'math_number', 'math_on_list', 'variables_get', 'lists_create_with'], hint: "Use max function.", validationType: 'output' },
-    { id: 20, title: "Complex Calc", category: "Variables", description: "Set x=3, y=4. Create 'result' that is (x*y) + (x+y).", expectedOutput: 19, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Combine operations: (3*4)+(3+4)=19.", validationType: 'output' },
+    { id: 6, title: "Subtraction", category: "Variables", description: "Set 'x' to 100 and 'y' to 25. Create 'result' that is x - y.", expectedOutput: 75, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Use the subtraction operator.", validationType: 'output', targetVar: 'result' },
+    { id: 7, title: "Multiply", category: "Variables", description: "Set 'width' to 7 and 'height' to 4. Create 'area' that is width * height.", expectedOutput: 28, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Use multiplication.", validationType: 'output', targetVar: 'area' },
+    { id: 8, title: "Division", category: "Variables", description: "Set 'total' to 50 and 'parts' to 5. Create 'each' that is total / parts.", expectedOutput: 10, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Use division.", validationType: 'output', targetVar: 'each' },
+    { id: 9, title: "Text Join", category: "Variables", description: "Set 'first' to 'Hello' and 'second' to 'World'. Create 'message' that joins them.", expectedOutput: "HelloWorld", allowedBlocks: ['variables_set', 'text', 'text_join', 'variables_get'], hint: "Use the text join block.", validationType: 'manual', targetVar: 'message' },
+    { id: 10, title: "Counter", category: "Variables", description: "Set 'count' to 0. Then increase it by 1, three times.", expectedOutput: 3, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Add 1 to count, then reassign.", validationType: 'output', targetVar: 'count' },
+    { id: 11, title: "Double It", category: "Variables", description: "Set 'num' to 7. Then double it (multiply by 2).", expectedOutput: 14, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Multiply num by 2 and reassign.", validationType: 'output', targetVar: 'num' },
+    { id: 12, title: "Triple Math", category: "Variables", description: "Set a=2, b=3, c=4. Create 'sum' that is a+b+c.", expectedOutput: 9, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Add all three variables.", validationType: 'output', targetVar: 'sum' },
+    { id: 13, title: "Average", category: "Variables", description: "Set x=10, y=20. Create 'avg' that is (x+y)/2.", expectedOutput: 15, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Add then divide by 2.", validationType: 'output', targetVar: 'avg' },
+    { id: 14, title: "Remainder", category: "Variables", description: "Set 'num' to 17 and 'div' to 5. Create 'rem' that is the remainder.", expectedOutput: 2, allowedBlocks: ['variables_set', 'math_number', 'math_modulo', 'variables_get'], hint: "Use the modulo (%) operator.", validationType: 'output', targetVar: 'rem' },
+    { id: 15, title: "Power Up", category: "Variables", description: "Set 'base' to 2 and 'exp' to 3. Create 'power' that is base^exp (2^3=8).", expectedOutput: 8, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Use power/exponent operator.", validationType: 'output', targetVar: 'power' },
+    { id: 16, title: "Negative", category: "Variables", description: "Set 'positive' to 42. Create 'negative' that is -positive.", expectedOutput: -42, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Multiply by -1 or use negation.", validationType: 'output', targetVar: 'negative' },
+    { id: 17, title: "Absolute", category: "Variables", description: "Set 'num' to -15. Create 'abs' that is the absolute value (15).", expectedOutput: 15, allowedBlocks: ['variables_set', 'math_number', 'math_single', 'variables_get'], hint: "Use the absolute value function.", validationType: 'output', targetVar: 'abs' },
+    { id: 18, title: "Round", category: "Variables", description: "Set 'decimal' to 3.7. Create 'rounded' that rounds it to 4.", expectedOutput: 4, allowedBlocks: ['variables_set', 'math_number', 'math_round', 'variables_get'], hint: "Use the round function.", validationType: 'output', targetVar: 'rounded' },
+    { id: 19, title: "Max Value", category: "Variables", description: "Set a=5, b=12. Create 'max' that is the larger of the two.", expectedOutput: 12, allowedBlocks: ['variables_set', 'math_number', 'math_on_list', 'variables_get', 'lists_create_with'], hint: "Use max function.", validationType: 'output', targetVar: 'max' },
+    { id: 20, title: "Complex Calc", category: "Variables", description: "Set x=3, y=4. Create 'result' that is (x*y) + (x+y).", expectedOutput: 19, allowedBlocks: ['variables_set', 'math_number', 'math_arithmetic', 'variables_get'], hint: "Combine operations: (3*4)+(3+4)=19.", validationType: 'output', targetVar: 'result' },
 
     // === CONDITIONS (21-40) ===
-    { id: 21, title: "Gatekeeper", category: "Conditions", description: "If 'password' is '1234', set 'access' to True.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'logic_boolean', 'variables_get'], hint: "Use 'if' block and 'compare' block.", validationType: 'manual', expectedOutput: true },
-    { id: 22, title: "Coin Toss", category: "Conditions", description: "If 'coin' is 'heads', set 'result' to 'win'. Else, set 'result' to 'try again'.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'variables_get'], hint: "Use 'if-else' block.", validationType: 'manual', expectedOutput: "win" },
-    { id: 23, title: "Traffic Light", category: "Conditions", description: "If 'light' is 'red', set 'action' to 'stop'. Else if 'green', set to 'go'.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'variables_get'], hint: "Click the gear on the 'if' block to add 'else if'.", validationType: 'manual', expectedOutput: "stop" },
-    { id: 24, title: "Comparison", category: "Conditions", description: "If 'score' > 50, set 'medal' to 'gold'.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'math_number', 'variables_get'], hint: "Use the comparison block (>).", validationType: 'manual', expectedOutput: "gold" },
-    { id: 25, title: "Logic Master", category: "Conditions", description: "If 'day' is 'Saturday' OR 'Sunday', set 'weekend' to True.", allowedBlocks: ['controls_if', 'logic_operation', 'logic_compare', 'variables_set', 'text', 'logic_boolean', 'variables_get'], hint: "Use the 'OR' block.", validationType: 'manual', expectedOutput: true },
-    { id: 26, title: "Age Check", category: "Conditions", description: "If 'age' >= 18, set 'adult' to True, else False.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'math_number', 'logic_boolean', 'variables_get'], hint: "Use >= comparison.", validationType: 'manual', expectedOutput: true },
-    { id: 27, title: "Range Check", category: "Conditions", description: "If 'temp' is between 20 and 30 (inclusive), set 'comfortable' to True.", allowedBlocks: ['controls_if', 'logic_operation', 'logic_compare', 'variables_set', 'math_number', 'logic_boolean', 'variables_get'], hint: "Use AND: temp>=20 AND temp<=30.", validationType: 'manual', expectedOutput: true },
-    { id: 28, title: "Even or Odd", category: "Conditions", description: "If 'num' is even, set 'type' to 'even', else 'odd'.", allowedBlocks: ['controls_if', 'logic_compare', 'math_modulo', 'variables_set', 'text', 'math_number', 'variables_get'], hint: "Use modulo: num % 2 == 0.", validationType: 'manual', expectedOutput: "even" },
-    { id: 29, title: "Positive Check", category: "Conditions", description: "If 'value' > 0, set 'sign' to 'positive'. If < 0, 'negative'. Else 'zero'.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'math_number', 'variables_get'], hint: "Use if-else if-else.", validationType: 'manual', expectedOutput: "positive" },
-    { id: 30, title: "Grade System", category: "Conditions", description: "If 'score' >= 90, set 'grade' to 'A'. Else if >= 80, 'B'. Else 'C'.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'math_number', 'variables_get'], hint: "Multiple else-if conditions.", validationType: 'manual', expectedOutput: "A" },
-    { id: 31, title: "Login Check", category: "Conditions", description: "If 'user' is 'admin' AND 'pass' is 'secret', set 'logged' to True.", allowedBlocks: ['controls_if', 'logic_operation', 'logic_compare', 'variables_set', 'text', 'logic_boolean', 'variables_get'], hint: "Use AND operator.", validationType: 'manual', expectedOutput: true },
-    { id: 32, title: "Discount", category: "Conditions", description: "If 'amount' > 100, set 'discount' to 10. Else 0.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'math_number', 'variables_get'], hint: "Simple if-else with numbers.", validationType: 'manual', expectedOutput: 10 },
-    { id: 33, title: "Max of Three", category: "Conditions", description: "Given a=5, b=12, c=8, set 'max' to the largest.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'math_number', 'variables_get'], hint: "Nested if statements.", validationType: 'manual', expectedOutput: 12 },
-    { id: 34, title: "Leap Year", category: "Conditions", description: "If 'year' is divisible by 4, set 'leap' to True, else False.", allowedBlocks: ['controls_if', 'logic_compare', 'math_modulo', 'variables_set', 'math_number', 'logic_boolean', 'variables_get'], hint: "year % 4 == 0.", validationType: 'manual', expectedOutput: true },
-    { id: 35, title: "Triangle Type", category: "Conditions", description: "If a==b AND b==c, set 'type' to 'equilateral'. Else if a==b OR b==c, 'isosceles'. Else 'scalene'.", allowedBlocks: ['controls_if', 'logic_operation', 'logic_compare', 'variables_set', 'text', 'variables_get'], hint: "Complex AND/OR logic.", validationType: 'manual', expectedOutput: "equilateral" },
-    { id: 36, title: "Voting Age", category: "Conditions", description: "If 'age' >= 18 AND 'citizen' is True, set 'canVote' to True.", allowedBlocks: ['controls_if', 'logic_operation', 'logic_compare', 'variables_set', 'math_number', 'logic_boolean', 'variables_get'], hint: "Both conditions must be true.", validationType: 'manual', expectedOutput: true },
-    { id: 37, title: "Temperature Alert", category: "Conditions", description: "If 'temp' < 0, set 'alert' to 'freezing'. If > 35, 'hot'. Else 'normal'.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'math_number', 'variables_get'], hint: "Multiple conditions.", validationType: 'manual', expectedOutput: "freezing" },
-    { id: 38, title: "Password Strength", category: "Conditions", description: "If 'length' >= 8, set 'strong' to True, else False.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'math_number', 'logic_boolean', 'variables_get'], hint: "Simple comparison.", validationType: 'manual', expectedOutput: true },
-    { id: 39, title: "BMI Category", category: "Conditions", description: "If 'bmi' < 18.5, set 'category' to 'underweight'. If < 25, 'normal'. Else 'overweight'.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'math_number', 'variables_get'], hint: "Sequential comparisons.", validationType: 'manual', expectedOutput: "underweight" },
-    { id: 40, title: "Access Control", category: "Conditions", description: "If 'role' is 'admin' OR 'role' is 'moderator', set 'access' to 'granted'.", allowedBlocks: ['controls_if', 'logic_operation', 'logic_compare', 'variables_set', 'text', 'variables_get'], hint: "OR condition.", validationType: 'manual', expectedOutput: "granted" },
+    { id: 21, title: "Gatekeeper", category: "Conditions", description: "If 'password' is '1234', set 'access' to True.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'logic_boolean', 'variables_get'], hint: "Use 'if' block and 'compare' block.", validationType: 'manual', expectedOutput: true, targetVar: 'access' },
+    { id: 22, title: "Coin Toss", category: "Conditions", description: "If 'coin' is 'heads', set 'result' to 'win'. Else, set 'result' to 'try again'.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'variables_get'], hint: "Use 'if-else' block.", validationType: 'manual', expectedOutput: "win", targetVar: 'result' },
+    { id: 23, title: "Traffic Light", category: "Conditions", description: "If 'light' is 'red', set 'action' to 'stop'. Else if 'green', set to 'go'.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'variables_get'], hint: "Click the gear on the 'if' block to add 'else if'.", validationType: 'manual', expectedOutput: "stop", targetVar: 'action' },
+    { id: 24, title: "Comparison", category: "Conditions", description: "If 'score' > 50, set 'medal' to 'gold'.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'math_number', 'variables_get'], hint: "Use the comparison block (>).", validationType: 'manual', expectedOutput: "gold", targetVar: 'medal' },
+    { id: 25, title: "Logic Master", category: "Conditions", description: "If 'day' is 'Saturday' OR 'Sunday', set 'weekend' to True.", allowedBlocks: ['controls_if', 'logic_operation', 'logic_compare', 'variables_set', 'text', 'logic_boolean', 'variables_get'], hint: "Use the 'OR' block.", validationType: 'manual', expectedOutput: true, targetVar: 'weekend' },
+    { id: 26, title: "Age Check", category: "Conditions", description: "If 'age' >= 18, set 'adult' to True, else False.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'math_number', 'logic_boolean', 'variables_get'], hint: "Use >= comparison.", validationType: 'manual', expectedOutput: true, targetVar: 'adult' },
+    { id: 27, title: "Range Check", category: "Conditions", description: "If 'temp' is between 20 and 30 (inclusive), set 'comfortable' to True.", allowedBlocks: ['controls_if', 'logic_operation', 'logic_compare', 'variables_set', 'math_number', 'logic_boolean', 'variables_get'], hint: "Use AND: temp>=20 AND temp<=30.", validationType: 'manual', expectedOutput: true, targetVar: 'comfortable' },
+    { id: 28, title: "Even or Odd", category: "Conditions", description: "If 'num' is even, set 'type' to 'even', else 'odd'.", allowedBlocks: ['controls_if', 'logic_compare', 'math_modulo', 'variables_set', 'text', 'math_number', 'variables_get'], hint: "Use modulo: num % 2 == 0.", validationType: 'manual', expectedOutput: "even", targetVar: 'type' },
+    { id: 29, title: "Positive Check", category: "Conditions", description: "If 'value' > 0, set 'sign' to 'positive'. If < 0, 'negative'. Else 'zero'.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'math_number', 'variables_get'], hint: "Use if-else if-else.", validationType: 'manual', expectedOutput: "positive", targetVar: 'sign' },
+    { id: 30, title: "Grade System", category: "Conditions", description: "If 'score' >= 90, set 'grade' to 'A'. Else if >= 80, 'B'. Else 'C'.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'math_number', 'variables_get'], hint: "Multiple else-if conditions.", validationType: 'manual', expectedOutput: "A", targetVar: 'grade' },
+    { id: 31, title: "Login Check", category: "Conditions", description: "If 'user' is 'admin' AND 'pass' is 'secret', set 'logged' to True.", allowedBlocks: ['controls_if', 'logic_operation', 'logic_compare', 'variables_set', 'text', 'logic_boolean', 'variables_get'], hint: "Use AND operator.", validationType: 'manual', expectedOutput: true, targetVar: 'logged' },
+    { id: 32, title: "Discount", category: "Conditions", description: "If 'amount' > 100, set 'discount' to 10. Else 0.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'math_number', 'variables_get'], hint: "Simple if-else with numbers.", validationType: 'manual', expectedOutput: 10, targetVar: 'discount' },
+    { id: 33, title: "Max of Three", category: "Conditions", description: "Given a=5, b=12, c=8, set 'max' to the largest.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'math_number', 'variables_get'], hint: "Nested if statements.", validationType: 'manual', expectedOutput: 12, targetVar: 'max' },
+    { id: 34, title: "Leap Year", category: "Conditions", description: "If 'year' is divisible by 4, set 'leap' to True, else False.", allowedBlocks: ['controls_if', 'logic_compare', 'math_modulo', 'variables_set', 'math_number', 'logic_boolean', 'variables_get'], hint: "year % 4 == 0.", validationType: 'manual', expectedOutput: true, targetVar: 'leap' },
+    { id: 35, title: "Triangle Type", category: "Conditions", description: "If a==b AND b==c, set 'type' to 'equilateral'. Else if a==b OR b==c, 'isosceles'. Else 'scalene'.", allowedBlocks: ['controls_if', 'logic_operation', 'logic_compare', 'variables_set', 'text', 'variables_get'], hint: "Complex AND/OR logic.", validationType: 'manual', expectedOutput: "equilateral", targetVar: 'type' },
+    { id: 36, title: "Voting Age", category: "Conditions", description: "If 'age' >= 18 AND 'citizen' is True, set 'canVote' to True.", allowedBlocks: ['controls_if', 'logic_operation', 'logic_compare', 'variables_set', 'math_number', 'logic_boolean', 'variables_get'], hint: "Both conditions must be true.", validationType: 'manual', expectedOutput: true, targetVar: 'canVote' },
+    { id: 37, title: "Temperature Alert", category: "Conditions", description: "If 'temp' < 0, set 'alert' to 'freezing'. If > 35, 'hot'. Else 'normal'.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'math_number', 'variables_get'], hint: "Multiple conditions.", validationType: 'manual', expectedOutput: "freezing", targetVar: 'alert' },
+    { id: 38, title: "Password Strength", category: "Conditions", description: "If 'length' >= 8, set 'strong' to True, else False.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'math_number', 'logic_boolean', 'variables_get'], hint: "Simple comparison.", validationType: 'manual', expectedOutput: true, targetVar: 'strong' },
+    { id: 39, title: "BMI Category", category: "Conditions", description: "If 'bmi' < 18.5, set 'category' to 'underweight'. If < 25, 'normal'. Else 'overweight'.", allowedBlocks: ['controls_if', 'logic_compare', 'variables_set', 'text', 'math_number', 'variables_get'], hint: "Sequential comparisons.", validationType: 'manual', expectedOutput: "underweight", targetVar: 'category' },
+    { id: 40, title: "Access Control", category: "Conditions", description: "If 'role' is 'admin' OR 'role' is 'moderator', set 'access' to 'granted'.", allowedBlocks: ['controls_if', 'logic_operation', 'logic_compare', 'variables_set', 'text', 'variables_get'], hint: "OR condition.", validationType: 'manual', expectedOutput: "granted", targetVar: 'access' },
 
     // === LOOPS (41-60) ===
     { id: 41, title: "Repeat Basics", category: "Loops", description: "Create a variable 'count'. Increase it by 1, repeat 5 times.", expectedOutput: 5, allowedBlocks: ['controls_repeat_ext', 'math_number', 'math_arithmetic', 'variables_set', 'variables_get'], hint: "Use 'repeat 5 times' block.", validationType: 'output', targetVar: 'count' },
@@ -294,20 +294,25 @@ const CodingFundamentals: React.FC<CodingFundamentalsProps> = ({ userData }) => 
 
 
             const fullScript = `
+# Clear previous level/run variables
+for name in list(globals().keys()):
+    if not name.startswith('_') and name not in ['json', 'js', 'pyodide', 'setupCode', 'userCode', 'fullScript']:
+        del globals()[name]
+
 ${setupCode}
 ${userCode}
 # Wrapper to extract all vars
 import json
 g = globals().copy()
-# Filter out system vars
-res = {k: v for k, v in g.items() if not k.startswith('_') and k not in ['json', 'g', 'res', 'js', 'pyodide', 'open', 'quit', 'exit', 'copyright', 'credits', 'license', 'help']}
-# Convert list/dict to string if need safely, or just keep as is for JS conversion
+# Filter out system vars and the default 'item' variable
+res = {k: v for k, v in g.items() if not k.startswith('_') and k not in ['json', 'g', 'res', 'js', 'pyodide', 'open', 'quit', 'exit', 'copyright', 'credits', 'license', 'help', 'item']}
+# Convert to result for JS
 result = res
 `;
             
             await pyodideRef.current.runPythonAsync(fullScript);
             const resultProxy = pyodideRef.current.globals.get("result");
-            const outputValue = resultProxy.toJs();
+            const outputValue = resultProxy ? resultProxy.toJs() : {};
             
             setCurrentOutput(outputValue);
         } catch (e: any) {
@@ -318,6 +323,21 @@ result = res
         }
     };
 
+    const resetMemory = () => {
+        setCurrentOutput({});
+        if (pyodideRef.current) {
+            try {
+                pyodideRef.current.runPython(`
+for name in list(globals().keys()):
+    if not name.startswith('_') and name not in ['json', 'js', 'pyodide', 'setupCode', 'userCode', 'fullScript']:
+        del globals()[name]
+`);
+            } catch (e) {
+                console.error("Error clearing memory:", e);
+            }
+        }
+    };
+
     const checkSolution = () => {
         let isCorrect = false;
         const currentVals = currentOutput as any;
@@ -325,14 +345,14 @@ result = res
         // Generic validation based on level's validationType
         if (level.validationType === 'output') {
             // Priority check: Use targetVar if defined
-            if (level.targetVar) {
-                if (currentVals && currentVals[level.targetVar] === level.expectedOutput) {
+            if (level.targetVar && currentVals) {
+                if (currentVals[level.targetVar] === level.expectedOutput) {
                     isCorrect = true;
                 }
             } else {
-                // Fallback: Guess the main variable
+                // Fallback: Guess the main variable, but exclude common loop/iterator vars
                 const mainVar = Object.keys(currentVals || {}).find(k => 
-                    !['a', 'b', 'c', 'x', 'y', 'i', 'temp', 'first', 'second', 'width', 'height', 'parts', 'div', 'exp', 'base', 'positive', 'decimal', 'num'].includes(k)
+                    !['a', 'b', 'c', 'x', 'y', 'i', 'temp', 'first', 'second', 'width', 'height', 'parts', 'div', 'exp', 'base', 'positive', 'decimal', 'num', 'item', 'val'].includes(k)
                 );
                 if (mainVar && currentVals[mainVar] === level.expectedOutput) {
                     isCorrect = true;
@@ -341,14 +361,21 @@ result = res
         } else if (level.validationType === 'manual') {
             // Manual validation for specific cases
             const id = level.id;
-            if (id === 2) isCorrect = typeof currentVals?.player === 'string' && currentVals?.player.length > 0;
-            else if (id === 5) isCorrect = currentVals?.x === 2 && currentVals?.y === 1;
-            else if (id === 9) isCorrect = currentVals?.message === "HelloWorld";
-            else if ([21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40].includes(id)) {
-                // Conditions - check the result variable
-                const resultVars = ['access', 'result', 'action', 'medal', 'weekend', 'adult', 'comfortable', 'type', 'sign', 'grade', 'logged', 'discount', 'max', 'leap', 'canVote', 'alert', 'strong', 'category'];
-                const resultVar = resultVars.find(v => currentVals?.[v] !== undefined);
-                if (resultVar) isCorrect = currentVals[resultVar] === level.expectedOutput;
+            
+            // Priority: Check targetVar if it exists in currentVals
+            if (level.targetVar && currentVals && currentVals[level.targetVar] !== undefined) {
+                isCorrect = currentVals[level.targetVar] === level.expectedOutput;
+            } else {
+                // Fallback for complex manual checks
+                if (id === 2) isCorrect = typeof currentVals?.player === 'string' && currentVals?.player.length > 0;
+                else if (id === 5) isCorrect = currentVals?.x === 2 && currentVals?.y === 1;
+                else if (id === 9) isCorrect = currentVals?.message === "HelloWorld";
+                else if ([21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40].includes(id)) {
+                    // Conditions - check the result variable
+                    const resultVars = ['access', 'result', 'action', 'medal', 'weekend', 'adult', 'comfortable', 'type', 'sign', 'grade', 'logged', 'discount', 'max', 'leap', 'canVote', 'alert', 'strong', 'category'];
+                    const resultVar = resultVars.find(v => currentVals?.[v] !== undefined);
+                    if (resultVar) isCorrect = currentVals[resultVar] === level.expectedOutput;
+                }
             }
         } else if (level.validationType === 'code') {
             // Code structure validation
@@ -476,9 +503,21 @@ result = res
 
                         {/* Status Output */}
                         <div className="p-5 bg-violet-500/5 rounded-2xl border border-violet-500/10 space-y-4">
-                            <div className="flex justify-between items-center">
-                                <span className="text-[10px] font-black text-violet-400 uppercase tracking-widest italic">Live Memory</span>
-                                <div className="w-1.5 h-1.5 bg-violet-500 rounded-full animate-ping" />
+                            <div className="flex justify-between items-center group/memory">
+                                <div className="flex items-center space-x-2">
+                                    <span className="text-[10px] font-black text-violet-400 uppercase tracking-widest italic">Live Memory</span>
+                                    <div className="w-1.5 h-1.5 bg-violet-500 rounded-full animate-ping" />
+                                </div>
+                                <button 
+                                    onClick={resetMemory}
+                                    className="text-[9px] font-black text-slate-500 hover:text-violet-400 uppercase tracking-widest transition-colors flex items-center space-x-1"
+                                    title="Clear variables"
+                                >
+                                    <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                    <span>Clear</span>
+                                </button>
                             </div>
                             <div className="space-y-2">
                                 {currentOutput && typeof currentOutput === 'object' ? (

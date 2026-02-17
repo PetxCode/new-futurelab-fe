@@ -391,6 +391,7 @@ const CargoTycoon: React.FC = () => {
     const [generatedCode, setGeneratedCode] = useState("");
     const [isLevelComplete, setIsLevelComplete] = useState(false);
     const [isPyodideLoaded, setIsPyodideLoaded] = useState(false);
+    const [isOutputExpanded, setIsOutputExpanded] = useState(false);
     const pyodideRef = useRef<any>(null);
     const orderRef = useRef(cargoOrders[currentLevelIdx]);
 
@@ -685,15 +686,25 @@ result = cargo
                         <div className="absolute inset-0 pointer-events-none opacity-20" style={{ backgroundImage: 'radial-gradient(circle at 1.5px 1.5px, rgba(99,102,241,0.2) 1px, transparent 0)', backgroundSize: '30px 30px' }} />
                     </div>
 
-                    <div className="h-32 bg-slate-900 border-t border-slate-800 flex flex-col overflow-hidden font-mono text-xs">
-                        <div className="px-6 py-2 bg-slate-950/50 border-b border-slate-800 flex items-center justify-between">
+                    <div className={`${isOutputExpanded ? 'h-96' : 'h-32'} bg-slate-900 border-t border-slate-800 flex flex-col overflow-hidden transition-all duration-300 ease-in-out`}>
+                        <div 
+                            className="px-6 py-2 bg-slate-950/50 border-b border-slate-800 flex items-center justify-between cursor-pointer hover:bg-slate-900/50 transition-colors"
+                            onClick={() => setIsOutputExpanded(!isOutputExpanded)}
+                        >
                             <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest flex items-center">
                                 <span className="w-1.5 h-1.5 bg-indigo-500 rounded-full mr-2 shadow-[0_0_5px_rgba(99,102,241,1)]" />
                                 Python Generator Output
                             </span>
-                            <span className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">Compiler_v5.0</span>
+                            <div className="flex items-center space-x-2">
+                                <span className="text-[9px] text-slate-600 font-bold uppercase tracking-widest">Compiler_v5.0</span>
+                                <button className="text-slate-500 hover:text-indigo-400 transition-colors">
+                                    <svg className={`w-4 h-4 transform transition-transform duration-300 ${isOutputExpanded ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7" />
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
-                        <div className="flex-1 p-4 overflow-y-auto bg-slate-950/20">
+                        <div className="flex-1 p-4 overflow-y-auto bg-slate-950/20 custom-scrollbar">
                             <pre className="text-indigo-300/80 italic leading-relaxed">
                                 {generatedCode || "# Assemble blocks to compile manifest logic..."}
                             </pre>
