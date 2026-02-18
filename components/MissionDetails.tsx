@@ -2,12 +2,9 @@ import React, { useState } from 'react';
 import { LearningResource, NavigationItem, Mission } from '../types';
 
 interface MissionDetailsProps {
-  mission: LearningResource & { 
-    description?: string;
-    longDescription?: string;
-    lectureContent?: string; 
-    practiceTest?: Mission['practiceTest'];
-    bannerImage?: string; 
+  mission: Mission & { 
+    category?: string;
+    estimatedTime?: string;
   };
   onBack: () => void;
   onSolve: (tab: NavigationItem) => void;

@@ -114,8 +114,8 @@ const Dashboard: React.FC<{ userData: User | null; onNavigate?: (tab: Navigation
 
   const metrics = [
     { label: 'Current GPA', value: data?.summary?.gpa || '0.00', color: 'text-indigo-400', percentage: 4 },
-    { label: 'Intensity Points', value: (data?.summary?.techChamp || 0).toString(), color: 'text-violet-400', percentage: 22 },
-    { label: 'Lab Hours', value: `${data?.summary?.labHours || 0}h`, color: 'text-fuchsia-400', percentage: 12 },
+    { label: 'Intensity Points', value: (data?.summary?.techChamp || 0).toString(), color: 'text-sky-400', percentage: 22 },
+    { label: 'Lab Hours', value: `${data?.summary?.labHours || 0}h`, color: 'text-rose-400', percentage: 12 },
     { label: 'Learning Efficiency', value: `${data?.summary?.efficiency || 0}%`, color: 'text-cyan-400', percentage: 0 },
   ];
 
@@ -124,17 +124,12 @@ const Dashboard: React.FC<{ userData: User | null; onNavigate?: (tab: Navigation
       <MissionDetails 
         mission={{
            ...selectedResource,
-           title: selectedMission.title,
-           description: selectedMission.description,
-           longDescription: selectedMission.longDescription,
-           lectureContent: selectedMission.lectureContent,
-           practiceTest: selectedMission.practiceTest,
-           bannerImage: selectedMission.bannerImage,
-           difficulty: selectedMission.difficulty,
-           reward: selectedMission.reward,
-           icon: selectedMission.icon,
-           tags: selectedMission.tags
-        }} 
+           ...selectedMission,
+           category: selectedResource.category,
+           estimatedTime: selectedResource.estimatedTime,
+           isLocked: selectedMission.isLocked,
+           isCompleted: selectedMission.isCompleted
+        } as any} 
         onBack={() => setSelectedMission(null)} 
         onSolve={(tab) => {
           setSelectedMission(null);

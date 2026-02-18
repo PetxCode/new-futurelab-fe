@@ -19,6 +19,7 @@ import Projects from './components/Projects';
 import Utilities from './components/Utilities';
 import JuniorCode from './components/JuniorCode';
 import CodeBattle from './components/CodeBattle';
+import LearningPath from './components/LearningPath';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import GameCenter from './components/Game/GameCenter';
@@ -233,6 +234,8 @@ const App: React.FC = () => {
         return <Projects userData={userData} />;
       case 'Utilities':
         return <Utilities />;
+      case 'Learning Path':
+        return <LearningPath user={userData} />;
       default:
         return <Dashboard userData={userData} />;
     }

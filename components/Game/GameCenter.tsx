@@ -47,7 +47,7 @@ const GAMES: GameConfig[] = [
     title: 'Code Quest: Glitch Kingdom',
     description: 'Use your coding spells to repair the magical kingdom of Glitch!',
     icon: '🔮',
-    color: 'from-violet-600 to-indigo-600'
+    color: 'from-indigo-600 to-blue-700'
   },
   {
     id: 'botworkshop',
@@ -221,7 +221,7 @@ const GameCenter: React.FC = () => {
   return (
     <div className="h-full bg-slate-900 text-white p-8 font-inter overflow-y-auto">
       <header className="mb-12 text-center">
-        <h1 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-violet-400 to-fuchsia-400 mb-4 tracking-tight">
+        <h1 className="text-5xl font-black bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-cyan-400 mb-4 tracking-tight">
           FutureLab Arcade
         </h1>
         <p className="text-slate-400 text-lg">Level up your skills through play.</p>

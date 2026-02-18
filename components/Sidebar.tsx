@@ -82,42 +82,60 @@ const Sidebar: React.FC<SidebarProps> = ({
         </svg>
       ),
     },
-    // {
-    //   id: "Focus",
-    //   icon: (
-    //     <svg
-    //       className="w-5 h-5"
-    //       fill="none"
-    //       stroke="currentColor"
-    //       viewBox="0 0 24 24"
-    //     >
-    //       <path
-    //         strokeLinecap="round"
-    //         strokeLinejoin="round"
-    //         strokeWidth="2"
-    //         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-    //       />
-    //     </svg>
-    //   ),
-    // },
-    // {
-    //   id: "AI Study Coach",
-    //   icon: (
-    //     <svg
-    //       className="w-5 h-5"
-    //       fill="none"
-    //       stroke="currentColor"
-    //       viewBox="0 0 24 24"
-    //     >
-    //       <path
-    //         strokeLinecap="round"
-    //         strokeLinejoin="round"
-    //         strokeWidth="2"
-    //         d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.989-2.386l-.548-.547z"
-    //       />
-    //     </svg>
-    //   ),
-    // },
+    {
+      id: "Focus",
+      icon: (
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      ),
+    },
+    {
+      id: "AI Study Coach",
+      icon: (
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.989-2.386l-.548-.547z"
+          />
+        </svg>
+      ),
+    },
+    {
+      id: "Learning Path",
+      icon: (
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2.5"
+            d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+          />
+        </svg>
+      ),
+    },
     {
       id: "Junior Code",
       icon: (
@@ -392,7 +410,7 @@ const Sidebar: React.FC<SidebarProps> = ({
     `}
     >
       <div className="p-4 md:p-6 flex items-center space-x-3">
-        <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+        <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
           <svg viewBox="0 0 24 24" className="w-6 h-6 text-white fill-current">
             <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
           </svg>
@@ -461,42 +479,68 @@ const Sidebar: React.FC<SidebarProps> = ({
           </div>
         </div>
 
-        <button
-          onClick={() => setActiveTab("Focus")}
-          className={`w-full mt-4 md:mt-6 py-2 md:py-3 px-4 text-xs font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center space-x-3 active:scale-95 group ${
-            timerState.isActive
-              ? "bg-indigo-600/10 text-indigo-400 border border-indigo-500/30"
-              : activeTab === "Focus"
+        <div className="w-full mt-4 md:mt-6 flex gap-2">
+          <button
+            onClick={() => setActiveTab("Focus")}
+            className={`flex-1 py-3 px-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center space-x-2 active:scale-95 group ${
+              timerState.isActive
+                ? "bg-indigo-600/10 text-indigo-400 border border-indigo-500/30"
+                : activeTab === "Focus"
+                  ? "bg-slate-700 text-white"
+                  : "bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-600/20"
+            }`}
+          >
+            {timerState.isActive ? (
+              <>
+                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
+                <span className="tabular-nums">
+                  {formatTime(timerState.timeLeft)}
+                </span>
+              </>
+            ) : (
+              <>
+                <svg
+                  className="w-4 h-4 group-hover:rotate-12 transition-transform"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2.5"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span>Focus</span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={() => setActiveTab("Learning Path")}
+            className={`flex-1 py-3 px-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center space-x-2 active:scale-95 group ${
+              activeTab === "Learning Path"
                 ? "bg-slate-700 text-white"
-                : "bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-600/20"
-          }`}
-        >
-          {timerState.isActive ? (
-            <>
-              <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
-              <span className="tabular-nums">
-                {formatTime(timerState.timeLeft)}
-              </span>
-            </>
-          ) : (
-            <>
-              <svg
-                className="w-4 h-4 group-hover:rotate-12 transition-transform"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth="2.5"
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <span>Focus Session</span>
-            </>
-          )}
-        </button>
+                : "bg-cyan-600 text-white hover:bg-cyan-500 shadow-cyan-600/20"
+            }`}
+          >
+            <svg
+              className="w-4 h-4 group-hover:scale-110 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2.5"
+                d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"
+              />
+            </svg>
+            <span>Path</span>
+          </button>
+        </div>
       </div>
 
       <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto">

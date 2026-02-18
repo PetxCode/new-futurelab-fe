@@ -33,7 +33,7 @@ const topics: MLTopic[] = [
       </svg>
     ),
     difficulty: 'Elementary',
-    color: 'from-indigo-500 to-purple-500',
+    color: 'from-indigo-500 to-cyan-500',
     duration: '15 mins',
     reward: '250 XP',
     tags: ['AI', 'Basics'],
@@ -361,7 +361,7 @@ const topics: MLTopic[] = [
       </svg>
     ),
     difficulty: 'Junior',
-    color: 'from-violet-500 to-purple-600',
+    color: 'from-blue-500 to-cyan-600',
     duration: '25 mins',
     reward: '400 XP',
     tags: ['Logic', 'Neural Networks', 'Decision Trees'],

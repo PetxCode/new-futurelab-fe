@@ -13,15 +13,15 @@ export const MOCK_STUDENT: StudentProfile = {
 export const ACADEMIC_METRICS: Metric[] = [
   { label: "Current GPA", value: "3.94", trend: 'up', percentage: 4, color: 'text-emerald-400' },
   { label: "Lines of Python", value: "12.4k", trend: 'up', percentage: 22, color: 'text-indigo-400' },
-  { label: "Lab Hours", value: "86h", trend: 'up', percentage: 12, color: 'text-violet-400' },
+  { label: "Lab Hours", value: "86h", trend: 'up', percentage: 12, color: 'text-sky-400' },
   { label: "Learning Efficiency", value: "94%", trend: 'neutral', percentage: 0, color: 'text-cyan-400' }
 ];
 
 export const ASSIGNMENTS: Assignment[] = [
-  { id: 'a1', title: 'Neural Network Optimization', subject: 'AI Foundations', dueDate: 'Tomorrow', priority: 'High', status: 'In Progress', points: 100 },
-  { id: 'a2', title: 'PID Controller Implementation', subject: 'Robotics Engineering', dueDate: 'Oct 15', priority: 'High', status: 'Not Started', points: 150 },
-  { id: 'a3', title: 'Data Cleaning Script', subject: 'Python for Data Science', dueDate: 'Oct 12', priority: 'Medium', status: 'Completed', points: 50 },
-  { id: 'a4', title: 'Ethics of Autonomous Systems', subject: 'AI Foundations', dueDate: 'Oct 20', priority: 'Low', status: 'Review', points: 80 }
+  { id: 'a1', title: 'Neural Network Optimization', subject: 'AI Foundations', dueDate: 'Tomorrow', priority: 'High', status: 'In Progress', points: 100, targetSchools: [] },
+  { id: 'a2', title: 'PID Controller Implementation', subject: 'Robotics Engineering', dueDate: 'Oct 15', priority: 'High', status: 'Not Started', points: 150, targetSchools: [] },
+  { id: 'a3', title: 'Data Cleaning Script', subject: 'Python for Data Science', dueDate: 'Oct 12', priority: 'Medium', status: 'Completed', points: 50, targetSchools: [] },
+  { id: 'a4', title: 'Ethics of Autonomous Systems', subject: 'AI Foundations', dueDate: 'Oct 20', priority: 'Low', status: 'Review', points: 80, targetSchools: [] }
 ];
 
 export const SUBJECTS: Subject[] = [
