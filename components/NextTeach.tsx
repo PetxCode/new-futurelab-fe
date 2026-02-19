@@ -386,7 +386,7 @@ const NextTeach: React.FC<{ userData: User | null }> = ({ userData }) => {
 
 
         {/* Add Button at Bottom of Sidebar */}
-        {userData?.isAdmin && (
+        {(userData?.isAdmin || userData?.isInstructor) && (
           <div className="p-4 border-t border-slate-800/50">
             <button 
               onClick={() => setIsAddModalOpen(true)}

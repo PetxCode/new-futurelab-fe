@@ -24,6 +24,9 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
   const [showStatsModal, setShowStatsModal] = useState(false);
   const [schoolStats, setSchoolStats] = useState<any[]>([]);
   const [isFetchingStats, setIsFetchingStats] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Sync filter with context
   useEffect(() => {
@@ -167,6 +170,34 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
     }
   };
 
+  const handleDeleteUser = async () => {
+    if (!userToDelete) return;
+
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/user/${userToDelete._id}`, {
+        method: 'DELETE',
+        headers: {
+          'x-auth-token': localStorage.getItem('token') || ''
+        }
+      });
+
+      if (response.ok) {
+        toast.success('User deleted successfully');
+        setShowDeleteModal(false);
+        setUserToDelete(null);
+        fetchUsers();
+      } else {
+        const data = await response.json();
+        toast.error(data.message || 'Failed to delete user');
+      }
+    } catch (err) {
+      toast.error('Error connecting to server');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
   useEffect(() => {
     if (showStatsModal) {
       fetchSchoolStats();
@@ -194,7 +225,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
       <div className="mb-10 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
         <div>
           <h1 className="text-5xl font-black text-white tracking-tight mb-2">Student Registry</h1>
-          <p className="text-slate-400 text-lg font-medium">Manage and Review Stduent's Performance this community.</p>
+          <p className="text-slate-400 text-lg font-medium">Manage and Review Student's Performance this community.</p>
         </div>
         
         <div className="flex items-center space-x-4 bg-slate-800/50 p-2 rounded-2xl border border-slate-700/50">
@@ -431,6 +462,49 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
         </div>
       </div>
 
+      {/* Delete Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-md rounded-[2.5rem] p-10 shadow-3xl animate-in zoom-in-95 duration-300">
+            <div className="w-16 h-16 bg-rose-500/20 rounded-2xl flex items-center justify-center text-rose-500 mb-6">
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </div>
+            
+            <h2 className="text-3xl font-black text-white italic tracking-tight mb-2">Delete User?</h2>
+            <p className="text-slate-400 font-medium mb-8 text-sm leading-relaxed">
+              Are you sure you want to delete <span className="text-white font-bold">{userToDelete?.fullName || (userToDelete as any).FullName}</span>? 
+              This action is <span className="text-rose-400 font-bold italic">permanent</span> and will remove all their progress, scores, and profile data.
+            </p>
+            
+            <div className="flex gap-4">
+              <button 
+                type="button" 
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setUserToDelete(null);
+                }}
+                className="flex-1 py-4 bg-slate-900 text-slate-400 font-black rounded-2xl border border-slate-700 hover:bg-slate-700 transition-all uppercase tracking-widest text-[10px]"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={handleDeleteUser}
+                disabled={isDeleting}
+                className="flex-1 py-4 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-2xl shadow-xl shadow-rose-600/20 transition-all flex items-center justify-center space-x-2 disabled:opacity-50 uppercase tracking-widest text-[10px]"
+              >
+                {isDeleting ? (
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  <span>Delete User</span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* User Table */}
       <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 rounded-[3rem] overflow-hidden shadow-2xl">
         <div className="overflow-x-auto">
@@ -586,13 +660,28 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
                       {new Date(user.createdAt).toLocaleDateString()}
                     </td>
                     <td className="px-10 py-6">
-                      <button 
-                        onClick={() => setSelectedUser(user)}
-                        className="p-3 bg-indigo-600/10 text-indigo-400 rounded-xl border border-indigo-500/20 hover:bg-indigo-600/20 transition-all font-black text-[10px] uppercase tracking-widest flex items-center space-x-2 whitespace-nowrap"
-                      >
-                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
-                         <span>Track Progress</span>
-                      </button>
+                      <div className="flex items-center space-x-3">
+                        <button 
+                          onClick={() => setSelectedUser(user)}
+                          className="p-3 bg-indigo-600/10 text-indigo-400 rounded-xl border border-indigo-500/20 hover:bg-indigo-600/20 transition-all font-black text-[10px] uppercase tracking-widest flex items-center space-x-2 whitespace-nowrap"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" /></svg>
+                          <span>Track Progress</span>
+                        </button>
+                        
+                        {(userData?.isAdmin || userData?.isInstructor) && (
+                          <button 
+                            onClick={() => {
+                              setUserToDelete(user);
+                              setShowDeleteModal(true);
+                            }}
+                            className="p-3 bg-rose-500/10 text-rose-500 rounded-xl border border-rose-500/20 hover:bg-rose-500/20 transition-all flex-shrink-0"
+                            title="Delete User"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                          </button>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))

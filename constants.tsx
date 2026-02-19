@@ -2499,7 +2499,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
   {
     id: "r3",
     category: "Coding",
-    title: "Curriculum",
+    title: "Advance Curriculum",
     difficulty: "Hard",
     estimatedTime: "25m",
     reward: "1 XP",

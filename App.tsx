@@ -196,20 +196,20 @@ const App: React.FC = () => {
         return <Analytics />;
       case 'Courses':
         return <SubjectsPage userData={userData} onUpdate={fetchUserData} />;
-      case 'Focus':
-        return (
-          <Focus 
-            timeLeft={timeLeft} 
-            isActive={isActive} 
-            mode={focusMode} 
-            onToggle={toggleTimer} 
-            onReset={resetTimer} 
-            onChangeMode={changeMode}
-            onAdjust={adjustTimer}
-          />
-        );
-      case 'AI Study Coach':
-        return <AiTips />;
+      // case 'Focus':
+      //   return (
+      //     <Focus 
+      //       timeLeft={timeLeft} 
+      //       isActive={isActive} 
+      //       mode={focusMode} 
+      //       onToggle={toggleTimer} 
+      //       onReset={resetTimer} 
+      //       onChangeMode={changeMode}
+      //       onAdjust={adjustTimer}
+      //     />
+      //   );
+      // case 'AI Study Coach':
+      //   return <AiTips />;
       case 'Settings':
         return <Settings userData={userData} onUpdate={fetchUserData} />;
       case 'Admin Users':

@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 import { CURRICULUM_DATA, GradeLevel, Term, Lesson } from "../constants/curriculumData";
 import LessonModal from "./LessonModal";
-
 import { User } from "../types";
+import { API_BASE_URL } from "../App";
 
 interface LearningPathProps {
   user: User | null;
@@ -21,15 +21,26 @@ const LearningPath: React.FC<LearningPathProps> = ({ user }) => {
   React.useEffect(() => {
     const fetchScores = async () => {
       try {
+        // 1. Immediate Load from LocalStorage (Fallback)
+        const localKey = `scores_${user?.id || 'guest'}_${selectedGradeId}`;
+        const cachedScores = localStorage.getItem(localKey);
+        if (cachedScores) {
+          setCompletedScores(JSON.parse(cachedScores));
+        }
+
+        // 2. Fetch from Backend (Canonical)
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const response = await fetch(`/api/analytics/scores/${selectedGradeId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/analytics/scores/${selectedGradeId}`, {
           headers: { 'x-auth-token': token }
         });
+        
         if (response.ok) {
           const scores = await response.json();
           setCompletedScores(scores);
+          // Sync LocalStorage with backend data
+          localStorage.setItem(localKey, JSON.stringify(scores));
         }
       } catch (error) {
         console.error("Failed to fetch scores:", error);
@@ -37,13 +48,13 @@ const LearningPath: React.FC<LearningPathProps> = ({ user }) => {
     };
 
     fetchScores();
-  }, [selectedGradeId]);
+  }, [selectedGradeId, user?.id]);
 
   return (
-    <div className="flex flex-col space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <div className="flex flex-col space-y- animate-in fade-in slide-in-from-bottom-4 duration-700">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
+        <div className="mb-2">
           <h1 className="text-4xl md:text-5xl font-black text-white tracking-tight">
             Learning <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-cyan-400">Path</span>
           </h1>
@@ -87,7 +98,7 @@ const LearningPath: React.FC<LearningPathProps> = ({ user }) => {
       </div>
 
       {/* Grade Selector */}
-      <div className="flex overflow-x-auto pb-2 gap-2 no-scrollbar">
+      <div className="flex overflow-x-auto pb-2 gap-2 no-scrollbar mb-10">
         {CURRICULUM_DATA.map((grade) => (
           <button
             key={grade.id}
@@ -237,14 +248,19 @@ const LearningPath: React.FC<LearningPathProps> = ({ user }) => {
           }}
           onComplete={async (score) => {
             const compositeKey = `${activeTermId}_${activeLesson.id}`;
-            setCompletedScores(prev => ({ ...prev, [compositeKey]: score }));
+            const newScores = { ...completedScores, [compositeKey]: score };
+            setCompletedScores(newScores);
             
-            // Persist to backend
+            // 1. Persist to LocalStorage (Immediate)
+            const localKey = `scores_${user?.id || 'guest'}_${selectedGradeId}`;
+            localStorage.setItem(localKey, JSON.stringify(newScores));
+            
+            // 2. Persist to backend (Async)
             try {
               const token = localStorage.getItem('token');
               if (!token) return;
 
-              await fetch('/api/analytics/log', {
+              await fetch(`${API_BASE_URL}/api/analytics/log`, {
                 method: 'POST',
                 headers: { 
                   'Content-Type': 'application/json',

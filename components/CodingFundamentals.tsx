@@ -450,24 +450,27 @@ for name in list(globals().keys()):
                     <div className="flex flex-col items-end">
                         <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-1">Belt Progress</span>
                         <div className="flex space-x-1">
-                            {filteredLevels.map((l, i) => (
-                                <div 
-                                    key={l.id} 
-                                    onClick={() => {
-                                        if (userData?.isAdmin) {
-                                            setCurrentLevelIdx(levels.indexOf(l));
-                                            setIsLevelComplete(false);
-                                            setCurrentOutput("");
-                                            setGeneratedCode("");
-                                        }
-                                    }}
-                                    className={`w-2 h-1 rounded-full transition-all duration-500 ${
-                                        levels.indexOf(l) <= currentLevelIdx 
-                                            ? 'bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.6)]' 
-                                            : 'bg-slate-800'
-                                    } ${userData?.isAdmin ? 'cursor-pointer hover:bg-violet-400' : ''}`} 
-                                />
-                            ))}
+                            {filteredLevels.map((l, i) => {
+                                const canSkip = userData?.isAdmin || userData?.isInstructor;
+                                return (
+                                    <div 
+                                        key={l.id} 
+                                        onClick={() => {
+                                            if (canSkip) {
+                                                setCurrentLevelIdx(levels.indexOf(l));
+                                                setIsLevelComplete(false);
+                                                setCurrentOutput("");
+                                                setGeneratedCode("");
+                                            }
+                                        }}
+                                        className={`w-2 h-1 rounded-full transition-all duration-500 ${
+                                            levels.indexOf(l) <= currentLevelIdx 
+                                                ? 'bg-violet-500 shadow-[0_0_8px_rgba(139,92,246,0.6)]' 
+                                                : 'bg-slate-800'
+                                        } ${canSkip ? 'cursor-pointer hover:bg-violet-400' : ''}`} 
+                                    />
+                                );
+                            })}
                         </div>
                     </div>
                 </div>
