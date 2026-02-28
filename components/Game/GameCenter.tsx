@@ -8,6 +8,7 @@ import BlockCodingEngine from '../BlockCodingEngine';
 import CodeQuest from './CodeQuest';
 import BotWorkshop from './BotWorkshop';
 import NanoQuest from './NanoQuest';
+import TugOfWar from './TugOfWar';
 
 interface GameConfig {
   id: string;
@@ -77,7 +78,14 @@ const GAMES: GameConfig[] = [
     icon: '🧭',
     color: 'from-blue-500 to-indigo-600'
   },
-  // Placeholder for future games
+  {
+    id: 'tugofwar',
+    title: 'Tug of War: Python Duel',
+    description: 'Battle 1v1 in a real-time coding duel. Out-code your opponent to pull the rope home!',
+    icon: '🪢',
+    color: 'from-rose-600 via-indigo-600 to-emerald-600',
+    isNew: true
+  },
   {
     id: 'coming-soon',
     title: 'More Games Coming Soon',
@@ -213,6 +221,22 @@ const GameCenter: React.FC = () => {
         </button>
         <div className="w-full h-[calc(100vh-56px)]">
           <BlockCodingEngine />
+        </div>
+      </div>
+    );
+  }
+
+  if (activeGame === 'tugofwar') {
+    return (
+      <div className="relative w-full h-full p-4 lg:p-8">
+        <button 
+          onClick={() => setActiveGame(null)}
+          className="absolute top-4 left-4 z-50 px-4 py-2 bg-slate-800/80 backdrop-blur text-white rounded-lg border border-slate-700 hover:bg-slate-700 transition flex items-center gap-2 font-bold text-sm"
+        >
+          <span>←</span> Back to Arcade
+        </button>
+        <div className="h-full pt-8">
+            <TugOfWar />
         </div>
       </div>
     );

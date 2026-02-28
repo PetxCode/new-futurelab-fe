@@ -1,5 +1,6 @@
 
 import React from 'react';
+import PartnershipCarousel from './PartnershipCarousel';
 
 interface LandingPageProps {
   onStart: () => void;
@@ -76,7 +77,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
               { label: 'Builders in Training', val: '12k+' },
               { label: 'Algorithms Deployed', val: '4.2M' },
               { label: 'Missions Accomplished', val: '850+' },
-              { label: 'XP Accumulated', val: '120k' }
+              { label: 'Points Accumulated', val: '120k' }
             ].map(s => (
               <div key={s.label}>
                 <p className="text-3xl font-black text-white">{s.val}</p>
@@ -87,12 +88,15 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
         </div>
       </section>
 
+      {/* Partnerships Carousel */}
+      <PartnershipCarousel />
+
       {/* Features Grid */}
       <section id="features" className="py-24 px-6 bg-slate-900/50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-black text-white tracking-tight">Everything you need to succeed.</h2>
-            <p className="text-slate-400 font-medium mt-2">Built by engineers, for engineers.</p>
+            <p className="text-slate-400 font-medium mt-2">Built by engineers, for young engineers.</p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {[
@@ -104,7 +108,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin }) => {
               },
               {
                 title: 'Hyper-Focus Engine',
-                desc: "Boost your cognitive stamina with our neural-sync timer. Achieve 'Flow State' and earn XP for every minute you spend building.",
+                desc: "Boost your cognitive stamina with our neural-sync timer. Achieve 'Flow State' and earn Points for every minute you spend building.",
                 icon: '⚡',
                 color: 'bg-cyan-500'
               },
