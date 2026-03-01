@@ -27,6 +27,10 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalUsers, setTotalUsers] = useState(0);
+  const LIMIT = 20;
 
   // Sync filter with context
   useEffect(() => {
@@ -37,29 +41,34 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
     }
   }, [isSchoolContext, userData]);
 
-  const fetchUsers = async () => {
+  const fetchUsers = async (currentPage = page) => {
     setLoading(true);
     try {
       const query = new URLSearchParams({
         name: searchTerm,
         school: schoolFilter,
-        grade: gradeFilter
+        grade: gradeFilter,
+        page: String(currentPage),
+        limit: String(LIMIT),
       }).toString();
 
       const response = await fetch(`${API_BASE_URL}/api/user/list?${query}`, {
-        headers: {
-          'x-auth-token': localStorage.getItem('token') || ''
-        }
+        headers: { 'x-auth-token': localStorage.getItem('token') || '' }
       });
 
       if (response.ok) {
         const data = await response.json();
-        setUsers(data);
+        setUsers(data.users || []);
+        setTotalPages(data.totalPages || 1);
+        setTotalUsers(data.total || 0);
       } else {
-        toast.error('Failed to fetch users');
+        const errBody = await response.json().catch(() => ({}));
+        console.error('[AdminUsers] Fetch failed:', response.status, errBody);
+        toast.error(`Failed to fetch users (${response.status}: ${errBody.message || 'Unknown error'})`);
       }
     } catch (err) {
-      toast.error('Error connecting to server');
+      console.error('[AdminUsers] Network error:', err);
+      toast.error('Network error connecting to server');
     } finally {
       setLoading(false);
     }
@@ -206,10 +215,15 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
 
   useEffect(() => {
     const handler = setTimeout(() => {
-      fetchUsers();
+      setPage(1);
+      fetchUsers(1);
     }, 500);
     return () => clearTimeout(handler);
   }, [searchTerm, schoolFilter, gradeFilter]);
+
+  useEffect(() => {
+    fetchUsers(page);
+  }, [page]);
 
   if (selectedUser) {
     return (
@@ -230,7 +244,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
         
         <div className="flex items-center space-x-4 bg-slate-800/50 p-2 rounded-2xl border border-slate-700/50">
           <div className="px-4 py-2 bg-indigo-600/20 rounded-xl text-indigo-400 text-sm font-black uppercase tracking-widest">
-            {users.length} Total Users
+            {totalUsers} Total Users
           </div>
           <button 
             onClick={() => setShowSchoolModal(true)}
@@ -690,6 +704,55 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
           </table>
         </div>
       </div>
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-6 px-2">
+          <p className="text-slate-500 text-xs font-bold uppercase tracking-widest">
+            Page {page} of {totalPages} &nbsp;·&nbsp; {totalUsers} total users
+          </p>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-5 py-2.5 bg-slate-800 border border-slate-700 text-slate-300 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-700 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              ← Prev
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
+              .reduce((acc: (number | string)[], p, idx, arr) => {
+                if (idx > 0 && (p as number) - (arr[idx - 1] as number) > 1) acc.push('...');
+                acc.push(p);
+                return acc;
+              }, [])
+              .map((p, i) =>
+                p === '...' ? (
+                  <span key={`ellipsis-${i}`} className="text-slate-600 px-1">…</span>
+                ) : (
+                  <button
+                    key={p}
+                    onClick={() => setPage(p as number)}
+                    className={`w-9 h-9 rounded-xl font-black text-xs transition-all ${
+                      page === p
+                        ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30'
+                        : 'bg-slate-800 border border-slate-700 text-slate-400 hover:bg-slate-700'
+                    }`}
+                  >
+                    {p}
+                  </button>
+                )
+              )}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-5 py-2.5 bg-slate-800 border border-slate-700 text-slate-300 rounded-xl font-black text-xs uppercase tracking-widest hover:bg-slate-700 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+            >
+              Next →
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

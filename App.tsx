@@ -20,6 +20,8 @@ import Utilities from './components/Utilities';
 import JuniorCode from './components/JuniorCode';
 import CodeBattle from './components/CodeBattle';
 import LearningPath from './components/LearningPath';
+import InstructorReportForm from './components/InstructorReportForm';
+import AdminReportDashboard from './components/AdminReportDashboard';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import GameCenter from './components/Game/GameCenter';
@@ -236,6 +238,16 @@ const App: React.FC = () => {
         return <Utilities />;
       case 'Learning Path':
         return <LearningPath user={userData} />;
+      case 'Reports':
+        if (userData?.isAdmin || userData?.isSchoolAdmin) return <AdminReportDashboard />;
+        if (userData?.isInstructor) return <InstructorReportForm />;
+        return (
+          <div className="flex flex-col items-center justify-center h-full py-40 gap-4">
+            <span className="text-5xl">🔒</span>
+            <h2 className="text-2xl font-black text-white">Access Restricted</h2>
+            <p className="text-slate-400 text-sm">Only instructors and school admins can view reports.</p>
+          </div>
+        );
       default:
         return <Dashboard userData={userData} />;
     }
