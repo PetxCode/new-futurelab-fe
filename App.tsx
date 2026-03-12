@@ -34,12 +34,15 @@ export const API_BASE_URL = window.location.hostname === 'localhost' || window.l
   : 'https://futurelab-main-be.onrender.com';
 
 const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
   const [authMode, setAuthMode] = useState<'login' | 'signup' | null>(null);
   const [activeTab, setActiveTab] = useState<NavigationItem>('Hub');
   const [tabResetKey, setTabResetKey] = useState(0);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
-  const [userData, setUserData] = useState<User | null>(null);
+  const [userData, setUserData] = useState<User | null>(() => {
+    const saved = localStorage.getItem('userData');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -59,8 +62,10 @@ const App: React.FC = () => {
       if (response.ok) {
         const data = await response.json();
         setUserData(data);
+        localStorage.setItem('userData', JSON.stringify(data));
       } else if (response.status === 401 || response.status === 403) {
         localStorage.removeItem('token');
+        localStorage.removeItem('userData');
         setIsAuthenticated(false);
         setUserData(null);
       }
@@ -80,10 +85,13 @@ const App: React.FC = () => {
           if (response.ok) {
             const data = await response.json();
             setUserData(data);
+            localStorage.setItem('userData', JSON.stringify(data));
             setIsAuthenticated(true);
           } else if (response.status === 401 || response.status === 403) {
             localStorage.removeItem('token');
+            localStorage.removeItem('userData');
             setIsAuthenticated(false);
+            setUserData(null);
           }
         } catch (error) {
           console.error("Auth check failed (network/server error)", error);
@@ -148,6 +156,7 @@ const App: React.FC = () => {
     setIsAuthenticated(false);
     setUserData(null);
     localStorage.removeItem('token');
+    localStorage.removeItem('userData');
     setActiveTab('Hub');
   };
 

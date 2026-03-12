@@ -100,6 +100,7 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
 
       if (response.ok) {
         localStorage.setItem('token', data.token);
+        localStorage.setItem('userData', JSON.stringify(data.user));
         onSuccess();
       } else {
         toast.error(data.message || 'Authentication failed');

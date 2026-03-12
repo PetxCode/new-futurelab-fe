@@ -34,7 +34,7 @@ const JuniorCode: React.FC<JuniorCodeProps> = ({ userData }) => {
         </div>
         <div className="flex-1 overflow-hidden relative">
           <div className="absolute inset-0">
-             <BlockCodingEngine />
+             <BlockCodingEngine userData={userData} />
           </div>
         </div>
       </div>

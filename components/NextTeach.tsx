@@ -74,7 +74,7 @@ const NEXT_TEACH_VIDEOS: YouTubeVideo[] = [
 ];
 
 const GRADES = ['JSS 1', 'JSS 2', 'JSS 3', 'SSS 1', 'SSS 2', 'SSS 3'];
-const SUBJECT_DOMAINS = ['Mathematics', 'Basic Science', 'AI & Tech', 'Computer Science', 'Physics', 'Chemistry', 'Biology'];
+const SUBJECT_DOMAINS = ['Mathematics', 'Basic Science', 'AI & Tech', 'Computer Science', 'Physics', 'Chemistry', 'Biology', 'Accounting', 'History', 'Economics', "English Language", 'Commerce', ''];
 
 const AddVideoModal: React.FC<{ onClose: () => void, onSuccess: () => void }> = ({ onClose, onSuccess }) => {
   const [formData, setFormData] = useState({
