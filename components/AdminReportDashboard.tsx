@@ -47,7 +47,7 @@ const AdminReportDashboard: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto p-4 lg:p-8 animate-fade-in">
       <header className="mb-10">
-        <h1 className="text-4xl font-black text-white mb-2 italic tracking-tighter">School Insight Hub</h1>
+        <h1 className="text-4xl font-black text-white mb-2 italic tracking-tighter">School Report Insight</h1>
         <p className="text-slate-400">Tracking learning progress and instructor feedback channels.</p>
       </header>
 
@@ -108,11 +108,16 @@ const AdminReportDashboard: React.FC = () => {
                       <div>
                         <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest block mb-1">Topic</span>
                         <h4 className="text-lg font-black text-white group-hover:text-indigo-400 transition-colors uppercase italic">{report.topic}</h4>
-                        {report.classIntake && (
-                          <span className="mt-1 inline-block text-[9px] font-black text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 px-2 py-0.5 rounded-lg uppercase tracking-widest">
-                            📚 {report.classIntake}
+                        <div className="flex flex-wrap gap-2 mt-1">
+                          <span className="inline-block text-[9px] font-black text-white bg-slate-800 border border-slate-700 px-2 py-0.5 rounded-lg uppercase tracking-widest">
+                            🏫 {report.schoolName}
                           </span>
-                        )}
+                          {report.classIntake && (
+                            <span className="inline-block text-[9px] font-black text-cyan-400 bg-cyan-400/10 border border-cyan-400/20 px-2 py-0.5 rounded-lg uppercase tracking-widest">
+                              📚 {report.classIntake}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className="text-right flex flex-col items-end gap-2">
                         <span className="text-xs font-medium text-slate-500">{new Date(report.date).toLocaleDateString()}</span>
@@ -183,14 +188,22 @@ const AdminReportDashboard: React.FC = () => {
               <h3 className="text-xl font-black text-white mb-6 uppercase italic">Full Insight</h3>
               
               <div className="space-y-6">
-                {selectedReport.classIntake && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-[10px] font-black text-cyan-500 uppercase tracking-widest mb-1 block">Class Intake</label>
-                    <span className="inline-block text-sm font-bold text-white bg-cyan-500/10 border border-cyan-500/20 px-4 py-2 rounded-2xl">
-                      📚 {selectedReport.classIntake}
+                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Institution</label>
+                    <span className="inline-block text-sm font-bold text-white bg-slate-800 border border-slate-700 px-4 py-2 rounded-2xl">
+                      🏫 {selectedReport.schoolName}
                     </span>
                   </div>
-                )}
+                  {selectedReport.classIntake && (
+                    <div>
+                      <label className="text-[10px] font-black text-cyan-500 uppercase tracking-widest mb-1 block">Class Intake</label>
+                      <span className="inline-block text-sm font-bold text-white bg-cyan-500/10 border border-cyan-500/20 px-4 py-2 rounded-2xl">
+                        📚 {selectedReport.classIntake}
+                      </span>
+                    </div>
+                  )}
+                </div>
                 <div>
                    <label className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-1 block">Content Delivered</label>
                    <p className="text-sm font-medium text-slate-300 leading-relaxed">{selectedReport.contentTaught}</p>

@@ -786,52 +786,61 @@ const BlockCodingEngine: React.FC<{ userData?: User | null }> = ({ userData }) =
             ctx.shadowBlur = 15;
             ctx.shadowColor = 'rgba(99, 102, 241, 0.6)';
             
-            // 2. Main Body (Outer Shell)
-            const bodyGradient = ctx.createRadialGradient(-2, -2, 2, 0, 0, 11);
-            bodyGradient.addColorStop(0, '#a5b4fc'); // Indigo 300
-            bodyGradient.addColorStop(0.5, '#6366f1'); // Indigo 500
-            bodyGradient.addColorStop(1, '#4338ca'); // Indigo 700
-            
-            ctx.fillStyle = bodyGradient;
+            // 1. Bot Body (Main Shell)
+            ctx.fillStyle = '#4f46e5'; // Indigo 600
             ctx.beginPath();
-            ctx.arc(0, 0, 11, 0, Math.PI * 2);
-            ctx.fill();
-            ctx.shadowBlur = 0; // stop shadow for inner parts
-
-            // 3. Glass Cover Reflection
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
-            ctx.beginPath();
-            ctx.ellipse(-3, -3, 5, 3, Math.PI / 4, 0, Math.PI * 2);
+            ctx.arc(0, 0, 12, 0, Math.PI * 2);
             ctx.fill();
 
-            // 4. Directional "Eye" / Lens
-            // Since rotation 0 is North (dy=-1), we draw the eye at (0, -6)
-            ctx.translate(0, -6);
-            
-            // Lens Background
-            ctx.fillStyle = '#1e1b4b'; // Very dark indigo
+            // 2. Metallic Rim
+            ctx.strokeStyle = '#312e81'; // Indigo 900
+            ctx.lineWidth = 2;
             ctx.beginPath();
-            ctx.arc(0, 0, 5, 0, Math.PI * 2);
+            ctx.arc(0, 0, 12, 0, Math.PI * 2);
+            ctx.stroke();
+
+            // 3. Glowing Core / Power Indicator
+            const coreGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 8);
+            coreGradient.addColorStop(0, 'rgba(129, 140, 248, 0.8)'); // Indigo 400
+            coreGradient.addColorStop(1, 'rgba(79, 70, 229, 0)'); // Indigo 600
+            ctx.fillStyle = coreGradient;
+            ctx.beginPath();
+            ctx.arc(0, 0, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 4. Glass Cover Reflection (Subtle)
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+            ctx.beginPath();
+            ctx.ellipse(-4, -4, 6, 4, Math.PI / 4, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 5. Directional Face / Eye Module (Properly Positioned)
+            ctx.translate(0, -5); 
+            
+            // Face Plate
+            ctx.fillStyle = '#0f172a'; // Slate 950
+            ctx.beginPath();
+            ctx.ellipse(0, 0, 7, 5, 0, 0, Math.PI * 2);
             ctx.fill();
             
-            // Glowing Pupil
-            const pupilGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 3);
+            // Main Eye / Lens (The "White Dot" but improved)
+            const pupilGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 3.5);
             pupilGradient.addColorStop(0, '#ffffff');
-            pupilGradient.addColorStop(0.4, '#60a5fa'); // blue 400
-            pupilGradient.addColorStop(1, '#2563eb'); // blue 600
+            pupilGradient.addColorStop(0.3, '#c7d2fe'); // indigo 200
+            pupilGradient.addColorStop(1, '#6366f1'); // indigo 500
             
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = '#60a5fa';
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = '#818cf8';
             ctx.fillStyle = pupilGradient;
             ctx.beginPath();
-            ctx.arc(0, 0, 3, 0, Math.PI * 2);
+            ctx.arc(0, 0, 3.5, 0, Math.PI * 2);
             ctx.fill();
             
-            // Small Lens Glint
+            // Tiny Glint
             ctx.shadowBlur = 0;
             ctx.fillStyle = '#fff';
             ctx.beginPath();
-            ctx.arc(-1, -1, 0.8, 0, Math.PI * 2);
+            ctx.arc(-1, -1, 1, 0, Math.PI * 2);
             ctx.fill();
 
             ctx.restore();
