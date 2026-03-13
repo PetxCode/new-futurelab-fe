@@ -541,7 +541,11 @@ const HintModal = ({ show, onHide, solution }: { show: boolean, onHide: () => vo
     );
 };
 
-const BlockCodingEngine: React.FC<{ userData?: User | null }> = ({ userData }) => {
+const BlockCodingEngine: React.FC<{ 
+    userData?: User | null, 
+    battleMode?: boolean,
+    onLevelChange?: (level: number) => void
+}> = ({ userData, battleMode, onLevelChange }) => {
     const blocklyDivRef = useRef<HTMLDivElement>(null);
     const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -714,7 +718,10 @@ const BlockCodingEngine: React.FC<{ userData?: User | null }> = ({ userData }) =
 
                 if (currentLevelId < 15) {
                     setMaxSolvedLevel(prev => Math.max(prev, currentLevelId + 1));
+                    onLevelChange?.(currentLevelId);
                     setTimeout(() => setCurrentLevelId(id => id + 1), 1500);
+                } else if (currentLevelId === 15) {
+                    onLevelChange?.(15);
                 }
             }
             return;

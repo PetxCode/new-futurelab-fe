@@ -11,13 +11,14 @@ import WordFactory from './WordFactory';
 import CargoTycoon from './CargoTycoon';
 import CodingFundamentals from './CodingFundamentals';
 import ScratchPad from './ScratchPad';
+import MazeBattle from './MazeBattle';
 
 interface JuniorCodeProps {
   userData?: User | null;
 }
 
 const JuniorCode: React.FC<JuniorCodeProps> = ({ userData }) => {
-  const [activeView, setActiveView] = useState<'menu' | 'maze' | 'flappy' | 'breakout' | 'dino' | 'battle' | 'logic' | 'decoder' | 'factory' | 'cargo' | 'fundamentals' | 'scratch'>('menu');
+  const [activeView, setActiveView] = useState<'menu' | 'maze' | 'flappy' | 'breakout' | 'dino' | 'battle' | 'logic' | 'decoder' | 'factory' | 'cargo' | 'fundamentals' | 'scratch' | 'maze-battle'>('menu');
   const [decoderMode, setDecoderMode] = useState<'solo' | 'battle'>('solo');
 
   if (activeView === 'maze') {
@@ -219,6 +220,25 @@ const JuniorCode: React.FC<JuniorCodeProps> = ({ userData }) => {
     );
   }
 
+  if (activeView === 'maze-battle') {
+    return (
+      <div className="h-full flex flex-col">
+         <div className="bg-slate-900 border-b border-slate-800 p-2 flex items-center">
+            <button 
+            onClick={() => setActiveView('menu')}
+            className="text-slate-400 hover:text-white px-4 py-2 flex items-center space-x-2 transition-colors rounded-lg hover:bg-slate-800"
+            >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+            <span className="text-xs font-black uppercase tracking-wider">Back to Hub</span>
+            </button>
+        </div>
+        <div className="flex-1 overflow-hidden relative">
+             <MazeBattle userData={userData} />
+        </div>
+      </div>
+    );
+  }
+
   if (activeView === 'cargo') {
     return (
       <div className="h-full flex flex-col">
@@ -351,9 +371,21 @@ const JuniorCode: React.FC<JuniorCodeProps> = ({ userData }) => {
                             <h3 className="text-4xl font-black text-white italic tracking-tighter uppercase group-hover:text-sky-400 transition-colors tracking-wider">Maze<br/>Navigator</h3>
                             <p className="text-slate-400 font-medium leading-relaxed group-hover:text-slate-300 max-w-xs">Master the art of movement commands. Guide your bot to the finish line!</p>
                             
-                            <div className="flex items-center space-x-2 text-sky-400 font-bold uppercase text-xs tracking-wider group-hover:translate-x-2 transition-transform">
-                                <span>Start Mission</span>
-                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                            <div className="flex items-center space-x-4">
+                                <div className="flex items-center space-x-2 text-sky-400 font-bold uppercase text-xs tracking-wider group-hover:translate-x-1 transition-transform">
+                                    <span>Start Mission</span>
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+                                </div>
+                                <div 
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        setActiveView('maze-battle');
+                                    }}
+                                    className="flex items-center space-x-2 text-rose-500 font-black uppercase text-[10px] tracking-widest bg-rose-500/10 px-3 py-1.5 rounded-xl border border-rose-500/20 hover:bg-rose-500/20 transition-all cursor-pointer relative z-20"
+                                >
+                                    <span className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-pulse" />
+                                    <span>Battle Mode</span>
+                                </div>
                             </div>
                         </div>
                      </div>
