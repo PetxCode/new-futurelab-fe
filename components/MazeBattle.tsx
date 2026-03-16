@@ -199,9 +199,9 @@ const MazeBattle: React.FC<MazeBattleProps> = ({ userData }) => {
     <div className="h-full flex items-center justify-center bg-slate-950 p-6 overflow-y-auto">
       <div className="max-w-xl w-full space-y-12 py-12">
         <div className="text-center space-y-4">
-          <div className="inline-flex items-center space-x-2 bg-rose-500/10 px-4 py-1.5 rounded-full border border-rose-500/20">
-             <span className="w-2 h-2 bg-rose-500 rounded-full animate-pulse"/>
-             <span className="text-[10px] uppercase font-black tracking-widest text-rose-400">Competitive Arena</span>
+          <div className="inline-flex items-center space-x-2 bg-rose-500/10 px-4 py-1.5 rounded-full border border-rose-500/20 text-rose-400">
+             {/* <span className="w-2 h-2 bg-rose-500 rounded-full animate-pulse"/> */}---- 
+             <span className="mx-2 text-[10px] uppercase font-black tracking-widest text-rose-400">Let's Battle</span>----
           </div>
           <h1 className="text-5xl md:text-7xl font-black text-center text-white italic uppercase leading-tight">
             Maze <br/><span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-orange-500 px-4 py-2 inline-block">Navigator Battle</span>
@@ -241,7 +241,7 @@ const MazeBattle: React.FC<MazeBattleProps> = ({ userData }) => {
                     onClick={joinRoom}
                     className="w-full bg-gradient-to-r from-rose-600 to-orange-600 hover:from-rose-500 hover:to-orange-500 text-white font-black py-6 rounded-3xl shadow-2xl shadow-rose-600/20 transition-all active:scale-[0.98] uppercase tracking-[0.2em] italic flex items-center justify-center space-x-3 group"
                 >
-                    <span>Enter the Arena</span>
+                    <span>Enter Maze Battle</span>
                     <svg className="w-6 h-6 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
                 </button>
             </div>

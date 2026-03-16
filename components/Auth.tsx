@@ -7,9 +7,10 @@ interface AuthProps {
   onBack: () => void;
   onSwitchMode: (mode: 'login' | 'signup') => void;
   onSuccess: () => void;
+  onPayment: (userData: any) => void;
 }
 
-const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) => {
+const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess, onPayment }) => {
   const [isLoading, setIsLoading] = useState(false);
   const [schools, setSchools] = useState<any[]>([]);
   const [selectedSchool, setSelectedSchool] = useState('');
@@ -19,6 +20,8 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
   const [resetEmail, setResetEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+
+  const isOthersSelected = selectedSchool.trim().toLowerCase() === 'others';
 
   const API_URL = `${API_BASE_URL}/api/auth`;
   const SCHOOLS_URL = `${API_BASE_URL}/api/schools`;
@@ -41,13 +44,13 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
   }, []);
 
   React.useEffect(() => {
-    if (mode === 'signup' && selectedSchool.trim() !== '') {
+    if (mode === 'signup' && selectedSchool.trim() !== '' && !isOthersSelected) {
       const exists = schools.some(s => s.name.toLowerCase() === selectedSchool.toLowerCase());
       setSchoolError(!exists);
     } else {
       setSchoolError(false);
     }
-  }, [selectedSchool, schools, mode]);
+  }, [selectedSchool, schools, mode, isOthersSelected]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -79,12 +82,23 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
       
       let schoolName = mode === 'signup' ? selectedSchool : undefined;
       if (mode === 'signup') {
-        const match = schools.find(s => s.name.toLowerCase() === selectedSchool.toLowerCase());
-        if (match) schoolName = match.name;
+        if (isOthersSelected) {
+          schoolName = 'Independent';
+        } else {
+          const match = schools.find(s => s.name.toLowerCase() === selectedSchool.toLowerCase());
+          if (match) schoolName = match.name;
+        }
       }
 
-      if (mode === 'signup' && schoolError) {
+      if (mode === 'signup' && !isOthersSelected && schoolError) {
         toast.error('Please select a registered institution');
+        setIsLoading(false);
+        return;
+      }
+
+      // If Independent user signing up, skip API registration. Hand over form data to App for payment flow
+      if (mode === 'signup' && isOthersSelected) {
+        onPayment({ fullName, email: email.toLowerCase(), password, schoolName });
         setIsLoading(false);
         return;
       }
@@ -199,7 +213,7 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
                   />
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  <div className="md:col-span-2">
+                  <div className={isOthersSelected ? 'md:col-span-3' : 'md:col-span-2'}>
                     <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">Official School</label>
                     <div className="relative group">
                       <input 
@@ -209,33 +223,41 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
                         onChange={(e) => setSelectedSchool(e.target.value)}
                         placeholder="Search your Institution"
                         required
-                        className={`w-full bg-slate-900 border ${schoolError ? 'border-rose-500 ring-4 ring-rose-500/10' : 'border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10'} rounded-2xl px-6 py-4 text-white placeholder-slate-600 focus:outline-none transition-all font-bold`}
+                        className={`w-full bg-slate-900 border ${schoolError ? 'border-rose-500 ring-4 ring-rose-500/10' : isOthersSelected ? 'border-amber-500/50 focus:border-amber-400 focus:ring-4 focus:ring-amber-500/10' : 'border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10'} rounded-2xl px-6 py-4 text-white placeholder-slate-600 focus:outline-none transition-all font-bold`}
                       />
                       <datalist id="schools-list">
                         {schools.map(s => (
                           <option key={s._id} value={s.name} />
                         ))}
+                        <option value="Others" />
                       </datalist>
                       {schoolError && (
                         <p className="text-[10px] font-black text-rose-500 uppercase tracking-widest mt-2 ml-1 animate-pulse">
                           ⚠️ Institution not registered
                         </p>
                       )}
+                      {isOthersSelected && (
+                        <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest mt-2 ml-1">
+                          🌟 You'll choose a subscription plan after signup
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <div className="md:col-span-1">
-                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">School Code</label>
-                    <input 
-                      type="text" 
-                      name="schoolCode"
-                      placeholder="4-Digit Code" 
-                      required
-                      maxLength={4}
-                      pattern="\d{4}"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-6 py-4 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium"
-                    />
-                    <p className="text-[9px] text-slate-500 mt-2 ml-1 italic opacity-60">Obtain code from Admin.</p>
-                  </div>
+                  {!isOthersSelected && (
+                    <div className="md:col-span-1">
+                      <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 ml-1">School Code</label>
+                      <input 
+                        type="text" 
+                        name="schoolCode"
+                        placeholder="4-Digit Code" 
+                        required
+                        maxLength={4}
+                        pattern="\d{4}"
+                        className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-6 py-4 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium"
+                      />
+                      <p className="text-[9px] text-slate-500 mt-2 ml-1 italic opacity-60">Obtain code from Admin.</p>
+                    </div>
+                  )}
                 </div>
               </>
             )}
@@ -289,7 +311,7 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess }) =>
             <button 
               type="submit"
               disabled={isLoading || (mode === 'signup' && (schoolError || !selectedSchool))}
-              className={`w-full py-5 ${mode === 'signup' && (schoolError || !selectedSchool) ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/20'} font-black rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-3 text-lg`}
+              className={`w-full py-5 ${mode === 'signup' && (schoolError || !selectedSchool) ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : isOthersSelected ? 'bg-amber-500 hover:bg-amber-400 text-slate-900 shadow-amber-500/20' : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-indigo-600/20'} font-black rounded-2xl shadow-xl transition-all active:scale-95 flex items-center justify-center space-x-3 text-lg`}
             >
               {isLoading ? (
                 <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>

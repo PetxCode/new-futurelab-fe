@@ -25,8 +25,9 @@ import AdminReportDashboard from './components/AdminReportDashboard';
 import ErrorBoundary from './components/ErrorBoundary';
 
 import GameCenter from './components/Game/GameCenter';
+import PaymentPlan from './components/PaymentPlan';
 import { NavigationItem, User } from './types';
-import { Toaster } from 'react-hot-toast';
+import toast, { Toaster } from 'react-hot-toast';
 
 export const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000' 
@@ -46,6 +47,8 @@ const App: React.FC = () => {
   const [isLoadingAuth, setIsLoadingAuth] = useState(true);
   const [showScrollTop, setShowScrollTop] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [showPayment, setShowPayment] = useState(false);
+  const [pendingUserData, setPendingUserData] = useState<any>(null);
 
   // Focus Timer Global State
   const [timeLeft, setTimeLeft] = useState(25 * 60);
@@ -102,6 +105,57 @@ const App: React.FC = () => {
     checkAuth();
   }, []);
 
+  // Handle Paystack redirect back after payment
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const reference = params.get('reference');
+    const paymentType = params.get('payment_type');
+
+    if (reference) {
+      if (paymentType === 'signup') {
+        const storedPendingUser = sessionStorage.getItem('pendingSignupUserData');
+        if (storedPendingUser) {
+          const userData = JSON.parse(storedPendingUser);
+          // Complete registration
+          fetch(`${API_BASE_URL}/api/auth/register-with-payment`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ...userData, reference }),
+          })
+            .then(r => r.json())
+            .then(data => {
+              if (data.token) {
+                sessionStorage.removeItem('pendingSignupUserData');
+                window.history.replaceState({}, '', '/');
+                setShowPayment(false);
+                setAuthMode('login');
+                toast.success('Account created successfully! Please log in to continue.');
+              } else {
+                toast.error(data.message || 'Registration failed after payment');
+              }
+            })
+            .catch(console.error);
+        }
+      } else if (localStorage.getItem('token')) {
+        // Upgrade existing user scenario
+        fetch(`${API_BASE_URL}/api/payment/verify/${reference}`, {
+          headers: { 'x-auth-token': localStorage.getItem('token') || '' },
+        })
+          .then(r => r.json())
+          .then(data => {
+            if (data.subscription?.status === 'active') {
+              window.history.replaceState({}, '', '/');
+              fetchUserData();
+              setIsAuthenticated(true);
+              setShowPayment(false);
+            }
+          })
+          .catch(console.error);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   useEffect(() => {
     let interval: any = null;
     if (isActive && timeLeft > 0) {
@@ -150,6 +204,26 @@ const App: React.FC = () => {
     setIsAuthenticated(true);
     setAuthMode(null);
     fetchUserData();
+  };
+
+  const handlePaymentNeeded = (user: any) => {
+    sessionStorage.setItem('pendingSignupUserData', JSON.stringify(user));
+    setPendingUserData(user);
+    setAuthMode(null);
+    setShowPayment(true);
+  };
+
+  const handlePaymentSuccess = () => {
+    setShowPayment(false);
+    setIsAuthenticated(true);
+    fetchUserData();
+  };
+
+  const handlePaymentSkip = () => {
+    sessionStorage.removeItem('pendingSignupUserData');
+    setPendingUserData(null);
+    setShowPayment(false);
+    setAuthMode(null);
   };
 
   const handleLogout = () => {
@@ -283,12 +357,26 @@ const App: React.FC = () => {
         }}
       />
 
-      {!isAuthenticated && !authMode && (
+      {!isAuthenticated && !authMode && !showPayment && (
         <LandingPage onStart={() => setAuthMode('signup')} onLogin={() => setAuthMode('login')} />
       )}
 
       {authMode && (
-        <Auth mode={authMode} onBack={() => setAuthMode(null)} onSwitchMode={(mode) => setAuthMode(mode)} onSuccess={handleLogin} />
+        <Auth 
+          mode={authMode} 
+          onBack={() => setAuthMode(null)} 
+          onSwitchMode={(mode) => setAuthMode(mode)} 
+          onSuccess={handleLogin} 
+          onPayment={handlePaymentNeeded}
+        />
+      )}
+
+      {showPayment && !isAuthenticated && (
+        <PaymentPlan
+          userData={pendingUserData}
+          onSuccess={handlePaymentSuccess}
+          onSkip={handlePaymentSkip}
+        />
       )}
 
       {isAuthenticated && (
