@@ -2,8 +2,8 @@
 import { StudentProfile, Metric, LearningResource, Subject, ChartDataPoint, Assignment, SubCourse } from './types';
 
 export const MOCK_STUDENT: StudentProfile = {
-  name: "Leo Sterling",
-  grade: "11th Grade • Tech Honors",
+  name: "Peter Oti",
+  grade: "JSS 1",
   avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Leo",
   academicLevel: 28,
   levelProgress: 82,

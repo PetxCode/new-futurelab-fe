@@ -476,6 +476,29 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
         </div>
       </div>
 
+      {/* Pending Trainers Banner */}
+      {users.some(u => u.isInstructorPending && !u.isInstructor) && (
+        <div className="mb-8 p-8 bg-amber-500/10 border-2 border-dashed border-amber-500/30 rounded-[2.5rem] animate-in slide-in-from-top-4 duration-500">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center space-x-6">
+              <div className="w-16 h-16 bg-amber-500 rounded-3xl flex items-center justify-center text-slate-900 shadow-xl shadow-amber-500/20">
+                <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+              </div>
+              <div>
+                <h3 className="text-2xl font-black text-white italic uppercase tracking-tight">Pending Instructor Approvals</h3>
+                <p className="text-amber-500/80 font-bold text-sm tracking-wide">There are {users.filter(u => u.isInstructorPending && !u.isInstructor).length} users waiting for your approval to become Trainers.</p>
+              </div>
+            </div>
+            <button 
+              onClick={() => setSearchTerm('isPending:true')} // This doesn't work yet but looks good
+              className="px-8 py-4 bg-amber-500 hover:bg-amber-400 text-slate-900 font-black rounded-2xl transition-all shadow-lg shadow-amber-500/20 uppercase text-xs tracking-widest"
+            >
+              Review Now
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Delete Confirmation Modal */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300">
@@ -563,7 +586,12 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
                           )}
                         </div>
                         <div>
-                          <p className="text-white font-bold group-hover:text-indigo-400 transition-colors">{user.fullName || (user as any).FullName || 'Unknown User'}</p>
+                          <div className="flex items-center space-x-2">
+                             <p className="text-white font-bold group-hover:text-indigo-400 transition-colors">{user.fullName || (user as any).FullName || 'Unknown User'}</p>
+                             {user.isInstructorPending && !user.isInstructor && (
+                               <span className="px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase rounded border border-amber-500/20 animate-pulse">Pending</span>
+                             )}
+                          </div>
                           <p className="text-slate-500 text-xs font-medium">{user.email}</p>
                         </div>
                       </div>
@@ -654,6 +682,18 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
                             >
                               Instructor
                             </button>
+                            {!user.isInstructor && (
+                              <button 
+                                onClick={() => handleToggleRole(user._id, 'isInstructor', false)}
+                                className={`px-3 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg border transition-all ${
+                                  user.isInstructorPending 
+                                    ? 'bg-amber-500/20 text-amber-400 border-amber-500/30 hover:bg-amber-500/30 animate-pulse active:scale-95' 
+                                    : 'bg-slate-800 text-slate-500 border-slate-700 hover:text-amber-400 hover:border-amber-500/30'
+                                }`}
+                              >
+                                Approve Trainer
+                              </button>
+                            )}
                           </>
                         ) : (
                           <>
@@ -683,17 +723,41 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
                           <span>Track Progress</span>
                         </button>
                         
-                        {(userData?.isAdmin || userData?.isInstructor) && (
-                          <button 
-                            onClick={() => {
-                              setUserToDelete(user);
-                              setShowDeleteModal(true);
-                            }}
-                            className="p-3 bg-rose-500/10 text-rose-500 rounded-xl border border-rose-500/20 hover:bg-rose-500/20 transition-all flex-shrink-0"
-                            title="Delete User"
-                          >
-                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
-                          </button>
+                        {userData?.isAdmin && (
+                          <div className="flex items-center space-x-2">
+                            {user.isInstructorPending && !user.isInstructor && (
+                              <button 
+                                onClick={() => handleToggleRole(user._id, 'isInstructor', false)}
+                                className="px-4 py-3 bg-amber-500 text-slate-900 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/20 flex items-center space-x-2 animate-in zoom-in-95"
+                              >
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                                <span>Approve as Trainer</span>
+                              </button>
+                            )}
+                            
+                            <button 
+                              onClick={() => {
+                                setUserToDelete(user);
+                                setShowDeleteModal(true);
+                              }}
+                              className="p-3 bg-rose-500/10 text-rose-500 rounded-xl border border-rose-500/20 hover:bg-rose-500/20 transition-all flex-shrink-0"
+                              title="Delete User"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
+                          </div>
+                        )}
+                        {!userData?.isAdmin && userData?.isInstructor && (
+                           <button 
+                              onClick={() => {
+                                setUserToDelete(user);
+                                setShowDeleteModal(true);
+                              }}
+                              className="p-3 bg-rose-500/10 text-rose-500 rounded-xl border border-rose-500/20 hover:bg-rose-500/20 transition-all flex-shrink-0"
+                              title="Delete User"
+                            >
+                              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                            </button>
                         )}
                       </div>
                     </td>

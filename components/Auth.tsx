@@ -41,7 +41,12 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess, onPa
       }
     };
     fetchSchools();
-  }, []);
+
+    // If an instructor was selected from landing page, default to "Others" (Independent)
+    if (mode === 'signup' && localStorage.getItem('selectedInstructor')) {
+      setSelectedSchool('Others');
+    }
+  }, [mode]);
 
   React.useEffect(() => {
     if (mode === 'signup' && selectedSchool.trim() !== '' && !isOthersSelected) {
@@ -144,10 +149,8 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess, onPa
 
         <div className="bg-slate-800 border border-slate-700 p-12 rounded-[3.5rem] shadow-2xl relative overflow-hidden">
           <div className="text-center mb-10">
-            <button onClick={onBack} className="w-12 h-12 bg-indigo-600 rounded-xl flex items-center justify-center mx-auto mb-6 shadow-xl shadow-indigo-600/30 hover:scale-110 transition-transform">
-              <svg viewBox="0 0 24 24" className="w-7 h-7 text-white fill-current">
-                <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
-              </svg>
+            <button onClick={onBack} className="mx-auto mb-6 hover:scale-105 transition-transform flex items-center justify-center">
+              <img src="/logo.png" alt="FutureLab" className="h-12 w-auto object-contain" />
             </button>
             <h2 className="text-4xl font-black text-white tracking-tight">
               {authView === 'reset' ? 'Update Password' : mode === 'login' ? 'Welcome back.' : 'Get Started'}
@@ -207,7 +210,7 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess, onPa
                   <input 
                     type="text" 
                     name="fullName"
-                    placeholder="Leo Sterling" 
+                    placeholder="Peter Oti" 
                     required
                     className="w-full bg-slate-900 border border-slate-700 rounded-2xl px-6 py-4 text-white placeholder-slate-600 focus:outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium"
                   />

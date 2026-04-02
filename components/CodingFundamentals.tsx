@@ -346,7 +346,7 @@ for name in list(globals().keys()):
         if (level.validationType === 'output') {
             // Priority check: Use targetVar if defined
             if (level.targetVar && currentVals) {
-                if (currentVals[level.targetVar] === level.expectedOutput) {
+                if (currentVals[level.targetVar] === level.expectedOutput || currentVals[level.targetVar + '_'] === level.expectedOutput) {
                     isCorrect = true;
                 }
             } else {
@@ -363,8 +363,9 @@ for name in list(globals().keys()):
             const id = level.id;
             
             // Priority: Check targetVar if it exists in currentVals
-            if (level.targetVar && currentVals && currentVals[level.targetVar] !== undefined) {
-                isCorrect = currentVals[level.targetVar] === level.expectedOutput;
+            if (level.targetVar && currentVals && (currentVals[level.targetVar] !== undefined || currentVals[level.targetVar + '_'] !== undefined)) {
+                const val = currentVals[level.targetVar] !== undefined ? currentVals[level.targetVar] : currentVals[level.targetVar + '_'];
+                isCorrect = val === level.expectedOutput;
             } else {
                 // Fallback for complex manual checks
                 if (id === 2) isCorrect = typeof currentVals?.player === 'string' && currentVals?.player.length > 0;
@@ -372,7 +373,7 @@ for name in list(globals().keys()):
                 else if (id === 9) isCorrect = currentVals?.message === "HelloWorld";
                 else if ([21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40].includes(id)) {
                     // Conditions - check the result variable
-                    const resultVars = ['access', 'result', 'action', 'medal', 'weekend', 'adult', 'comfortable', 'type', 'sign', 'grade', 'logged', 'discount', 'max', 'leap', 'canVote', 'alert', 'strong', 'category'];
+                    const resultVars = ['access', 'result', 'action', 'medal', 'weekend', 'adult', 'comfortable', 'type', 'type_', 'sign', 'grade', 'logged', 'discount', 'max', 'leap', 'canVote', 'alert', 'strong', 'category'];
                     const resultVar = resultVars.find(v => currentVals?.[v] !== undefined);
                     if (resultVar) isCorrect = currentVals[resultVar] === level.expectedOutput;
                 }

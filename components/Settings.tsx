@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../App';
 
 import { User } from '../types';
 
@@ -17,21 +18,45 @@ const Settings: React.FC<SettingsProps> = ({ userData, onUpdate }) => {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(userData?.avatarUrl || null);
   const [isLoading, setIsLoading] = useState(false);
 
+  // Instructor-specific state
+  const [bio, setBio] = useState(userData?.instructorProfile?.bio || '');
+  const [detailedBio, setDetailedBio] = useState(userData?.instructorProfile?.detailedBio || '');
+  const [yearsExperience, setYearsExperience] = useState(userData?.instructorProfile?.yearsExperience?.toString() || '0');
+  const [monthlyRate, setMonthlyRate] = useState(userData?.instructorProfile?.monthlyRate?.toString() || '20000');
+  const [specialties, setSpecialties] = useState(userData?.instructorProfile?.specialties?.join(', ') || '');
+  const [skillset, setSkillset] = useState(userData?.instructorProfile?.skillset?.join(', ') || '');
+  const [availability, setAvailability] = useState(userData?.instructorProfile?.availability || 'Flexible');
+  const [trainingHighlights, setTrainingHighlights] = useState(userData?.instructorProfile?.trainingHighlights?.join(', ') || '');
+  const [studentsTrainedCount, setStudentsTrainedCount] = useState(userData?.instructorProfile?.studentsTrainedCount?.toString() || '0');
+  const [otherCriticalInfo, setOtherCriticalInfo] = useState(userData?.instructorProfile?.otherCriticalInfo?.join(', ') || '');
+
   useEffect(() => {
     if (userData) {
       setFullName(userData.fullName || '');
       setGrade(userData.grade || '');
       setSchoolName(userData.schoolName || '');
       setAvatarPreview(userData.avatarUrl || null);
+      
+      if (userData.instructorProfile) {
+        setBio(userData.instructorProfile.bio || '');
+        setDetailedBio(userData.instructorProfile.detailedBio || '');
+        setYearsExperience(userData.instructorProfile.yearsExperience?.toString() || '0');
+        setMonthlyRate(userData.instructorProfile.monthlyRate?.toString() || '20000');
+        setSpecialties(userData.instructorProfile.specialties?.join(', ') || '');
+        setSkillset(userData.instructorProfile.skillset?.join(', ') || '');
+        setAvailability(userData.instructorProfile.availability || 'Flexible');
+        setTrainingHighlights(userData.instructorProfile.trainingHighlights?.join(', ') || '');
+        setStudentsTrainedCount(userData.instructorProfile.studentsTrainedCount?.toString() || '0');
+        setOtherCriticalInfo(userData.instructorProfile.otherCriticalInfo?.join(', ') || '');
+      }
     }
   }, [userData]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
-      const response = await fetch('https://futurelab-main-be.vercel.app/api/user/profile', {
+      const response = await fetch(`${API_BASE_URL}/api/user/profile`, {
         method: 'PUT',
         headers: { 
           'Content-Type': 'application/json',
@@ -67,9 +92,8 @@ const Settings: React.FC<SettingsProps> = ({ userData, onUpdate }) => {
 
     const formData = new FormData();
     formData.append('avatar', avatar);
-
     try {
-      const response = await fetch('https://futurelab-main-be.vercel.app/api/user/avatar', {
+      const response = await fetch(`${API_BASE_URL}/api/user/avatar`, {
         method: 'POST',
         headers: { 'x-auth-token': localStorage.getItem('token') || '' },
         body: formData,
@@ -84,6 +108,43 @@ const Settings: React.FC<SettingsProps> = ({ userData, onUpdate }) => {
       }
     } catch (err) {
       toast.error('Error uploading avatar.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleUpdateInstructorProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsLoading(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/user/instructor-profile`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-auth-token': localStorage.getItem('token') || '' 
+        },
+        body: JSON.stringify({ 
+          bio, 
+          detailedBio, 
+          yearsExperience: parseInt(yearsExperience), 
+          monthlyRate: parseInt(monthlyRate),
+          specialties: specialties.split(',').map(s => s.trim()).filter(s => s),
+          skillset: skillset.split(',').map(s => s.trim()).filter(s => s),
+          availability,
+          trainingHighlights: trainingHighlights.split(',').map(s => s.trim()).filter(s => s),
+          studentsTrainedCount: parseInt(studentsTrainedCount),
+          otherCriticalInfo: otherCriticalInfo.split(',').map(s => s.trim()).filter(s => s)
+        }),
+      });
+
+      if (response.ok) {
+        toast.success('Trainer profile updated!');
+        onUpdate();
+      } else {
+        toast.error('Failed to update trainer profile.');
+      }
+    } catch (err) {
+      toast.error('Server connection error.');
     } finally {
       setIsLoading(false);
     }
@@ -186,8 +247,8 @@ const Settings: React.FC<SettingsProps> = ({ userData, onUpdate }) => {
                   <input 
                     type="text" 
                     value={schoolName}
-                    onChange={(e) => setSchoolName(e.target.value)}
-                    className="w-full bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold"
+                    disabled
+                    className="w-full bg-slate-900/30 border border-slate-800 rounded-2xl px-6 py-4 text-slate-500 font-bold cursor-not-allowed focus:outline-none transition-all"
                     placeholder="E.g. Future Academy"
                   />
                 </div>
@@ -215,6 +276,204 @@ const Settings: React.FC<SettingsProps> = ({ userData, onUpdate }) => {
             </form>
           </div>
         </div>
+
+        {/* Instructor Onboarding Section */}
+        {!userData?.isInstructor && (
+          <div className="max-w-4xl mx-auto w-full mt-8">
+            <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 p-10 rounded-[3rem] shadow-xl">
+              <h3 className="text-xl font-bold text-white mb-4 flex items-center">
+                <span className="w-8 h-8 bg-emerald-600/20 text-emerald-400 rounded-lg flex items-center justify-center mr-3">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                </span>
+                Instructor Onboarding
+              </h3>
+              <p className="text-slate-400 font-medium mb-8 text-sm">
+                Want to share your expertise? Apply to become a trainer at FutureLab and help shape the next generation of engineers.
+              </p>
+
+              <div className="bg-slate-900/50 border border-slate-700 rounded-2xl p-6 mb-8">
+                {userData?.isInstructorPending ? (
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-3 h-3 bg-amber-500 rounded-full animate-pulse shadow-[0_0_10px_rgba(245,158,11,0.5)]" />
+                      <div>
+                        <p className="text-amber-400 font-black uppercase tracking-widest text-xs">Application Pending</p>
+                        <p className="text-slate-500 text-xs font-medium mt-1">An administrator is currently reviewing your profile.</p>
+                      </div>
+                    </div>
+                    <span className="px-4 py-2 bg-amber-500/10 text-amber-500 text-[10px] font-black uppercase tracking-widest rounded-xl border border-amber-500/20">
+                      In Review
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div className="flex-1">
+                      <p className="text-white font-bold mb-1">Join the Elite Instructor Pool</p>
+                      <p className="text-slate-500 text-xs font-medium">Approved trainers gain access to advanced reporting and the ability to mentor students globally.</p>
+                    </div>
+                    <button 
+                      onClick={async () => {
+                        setIsLoading(true);
+                        try {
+                          const response = await fetch(`${API_BASE_URL}/api/user/request-instructor`, {
+                            method: 'PUT',
+                            headers: { 'x-auth-token': localStorage.getItem('token') || '' }
+                          });
+                          if (response.ok) {
+                            toast.success('Your application has been submitted!');
+                            onUpdate();
+                          } else {
+                            toast.error('Failed to submit application.');
+                          }
+                        } catch (err) {
+                          toast.error('Connection error.');
+                        } finally {
+                          setIsLoading(false);
+                        }
+                      }}
+                      disabled={isLoading}
+                      className="px-8 py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-lg shadow-emerald-600/20 transition-all active:scale-95 disabled:opacity-50 whitespace-nowrap"
+                    >
+                      {isLoading ? 'Processing...' : 'Apply for Instructor Status'}
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Professional Trainer Profile */}
+        {userData?.isInstructor && (
+          <div className="max-w-4xl mx-auto w-full">
+            <div className="bg-slate-800/50 backdrop-blur-xl border border-slate-700/50 p-10 rounded-[3rem] shadow-xl">
+              <h3 className="text-xl font-bold text-white mb-8 flex items-center">
+                <span className="w-8 h-8 bg-amber-500/20 text-amber-400 rounded-lg flex items-center justify-center mr-3">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                </span>
+                Professional Trainer Profile
+              </h3>
+
+              <form onSubmit={handleUpdateInstructorProfile} className="space-y-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                   <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Short Bio (Teaser)</label>
+                    <input 
+                      type="text" 
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
+                      className="w-full bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold"
+                      placeholder="e.g. Full-stack engineer and educator."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Years of Experience</label>
+                    <input 
+                      type="number" 
+                      value={yearsExperience}
+                      onChange={(e) => setYearsExperience(e.target.value)}
+                      className="w-full bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Monthly Rate (₦)</label>
+                    <input 
+                      type="number" 
+                      value={monthlyRate}
+                      onChange={(e) => setMonthlyRate(e.target.value)}
+                      className="w-full bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Availability</label>
+                    <input 
+                      type="text" 
+                      value={availability}
+                      onChange={(e) => setAvailability(e.target.value)}
+                      className="w-full bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold"
+                      placeholder="e.g. Weekends only, Flexible"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Students Trained</label>
+                    <input 
+                      type="number" 
+                      value={studentsTrainedCount}
+                      onChange={(e) => setStudentsTrainedCount(e.target.value)}
+                      className="w-full bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Training Focus / Highlights (comma separated)</label>
+                  <input 
+                    type="text" 
+                    value={trainingHighlights}
+                    onChange={(e) => setTrainingHighlights(e.target.value)}
+                    className="w-full bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold"
+                    placeholder="e.g. Fundamental Logic, Project Building, Problem Solving"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Detailed Biography</label>
+                  <textarea 
+                    value={detailedBio}
+                    onChange={(e) => setDetailedBio(e.target.value)}
+                    rows={4}
+                    className="w-full bg-slate-900/50 border border-slate-700 rounded-3xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-medium"
+                    placeholder="Describe your teaching philosophy and professional background..."
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Specialties (comma separated)</label>
+                    <input 
+                      type="text" 
+                      value={specialties}
+                      onChange={(e) => setSpecialties(e.target.value)}
+                      className="w-full bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold"
+                      placeholder="e.g. Python, AI, Robotics"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Master Skillset (comma separated)</label>
+                    <input 
+                      type="text" 
+                      value={skillset}
+                      onChange={(e) => setSkillset(e.target.value)}
+                      className="w-full bg-slate-900/50 border border-slate-700 rounded-2xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-bold"
+                      placeholder="e.g. React, Node.js, TensorFlow"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest ml-4">Why Choose You? (Critical Highlights - comma separated)</label>
+                  <textarea 
+                    value={otherCriticalInfo}
+                    onChange={(e) => setOtherCriticalInfo(e.target.value)}
+                    rows={3}
+                    className="w-full bg-slate-900/50 border border-slate-700 rounded-3xl px-6 py-4 text-white focus:outline-none focus:border-indigo-500 transition-all font-medium"
+                    placeholder="e.g. Industry Veteran, 50+ Projects Completed, Passionate Mentor"
+                  />
+                </div>
+
+                <div className="flex justify-center pt-6">
+                  <button 
+                    type="submit"
+                    disabled={isLoading}
+                    className="px-12 py-5 bg-amber-500 hover:bg-amber-400 text-slate-900 font-black text-lg rounded-2xl shadow-xl shadow-amber-500/20 transition-all active:scale-95 disabled:opacity-50"
+                  >
+                    {isLoading ? 'Updating Profile...' : 'Save Professional Profile'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

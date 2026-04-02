@@ -19,6 +19,9 @@ import Projects from './components/Projects';
 import Utilities from './components/Utilities';
 import JuniorCode from './components/JuniorCode';
 import CodeBattle from './components/CodeBattle';
+import BlogList from './components/Blog/BlogList';
+import BlogPost from './components/Blog/BlogPost';
+import BlogDashboard from './components/Blog/BlogDashboard';
 import LearningPath from './components/LearningPath';
 import InstructorReportForm from './components/InstructorReportForm';
 import AdminReportDashboard from './components/AdminReportDashboard';
@@ -26,13 +29,15 @@ import ErrorBoundary from './components/ErrorBoundary';
 
 import GameCenter from './components/Game/GameCenter';
 import PaymentPlan from './components/PaymentPlan';
+import AllTrainers from './components/AllTrainers';
 import { NavigationItem, User } from './types';
 import toast, { Toaster } from 'react-hot-toast';
 
 export const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   ? 'http://localhost:5000' 
-  // ? 'https://futurelab-main-be.onrender.com' 
+  // ? 'https://futurelab-main-be.vercel.app/' 
   : 'https://futurelab-main-be.onrender.com';
+  // : 'https://futurelab-main-be.onrender.com';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(!!localStorage.getItem('token'));
@@ -40,6 +45,8 @@ const App: React.FC = () => {
   const [activeTab, setActiveTab] = useState<NavigationItem>('Hub');
   const [tabResetKey, setTabResetKey] = useState(0);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [selectedBlogPostSlug, setSelectedBlogPostSlug] = useState<string | null>(null);
+  const [showAllTrainers, setShowAllTrainers] = useState(false);
   const [userData, setUserData] = useState<User | null>(() => {
     const saved = localStorage.getItem('userData');
     return saved ? JSON.parse(saved) : null;
@@ -48,6 +55,7 @@ const App: React.FC = () => {
   const [showScrollTop, setShowScrollTop] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [showPayment, setShowPayment] = useState(false);
+  const [paymentContext, setPaymentContext] = useState<'signup' | 'trainer'>('signup');
   const [pendingUserData, setPendingUserData] = useState<any>(null);
 
   // Focus Timer Global State
@@ -99,11 +107,23 @@ const App: React.FC = () => {
         } catch (error) {
           console.error("Auth check failed (network/server error)", error);
         }
-      }
-      setIsLoadingAuth(false);
-    };
-    checkAuth();
-  }, []);
+    }
+    setIsLoadingAuth(false);
+  };
+  
+  // Re-hydrate pending signup data if user refreshed
+  const savedPending = sessionStorage.getItem('pendingSignupUserData');
+  if (savedPending && !isAuthenticated && !showPayment) {
+    try {
+      const parsed = JSON.parse(savedPending);
+      setPendingUserData(parsed);
+      setShowPayment(true);
+      setAuthMode(null);
+    } catch (e) {}
+  }
+  
+  checkAuth();
+}, []);
 
   // Handle Paystack redirect back after payment
   useEffect(() => {
@@ -210,6 +230,7 @@ const App: React.FC = () => {
     sessionStorage.setItem('pendingSignupUserData', JSON.stringify(user));
     setPendingUserData(user);
     setAuthMode(null);
+    setPaymentContext('signup');
     setShowPayment(true);
   };
 
@@ -232,6 +253,18 @@ const App: React.FC = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('userData');
     setActiveTab('Hub');
+  };
+
+  const handleAssignTrainer = async (trainerId: string, trainer: any) => {
+    // Instead of direct assignment, we now show the payment plan
+    localStorage.setItem('selectedInstructor', JSON.stringify({
+      id: trainerId,
+      fullName: trainer.fullName,
+      rate: trainer.instructorProfile?.monthlyRate || 20000
+    }));
+    setPaymentContext('trainer');
+    setShowPayment(true);
+    // Note: No more direct API call here. Payment plan will handle it.
   };
 
   const scrollToTop = () => {
@@ -319,8 +352,29 @@ const App: React.FC = () => {
         return <Projects userData={userData} />;
       case 'Utilities':
         return <Utilities />;
+      case 'Blog':
+        if (selectedBlogPostSlug) {
+          return <BlogPost slug={selectedBlogPostSlug} userData={userData} onBack={() => setSelectedBlogPostSlug(null)} />;
+        }
+        return <BlogList onNavigate={(slug) => setSelectedBlogPostSlug(slug)} />;
+      case 'Signal Control':
+        return <BlogDashboard userData={userData} />;
       case 'Learning Path':
         return <LearningPath user={userData} />;
+      case 'Trainers':
+        return (
+          <AllTrainers 
+            userData={userData} 
+            onAssign={(id) => {
+              // Find the trainer object to pass the name and rate
+              // AllTrainers handles its own fetching, but we need the data here too
+              // Actually, AllTrainers can pass the full object
+            }}
+            onEngage={(trainer) => {
+              handleAssignTrainer(trainer.id, trainer);
+            }} 
+          />
+        );
       case 'Reports':
         if (userData?.isAdmin || userData?.isSchoolAdmin) return <AdminReportDashboard />;
         if (userData?.isInstructor) return <InstructorReportForm />;
@@ -332,7 +386,16 @@ const App: React.FC = () => {
           </div>
         );
       default:
-        return <Dashboard userData={userData} />;
+        return (
+          <Dashboard 
+            userData={userData} 
+            onNavigate={(tab) => setActiveTab(tab)} 
+            onBlogClick={(slug) => {
+              setActiveTab('Blog');
+              setSelectedBlogPostSlug(slug);
+            }} 
+          />
+        );
     }
   };
 
@@ -357,8 +420,23 @@ const App: React.FC = () => {
         }}
       />
 
-      {!isAuthenticated && !authMode && !showPayment && (
-        <LandingPage onStart={() => setAuthMode('signup')} onLogin={() => setAuthMode('login')} />
+      {!isAuthenticated && !authMode && !showPayment && !showAllTrainers && (
+        <LandingPage 
+          onStart={() => setAuthMode('signup')} 
+          onLogin={() => setAuthMode('login')} 
+          onViewAllTrainers={() => setShowAllTrainers(true)}
+        />
+      )}
+
+      {showAllTrainers && !isAuthenticated && (
+        <AllTrainers 
+          onBack={() => setShowAllTrainers(false)} 
+          onEngage={(trainer) => {
+            localStorage.setItem('selectedInstructor', JSON.stringify(trainer));
+            setShowAllTrainers(false);
+            setAuthMode('signup');
+          }}
+        />
       )}
 
       {authMode && (
@@ -372,14 +450,31 @@ const App: React.FC = () => {
       )}
 
       {showPayment && !isAuthenticated && (
-        <PaymentPlan
-          userData={pendingUserData}
-          onSuccess={handlePaymentSuccess}
-          onSkip={handlePaymentSkip}
-        />
+        <ErrorBoundary fallback={<div className="min-h-screen bg-slate-900 flex items-center justify-center text-white font-black text-xl">Payment System Interrupted. Please refresh.</div>}>
+          <PaymentPlan
+            userData={pendingUserData}
+            paymentContext={paymentContext}
+            onSuccess={handlePaymentSuccess}
+            onSkip={handlePaymentSkip}
+          />
+        </ErrorBoundary>
       )}
 
-      {isAuthenticated && (
+      {isAuthenticated && showPayment && (
+        <div className="fixed inset-0 z-[100] bg-slate-900">
+           <PaymentPlan
+            userData={userData}
+            paymentContext={paymentContext}
+            onSuccess={() => {
+              setShowPayment(false);
+              fetchUserData();
+            }}
+            onSkip={() => setShowPayment(false)}
+          />
+        </div>
+      )}
+
+      {isAuthenticated && !showPayment && (
         <div className="flex h-screen bg-slate-900 overflow-hidden font-inter text-slate-100 selection:bg-indigo-500/30">
           {isSidebarOpen && (
             <div 

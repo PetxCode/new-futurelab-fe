@@ -7,13 +7,18 @@ import CurriculumView from './CurriculumView';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../App';
 
-const Dashboard: React.FC<{ userData: User | null; onNavigate?: (tab: NavigationItem) => void }> = ({ userData, onNavigate }) => {
+const Dashboard: React.FC<{ 
+  userData: User | null; 
+  onNavigate?: (tab: NavigationItem) => void;
+  onBlogClick?: (slug: string) => void;
+}> = ({ userData, onNavigate, onBlogClick }) => {
   const [timeframe, setTimeframe] = useState<'today' | 'week' | 'month'>('week');
   const [data, setData] = useState<DashboardData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [resources, setResources] = useState<LearningResource[]>(SUGGESTED_RESOURCES);
   const [selectedResource, setSelectedResource] = useState<LearningResource | null>(null);
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
+  const [blogPosts, setBlogPosts] = useState<any[]>([]);
 
   // Sync resources with constants if they change in dev
   useEffect(() => {
@@ -109,7 +114,21 @@ const Dashboard: React.FC<{ userData: User | null; onNavigate?: (tab: Navigation
         setIsLoading(false);
       }
     };
+
+    const fetchBlogPosts = async () => {
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/blog`);
+        const posts = await res.json();
+        if (Array.isArray(posts)) {
+          setBlogPosts(posts.slice(0, 3));
+        }
+      } catch (err) {
+        console.error('Error fetching blog posts:', err);
+      }
+    };
+
     fetchDashboardData();
+    fetchBlogPosts();
   }, [timeframe]);
 
   const metrics = [
@@ -298,57 +317,76 @@ const Dashboard: React.FC<{ userData: User | null; onNavigate?: (tab: Navigation
         </div>
       </div>
 
-      {/* Subject Cards */}
+      {/* Blog Section (Replacing Subjects) */}
       <div>
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h3 className="text-2xl font-black text-white">Active Subjects</h3>
-            <p className="text-slate-500 text-sm font-medium">Your core curriculum and current standings</p>
+            <h3 className="text-2xl font-black text-white">Latest Blogs</h3>
+            <p className="text-slate-500 text-sm font-medium">Insights and updates from the FutureLab's content room</p>
           </div>
-          <button className="p-3 bg-slate-800 rounded-2xl border border-slate-700 text-slate-400 hover:text-white transition-all">
-             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
-          </button>
+          {(userData?.isAdmin || userData?.isInstructor) && (
+            <button 
+              onClick={() => onNavigate?.('Signal Control')}
+              className="p-3 bg-indigo-600/20 rounded-2xl border border-indigo-500/30 text-indigo-400 hover:bg-indigo-600 hover:text-white transition-all shadow-lg shadow-indigo-600/10"
+              title="New Blog Post"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+            </button>
+          )}
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {SUBJECTS.map((sub) => (
-            <div key={sub.id} className="bg-slate-800/40 border border-slate-700/50 rounded-[2.5rem] overflow-hidden group hover:border-indigo-500/50 transition-all">
-              <div className="relative h-48">
-                <img src={sub.thumbnail} alt={sub.title} className="w-full h-full object-cover grayscale-[20%] group-hover:grayscale-0 transition-all duration-500 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-80" />
-                <div className="absolute bottom-4 left-6">
-                   <span className="text-white text-3xl font-black tracking-tighter">{sub.grade}</span>
+          {blogPosts.length > 0 ? (
+            blogPosts.map((post) => (
+              <div 
+                key={post._id} 
+                onClick={() => onBlogClick?.(post.slug)}
+                className="bg-slate-800/40 border border-slate-700/50 rounded-[2.5rem] overflow-hidden group hover:border-indigo-500/50 transition-all cursor-pointer flex flex-col"
+              >
+                <div className="relative h-48 overflow-hidden">
+                  {post.coverImage ? (
+                    <img src={post.coverImage} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" alt="" />
+                  ) : (
+                    <div className="w-full h-full bg-slate-700 flex items-center justify-center p-6">
+                      <img src="/logo.png" alt="FutureLab" className="h-8 w-auto object-contain opacity-30 mix-blend-overlay" />
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60" />
+                  <div className="absolute top-4 right-6">
+                    <div className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-white bg-indigo-500 shadow-xl">
+                       {post.tags[0] || 'BLOG'}
+                    </div>
+                  </div>
                 </div>
-                <div className="absolute top-4 right-6">
-                   <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-white shadow-xl ${
-                     sub.status === 'Exam Prep' ? 'bg-rose-500' : sub.status === 'Needs Review' ? 'bg-amber-500' : 'bg-emerald-500'
-                   }`}>
-                     {sub.status}
-                   </div>
+                <div className="p-8 pb-10 flex flex-col flex-1">
+                  <h4 className="text-xl font-black text-white group-hover:text-indigo-400 transition-colors line-clamp-2 leading-tight mb-4">
+                    {post.title}
+                  </h4>
+                  <div className="mt-auto flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[10px] font-bold text-white uppercase border border-slate-600">
+                        {post.author?.fullName?.charAt(0) || 'U'}
+                      </div>
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        {post.author?.fullName || 'Anonymous'}
+                      </span>
+                    </div>
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-900/50 px-2 py-1 rounded-lg">
+                      {new Date(post.createdAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+                    </span>
+                  </div>
                 </div>
               </div>
-              <div className="p-8">
-                 <div className="flex justify-between items-start mb-1">
-                    <h4 className="text-lg font-black text-white group-hover:text-indigo-400 transition-colors">{sub.title}</h4>
-                 </div>
-                 <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-6">Instructor: {sub.teacher}</p>
-                 
-                 <div className="space-y-3">
-                    <div className="flex justify-between items-end">
-                       <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Syllabus Progress</span>
-                       <span className="text-sm font-black text-white">{sub.progress}%</span>
-                    </div>
-                    <div className="w-full h-2 bg-slate-900 rounded-full p-[2px]">
-                       <div className="h-full bg-indigo-500 rounded-full shadow-[0_0_10px_rgba(99,102,241,0.5)]" style={{ width: `${sub.progress}%` }} />
-                    </div>
-                 </div>
-                 
-                 <div className="mt-8 grid grid-cols-2 gap-3">
-                    <button className="py-2.5 bg-slate-900 text-slate-300 text-xs font-bold rounded-xl border border-slate-700 hover:bg-slate-800 transition-colors">Study Notes</button>
-                    <button className="py-2.5 bg-indigo-600/10 text-indigo-400 text-xs font-bold rounded-xl border border-indigo-500/20 hover:bg-indigo-600/20 transition-colors">Exam Prep</button>
-                 </div>
+            ))
+          ) : (
+            // Fallback to subjects if no pins found (or while loading)
+            SUBJECTS.map((sub) => (
+              <div key={sub.id} className="opacity-40 bg-slate-800/40 border border-slate-700/50 rounded-[2.5rem] overflow-hidden">
+                <div className="p-8 text-center text-slate-500 italic font-medium">
+                  loading blogs...
+                </div>
               </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
       </div>
     </div>

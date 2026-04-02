@@ -82,24 +82,24 @@ const Sidebar: React.FC<SidebarProps> = ({
         </svg>
       ),
     },
-    // {
-    //   id: "Focus",
-    //   icon: (
-    //     <svg
-    //       className="w-5 h-5"
-    //       fill="none"
-    //       stroke="currentColor"
-    //       viewBox="0 0 24 24"
-    //     >
-    //       <path
-    //         strokeLinecap="round"
-    //         strokeLinejoin="round"
-    //         strokeWidth="2"
-    //         d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-    //       />
-    //     </svg>
-    //   ),
-    // },
+    {
+      id: "Focus",
+      icon: (
+        <svg
+          className="w-5 h-5"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth="2"
+            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+          />
+        </svg>
+      ),
+    },
     // {
     //   id: "AI Study Coach",
     //   icon: (
@@ -305,6 +305,20 @@ const Sidebar: React.FC<SidebarProps> = ({
       ),
     },
     {
+      id: "Blog",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z"/></svg>
+      ),
+    },
+    {
+      id: "Trainers",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+        </svg>
+      ),
+    },
+    {
       id: "Settings",
       icon: (
         <svg
@@ -373,6 +387,12 @@ const Sidebar: React.FC<SidebarProps> = ({
         </svg>
       ),
     });
+    navItems.push({
+      id: "Signal Control",
+      icon: (
+        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg>
+      ),
+    });
   }
 
   if (userData?.isInstructor || userData?.isSchoolAdmin || userData?.isAdmin) {
@@ -430,34 +450,27 @@ const Sidebar: React.FC<SidebarProps> = ({
       ${isOpen ? "translate-x-0" : "-translate-x-full"}
     `}
     >
-      <div className="p-4 md:p-6 flex items-center space-x-3">
-        <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-cyan-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
-          <svg viewBox="0 0 24 24" className="w-6 h-6 text-white fill-current">
-            <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
-          </svg>
-        </div>
-        <span className="font-bold text-2xl tracking-tight text-white">
-          FutureLab
-        </span>
+      <div className="p-4 md:p-6 flex items-center">
+        <img src="/logo.png" alt="FutureLab" className="h-18 w-auto object-contain" />
       </div>
 
         <div className="px-4 md:px-6 py-4 flex flex-col items-center border-b border-slate-700/50">
-          <div className="relative p-1 bg-gradient-to-tr from-indigo-500 to-cyan-500 rounded-full">
+          <div className="relative p-1 bg-gradient-to-tr from-indigo-500 to-cyan-500 rounded-full ">
             <img
               src={userData?.avatarUrl || MOCK_STUDENT.avatar}
               alt={userData?.fullName || MOCK_STUDENT.name}
               className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-slate-800 object-cover"
             />
-            <div className="absolute -bottom-1 -right-1 bg-indigo-600 text-[10px] font-black text-white px-2 py-0.5 rounded-full border-2 border-slate-800">
+            <div className="absolute -bottom-1 -right-1 bg-indigo-600 text-[10px] font-black text-white px-2 py-0.5 rounded-full border-2 border-slate-800 ">
             LVL {Math.floor((userData?.totalPoints || 0) / 100) + 1}
           </div>
         </div>
-        <h2 className="mt-4 font-semibold text-lg text-white">
+        <h2 className="mt-4 font-semibold text-lg text-white capitalize">
           {userData?.fullName || MOCK_STUDENT.name}
         </h2>
-        <p className="text-slate-400 text-sm text-center font-medium flex items-center">
+        <p className="text-slate-400 text-sm text-center font-medium flex items-center capitalize">
           {userData?.grade || MOCK_STUDENT.grade}
-          <span className="w-1 h-1 rounded-full bg-gray-500 mx-2" />
+          <span className="w-1 h-1 rounded-full bg-gray-500 mx-2 uppercase" />
           {userData?.schoolName || "Independent Learner"}
         </p>
 
@@ -502,40 +515,22 @@ const Sidebar: React.FC<SidebarProps> = ({
 
         <div className="w-full mt-4 md:mt-6 flex gap-2">
           <button
-            onClick={() => setActiveTab("Focus")}
+            onClick={() => setActiveTab("Trainers")}
             className={`flex-1 py-3 px-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center space-x-2 active:scale-95 group ${
-              timerState.isActive
-                ? "bg-indigo-600/10 text-indigo-400 border border-indigo-500/30"
-                : activeTab === "Focus"
-                  ? "bg-slate-700 text-white"
-                  : "bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-600/20"
+              activeTab === "Trainers"
+                ? "bg-slate-700 text-white"
+                : "bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-600/20"
             }`}
           >
-            {timerState.isActive ? (
-              <>
-                <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse"></div>
-                <span className="tabular-nums">
-                  {formatTime(timerState.timeLeft)}
-                </span>
-              </>
-            ) : (
-              <>
-                <svg
-                  className="w-4 h-4 group-hover:rotate-12 transition-transform"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2.5"
-                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                  />
-                </svg>
-                <span>Focus</span>
-              </>
-            )}
+             <svg
+              className="w-4 h-4 group-hover:rotate-12 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span>Trainers</span>
           </button>
 
           <button

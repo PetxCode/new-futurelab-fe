@@ -105,6 +105,7 @@ export interface User {
   email: string;
   isAdmin: boolean;
   isInstructor?: boolean;
+  isInstructorPending?: boolean;
   isSchoolAdmin?: boolean;
   grade?: string;
   schoolName?: string;
@@ -117,6 +118,18 @@ export interface User {
   lastActivityAt?: string | null;
   lastPoints?: number;
   lastActivityTitle?: string;
+  instructorProfile?: {
+    bio?: string;
+    detailedBio?: string;
+    yearsExperience?: number;
+    monthlyRate?: number;
+    specialties?: string[];
+    skillset?: string[];
+    availability?: string;
+    trainingHighlights?: string[];
+    studentsTrainedCount?: number;
+    otherCriticalInfo?: string[];
+  };
   school?: string; // Legacy support
   name?: string;   // Legacy support
   [key: string]: any;
@@ -181,4 +194,4 @@ export interface ProjectFormData {
   thumbnail: string;
 }
 
-export type NavigationItem = 'Hub' | 'Courses' | 'Assignments' | 'Analytics' |  'Focus' | 'AI Study Coach' | 'Games' | 'Settings' | 'Admin Users' | 'School Registry' | 'Python Engine' | 'Engine Blocks' | 'Junior Code' | 'ML4Kids' | 'NEXT Teach' | 'Projects' | 'Utilities' | 'Code Battle' | 'Learning Path' | 'Reports';
+export type NavigationItem = 'Hub' | 'Courses' | 'Assignments' | 'Analytics' |  'Focus' | 'AI Study Coach' | 'Games' | 'Settings' | 'Admin Users' | 'School Registry' | 'Python Engine' | 'Engine Blocks' | 'Junior Code' | 'ML4Kids' | 'NEXT Teach' | 'Projects' | 'Utilities' | 'Code Battle' | 'Learning Path' | 'Reports' | 'Blog' | 'Signal Control' | 'Trainers';
