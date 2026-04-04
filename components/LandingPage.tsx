@@ -82,7 +82,7 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin, onViewAllTr
         <div className="max-w-7xl mx-auto text-center space-y-8">
           <h1 className="text-6xl md:text-8xl font-black text-white tracking-tighter leading-[0.9] max-w-5xl mx-auto">
             <span className='text-4xl md:text-6xl tracking-normal'>Climb the Coder's Ladder. </span><br />
-            <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">Master Programming from Basic 4.</span>
+            <span className="bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">Master AI, Robotic and Coding for Young Learners.</span>
           </h1>
           <p className="text-xl text-slate-400 font-medium max-w-3xl mx-auto leading-relaxed">
             Step into the Lab of tomorrow. Progress from foundational block-coding to advanced Python, Machine Learning, and Web Development through our structured pathways, summer camps, and after-school programs.
