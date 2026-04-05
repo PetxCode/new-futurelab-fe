@@ -34,8 +34,8 @@ import { NavigationItem, User } from './types';
 import toast, { Toaster } from 'react-hot-toast';
 
 export const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
-  ? 'http://localhost:5000' 
-  // ? 'https://futurelab-main-be.vercel.app/' 
+  // ? 'http://localhost:5000' 
+  ? 'https://futurelab-main-be.onrender.com' 
   : 'https://futurelab-main-be.onrender.com';
   // : 'https://futurelab-main-be.onrender.com';
 
