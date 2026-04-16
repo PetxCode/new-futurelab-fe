@@ -2,6 +2,7 @@ import React from "react";
 import { MOCK_STUDENT } from "../constants";
 import { NavigationItem, User } from "../types";
 import LogoutConfirmationModal from "./LogoutConfirmationModal";
+import PoweredByNext from "./PoweredByNext";
 
 interface SidebarProps {
   activeTab: NavigationItem;
@@ -450,8 +451,11 @@ const Sidebar: React.FC<SidebarProps> = ({
       ${isOpen ? "translate-x-0" : "-translate-x-full"}
     `}
     >
-      <div className="p-4 md:p-6 flex items-center">
-        <img src="/logo.png" alt="FutureLab" className="h-18 w-auto object-contain" />
+      <div className="p-4 md:p-6 flex flex-col items-center">
+        <div className="flex flex-col items-end">
+          <img src="/logo.png" alt="FutureLab" className="h-18 w-auto object-contain" />
+          <PoweredByNext className="-mt-1 mr-2" />
+        </div>
       </div>
 
         <div className="px-4 md:px-6 py-4 flex flex-col items-center border-b border-slate-700/50">

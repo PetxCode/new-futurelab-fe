@@ -3,6 +3,7 @@ import PartnershipCarousel from './PartnershipCarousel';
 import { API_BASE_URL } from '../App';
 import BlogList from './Blog/BlogList';
 import BlogPost from './Blog/BlogPost';
+import PoweredByNext from './PoweredByNext';
 
 interface LandingPageProps {
   onStart: () => void;
@@ -36,8 +37,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin, onViewAllTr
       <div className="min-h-screen bg-slate-900 pt-20">
         <nav className="fixed top-0 w-full z-50 bg-slate-900/50 backdrop-blur-xl border-b border-slate-800 px-6 py-4">
           <div className="max-w-7xl mx-auto flex items-center justify-between">
-            <div onClick={() => setSelectedPostSlug(null)} className="flex items-center cursor-pointer">
+            <div onClick={() => setSelectedPostSlug(null)} className="flex flex-col items-end group cursor-pointer">
               <img src="/logo.png" alt="FutureLab" className="h-8 w-auto object-contain" />
+              <PoweredByNext className="-mt-1 mr-1 opacity-60 group-hover:opacity-100 transition-opacity" />
             </div>
           </div>
         </nav>
@@ -51,8 +53,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin, onViewAllTr
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 bg-slate-900/50 backdrop-blur-xl border-b border-slate-800 px-6 py-4">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <div className="flex items-center">
+          <div className="flex flex-col items-end group">
             <img src="/logo.png" alt="FutureLab" className="h-16 w-auto object-contain" />
+            <PoweredByNext className="-mt-1 mr-1 opacity-60 group-hover:opacity-100 transition-opacity" />
           </div>
           {/* <div className="hidden md:flex items-center space-x-8 text-sm font-bold text-slate-400">
             <a href="#features" className="hover:text-indigo-400 transition-colors">Features</a>
@@ -524,8 +527,9 @@ const LandingPage: React.FC<LandingPageProps> = ({ onStart, onLogin, onViewAllTr
       {/* Footer */}
       <footer className="py-20 px-6 border-t border-slate-800">
         <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-10">
-          <div className="flex items-center">
+          <div className="flex flex-col items-end group">
             <img src="/logo.png" alt="FutureLab" className="h-14 w-auto object-contain" />
+            <PoweredByNext className="-mt-1 mr-1 opacity-60 group-hover:opacity-100 transition-opacity" />
           </div>
           <p className="text-slate-500 text-sm font-medium">© 2026 FutureLab: A NEXT Project. All rights reserved.</p>
           <div className="flex items-center space-x-6">

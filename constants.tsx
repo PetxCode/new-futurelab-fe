@@ -142,7 +142,7 @@ export const SUGGESTED_RESOURCES: LearningResource[] = [
               <div class="flex items-center space-x-2">
                 <span class="text-indigo-400">player_name</span>
                 <span class="text-white">=</span>
-                <span class="text-emerald-400">"Leo Sterling"</span>
+                <span class="text-emerald-400">"Peter Oti"</span>
                 <span class="text-slate-600 ml-4"># Stores text (String)</span>
               </div>
               <div class="flex items-center space-x-2">

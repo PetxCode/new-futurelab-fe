@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../App';
+import PoweredByNext from './PoweredByNext';
 
 interface AuthProps {
   mode: 'login' | 'signup';
@@ -149,8 +150,9 @@ const Auth: React.FC<AuthProps> = ({ mode, onBack, onSwitchMode, onSuccess, onPa
 
         <div className="bg-slate-800 border border-slate-700 p-12 rounded-[3.5rem] shadow-2xl relative overflow-hidden">
           <div className="text-center mb-10">
-            <button onClick={onBack} className="mx-auto mb-6 hover:scale-105 transition-transform flex items-center justify-center">
+            <button onClick={onBack} className="mx-auto mb-6 hover:scale-105 transition-transform flex flex-col items-end group">
               <img src="/logo.png" alt="FutureLab" className="h-12 w-auto object-contain" />
+              <PoweredByNext className="-mt-1 mr-1 opacity-60 group-hover:opacity-100 transition-opacity" />
             </button>
             <h2 className="text-4xl font-black text-white tracking-tight">
               {authView === 'reset' ? 'Update Password' : mode === 'login' ? 'Welcome back.' : 'Get Started'}

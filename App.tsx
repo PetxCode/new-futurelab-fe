@@ -32,6 +32,7 @@ import PaymentPlan from './components/PaymentPlan';
 import AllTrainers from './components/AllTrainers';
 import { NavigationItem, User } from './types';
 import toast, { Toaster } from 'react-hot-toast';
+import PoweredByNext from './components/PoweredByNext';
 
 export const API_BASE_URL = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1' 
   // ? 'http://localhost:5000' 
@@ -514,14 +515,17 @@ const App: React.FC = () => {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
                 </svg>
               </button>
-              <span className="ml-4 font-black text-xl tracking-tight text-white flex items-center">
-                <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center mr-2 shadow-lg shadow-indigo-600/30">
-                  <svg viewBox="0 0 24 24" className="w-5 h-5 text-white fill-current">
-                    <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
-                  </svg>
-                </div>
-                FutureLab
-              </span>
+              <div className="flex flex-col items-end group">
+                <span className="font-black text-xl tracking-tight text-white flex items-center">
+                  <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center mr-2 shadow-lg shadow-indigo-600/30">
+                    <svg viewBox="0 0 24 24" className="w-5 h-5 text-white fill-current">
+                      <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z" />
+                    </svg>
+                  </div>
+                  FutureLab
+                </span>
+                <PoweredByNext className="-mt-1 mr-1 opacity-60 group-hover:opacity-100 transition-opacity" />
+              </div>
             </header>
 
             <div className={`${(activeTab === 'Engine Blocks' || activeTab === 'Python Engine' || activeTab === 'Junior Code') ? 'h-full w-full' : 'max-w-7xl mx-auto p-6 md:p-12'}`}>
