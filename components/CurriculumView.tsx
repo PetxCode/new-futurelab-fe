@@ -12,18 +12,8 @@ const CurriculumView: React.FC<CurriculumViewProps> = ({ user, resource, onBack,
   const isRoadmap = resource.title === 'Curriculum' || resource.tags?.includes('Roadmap');
 
   const isAccessible = (mission: Mission) => {
-    if (user?.isAdmin || user?.isInstructor || user?.isSchoolAdmin) return true;
-    if (!isRoadmap) return true; // General resources are always accessible (sequential lock is local)
-    if (!user?.grade) return false;
-    
-    // Normalize grade names (e.g., "JSS 3" -> "jss3", "JSS3" -> "jss3")
-    const normalize = (s: string) => s.toLowerCase().replace(/\s+/g, '');
-    const userGrade = normalize(user.grade);
-    
-    const titleMatch = normalize(mission.title).includes(userGrade);
-    const tagMatch = mission.tags.some(tag => normalize(tag).includes(userGrade));
-    
-    return titleMatch || tagMatch;
+    // No restriction: all users should be able to access all missions
+    return true;
   };
   // Group missions by educational tier
   const roadmapTiers = [

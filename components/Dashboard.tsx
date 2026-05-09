@@ -4,6 +4,8 @@ import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { LearningResource, NavigationItem, Mission, DashboardData, User } from '../types';
 import MissionDetails from './MissionDetails';
 import CurriculumView from './CurriculumView';
+import TermsFocus from './TermsFocus';
+import CodePlayground from './CodePlayground';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../App';
 
@@ -19,6 +21,8 @@ const Dashboard: React.FC<{
   const [selectedResource, setSelectedResource] = useState<LearningResource | null>(null);
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
+  const [showTermsFocus, setShowTermsFocus] = useState(false);
+  const [showCodePlayground, setShowCodePlayground] = useState(false);
 
   // Sync resources with constants if they change in dev
   useEffect(() => {
@@ -170,6 +174,27 @@ const Dashboard: React.FC<{
       />
     );
   }
+  
+  if (showCodePlayground) {
+    return (
+      <CodePlayground 
+        onBack={() => setShowCodePlayground(false)}
+      />
+    );
+  }
+
+  if (showTermsFocus) {
+    return (
+      <TermsFocus 
+        onBack={() => setShowTermsFocus(false)}
+        onNavigate={(tab) => {
+          setShowTermsFocus(false);
+          onNavigate?.(tab);
+        }}
+        onOpenPlayground={() => setShowCodePlayground(true)}
+      />
+    );
+  }
 
   return (
     <div className="space-y-8 animate-in fade-in duration-700">
@@ -310,9 +335,10 @@ const Dashboard: React.FC<{
           </div>
           
           <button 
+            onClick={() => setShowTermsFocus(true)}
             className="mt-6 w-full py-3 bg-white text-indigo-600 font-black rounded-2xl text-sm shadow-xl hover:bg-indigo-50 transition-colors"
           >
-            Discover Library <span className='text-[10px] text-red-500'>(coming soon)</span>
+            Terms Focus <span className='text-[10px] text-red-500'>(Click Here)</span>
           </button>
         </div>
       </div>

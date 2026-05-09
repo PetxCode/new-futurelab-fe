@@ -14,6 +14,9 @@ const CodingEngine: React.FC = () => {
   const [viewMode, setViewMode] = useState<'Workspace' | 'Console only'>('Workspace');
   const pyodideRef = useRef<any>(null);
   const consoleEndRef = useRef<HTMLDivElement>(null);
+  const [isInputRequired, setIsInputRequired] = useState(false);
+  const [inputPrompt, setInputPrompt] = useState('');
+  const [currentInputValue, setCurrentInputValue] = useState('');
 
   useEffect(() => {
     const loadPyodide = async () => {
@@ -62,10 +65,34 @@ const CodingEngine: React.FC = () => {
     setOutput([]);
     
     try {
-      // Redirect stdout
       pyodideRef.current.setStdout({
         batched: (text: string) => {
-          setOutput(prev => [...prev, text]);
+          setOutput(prev => {
+            const last = prev[prev.length - 1];
+            if (last && !last.endsWith('\n')) {
+              return [...prev.slice(0, -1), last + text];
+            }
+            return [...prev, text];
+          });
+        }
+      });
+
+      pyodideRef.current.setStderr({
+        batched: (text: string) => {
+          setOutput(prev => [...prev, `❌ ${text}`]);
+        }
+      });
+
+      // Synchronous input handling in main thread still requires prompt
+      // but we can try to make it feel better
+      pyodideRef.current.setStdin({
+        stdin: () => {
+          const result = window.prompt("Python Input Required:");
+          if (result !== null) {
+            setOutput(prev => [...prev, `${result}\n`]);
+            return result;
+          }
+          return "";
         }
       });
 
@@ -182,9 +209,9 @@ const CodingEngine: React.FC = () => {
               {output.length === 0 ? (
                 <span className="text-slate-600 italic">No output yet. Click 'Run Code' to execute.</span>
               ) : (
-                <div className="space-y-1">
+                <div className="space-y-1 pb-20">
                   {output.map((line, i) => (
-                    <div key={i} className="text-emerald-400 break-words whitespace-pre-wrap">{line}</div>
+                    <div key={i} className="text-emerald-400 break-words whitespace-pre-wrap leading-relaxed">{line}</div>
                   ))}
                   <div ref={consoleEndRef} />
                 </div>
