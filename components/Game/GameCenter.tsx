@@ -9,6 +9,7 @@ import CodeQuest from './CodeQuest';
 import BotWorkshop from './BotWorkshop';
 import NanoQuest from './NanoQuest';
 import TugOfWar from './TugOfWar';
+import LayoutMaster from './LayoutMaster';
 
 interface GameConfig {
   id: string;
@@ -84,6 +85,14 @@ const GAMES: GameConfig[] = [
     description: 'Battle 1v1 in a real-time coding duel. Out-code your opponent to pull the rope home!',
     icon: '🪢',
     color: 'from-rose-600 via-indigo-600 to-emerald-600',
+    isNew: true
+  },
+  {
+    id: 'layoutmaster',
+    title: 'Layout Master: Frog & Grid',
+    description: 'Master CSS Flexbox and Grid by guiding frogs to their lilypads and growing a grid garden!',
+    icon: '🐸',
+    color: 'from-emerald-500 to-green-600',
     isNew: true
   },
   {
@@ -237,6 +246,22 @@ const GameCenter: React.FC = () => {
         </button>
         <div className="h-full pt-8">
             <TugOfWar />
+        </div>
+      </div>
+    );
+  }
+
+  if (activeGame === 'layoutmaster') {
+    return (
+      <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden">
+        <button 
+          onClick={() => setActiveGame(null)}
+          className="absolute top-4 left-4 z-50 px-4 py-2 bg-slate-800/80 backdrop-blur text-white rounded-lg border border-slate-700 hover:bg-slate-700 transition flex items-center gap-2 font-bold text-sm"
+        >
+          <span>←</span> Back to Arcade
+        </button>
+        <div className="w-full h-full pt-16 pb-4 px-4 lg:px-8">
+            <LayoutMaster />
         </div>
       </div>
     );
