@@ -30,25 +30,12 @@
     <link rel="canonical" href="/" />
 
     <title>FutureLab | Master Your Craft</title>
-    <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap"
       rel="stylesheet"
     />
-    <script>
-      tailwind.config = {
-        theme: {
-          extend: {
-            fontFamily: {
-              sans: ['"Plus Jakarta Sans"', "sans-serif"],
-              heading: ["Outfit", "sans-serif"],
-            },
-          },
-        },
-      };
-    </script>
 
     <script>
       const formalURL = "next-futurelab.web.app";
@@ -60,60 +47,7 @@
           window.location.search;
       }
     </script>
-    <style>
-      body {
-        font-family: "Plus Jakarta Sans", sans-serif;
-        background-color: #0f172a;
-        color: #f8fafc;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-        letter-spacing: -0.01em;
-      }
-      h1,
-      h2,
-      h3,
-      h4,
-      h5,
-      h6,
-      .font-heading {
-        font-family: "Outfit", sans-serif;
-        letter-spacing: -0.02em;
-      }
-      /* Custom scrollbar for better dark mode look */
-      ::-webkit-scrollbar {
-        width: 8px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #1e293b;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #475569;
-        border-radius: 4px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #64748b;
-      }
-      .custom-scrollbar::-webkit-scrollbar {
-        width: 6px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-track {
-        background: transparent;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb {
-        background: #334155;
-        border-radius: 10px;
-      }
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-        background: #475569;
-      }
-      /* Glassmorphism utility */
-      .glass {
-        background: rgba(30, 41, 59, 0.7);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-      }
-    </style>
+
     <script type="importmap">
       {
         "imports": {

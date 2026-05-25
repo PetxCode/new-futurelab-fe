@@ -20,6 +20,7 @@ const CodePlayground: React.FC<CodePlaygroundProps> = ({
       setSrcDoc(`
         <html>
           <head>
+            <script src="https://cdn.tailwindcss.com"></script>
             <style>${css}</style>
           </head>
           <body>${html}</body>
@@ -108,12 +109,12 @@ const CodePlayground: React.FC<CodePlaygroundProps> = ({
             </div>
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Live Preview</span>
           </div>
-          <div className="flex-1 bg-white relative">
+          <div className="flex-1 bg-[#0f172a] relative">
             <iframe
               srcDoc={srcDoc}
               title="preview"
               sandbox="allow-scripts"
-              className="w-full h-full border-none"
+              className="w-full h-full border-none bg-transparent"
             />
             
             {/* Design Watermark */}
