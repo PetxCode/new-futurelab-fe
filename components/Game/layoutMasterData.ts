@@ -228,6 +228,99 @@ export const flexLevels: LayoutLevel[] = [
     targetContainerCSS: { flexFlow: 'column-reverse wrap-reverse', justifyContent: 'center', alignContent: 'space-between', alignItems: 'center' },
     editorBefore: '#pond {\n  display: flex;\n', editorAfter: '}',
     expectedRegex: ['flex-flow\\s*:\\s*column-reverse\\s*wrap-reverse', 'justify-content\\s*:\\s*center', 'align-content\\s*:\\s*space-between', 'align-items\\s*:\\s*center'], expectedTailwind: ['flex-col-reverse', 'flex-wrap-reverse', 'justify-center', 'content-between', 'items-center']
+  },
+  {
+    id: 25, mode: 'flex', name: 'Level 25',
+    instructions: 'Use the `gap` property (or `gap-5` in Tailwind) to add space between the frogs.',
+    frogs: THREE_GREEN,
+    targetContainerCSS: { gap: '20px' },
+    editorBefore: '#pond {\n  display: flex;\n', editorAfter: '}',
+    expectedRegex: ['gap\\s*:\\s*20px'], expectedTailwind: ['gap-5']
+  },
+  {
+    id: 26, mode: 'flex', name: 'Level 26',
+    instructions: 'Use the `row-gap` property (or `gap-y-8` in Tailwind) to add vertical spacing between wrapped rows of frogs.',
+    frogs: [...THREE_GREEN, ...THREE_GREEN],
+    targetContainerCSS: { flexWrap: 'wrap', rowGap: '32px' },
+    editorBefore: '#pond {\n  display: flex;\n  flex-wrap: wrap;\n', editorAfter: '}',
+    expectedRegex: ['row-gap\\s*:\\s*32px'], expectedTailwind: ['gap-y-8']
+  },
+  {
+    id: 27, mode: 'flex', name: 'Level 27',
+    instructions: 'Use the `column-gap` property (or `gap-x-4` in Tailwind) to add horizontal spacing between columns of frogs.',
+    frogs: [...THREE_GREEN, ...THREE_GREEN],
+    targetContainerCSS: { flexDirection: 'column', flexWrap: 'wrap', columnGap: '16px' },
+    editorBefore: '#pond {\n  display: flex;\n  flex-direction: column;\n  flex-wrap: wrap;\n', editorAfter: '}',
+    expectedRegex: ['column-gap\\s*:\\s*16px'], expectedTailwind: ['gap-x-4']
+  },
+  {
+    id: 28, mode: 'flex', name: 'Level 28',
+    instructions: 'Use the `flex-grow` property (or `grow` in Tailwind) to make the yellow frog expand and fill the remaining space.',
+    frogs: [{ ...GREEN_FROG, id: 'g1' }, { ...YELLOW_FROG, id: 'y1' }, { ...GREEN_FROG, id: 'g2' }],
+    targetItemCSS: { 'y1': { flexGrow: 1 } },
+    editorBefore: '#pond {\n  display: flex;\n}\n\n.yellow {\n', editorAfter: '}',
+    expectedRegex: ['flex-grow\\s*:\\s*1'], expectedTailwind: ['grow'],
+    targetSelector: '.yellow'
+  },
+  {
+    id: 29, mode: 'flex', name: 'Level 29',
+    instructions: 'Prevent the red frog from shrinking when the container is small by using `flex-shrink: 0` (or `shrink-0` in Tailwind).',
+    frogs: [{ ...GREEN_FROG, id: 'g1' }, { ...RED_FROG, id: 'r1' }, { ...GREEN_FROG, id: 'g2' }],
+    targetItemCSS: { 'r1': { flexShrink: 0 } },
+    editorBefore: '#pond {\n  display: flex;\n}\n\n.red {\n', editorAfter: '}',
+    expectedRegex: ['flex-shrink\\s*:\\s*0'], expectedTailwind: ['shrink-0'],
+    targetSelector: '.red'
+  },
+  {
+    id: 30, mode: 'flex', name: 'Level 30',
+    instructions: 'Set the initial main size of the yellow frog to 50% using `flex-basis: 50%` (or `basis-1/2` in Tailwind).',
+    frogs: [{ ...GREEN_FROG, id: 'g1' }, { ...YELLOW_FROG, id: 'y1' }, { ...GREEN_FROG, id: 'g2' }],
+    targetItemCSS: { 'y1': { flexBasis: '50%' } },
+    editorBefore: '#pond {\n  display: flex;\n}\n\n.yellow {\n', editorAfter: '}',
+    expectedRegex: ['flex-basis\\s*:\\s*50%'], expectedTailwind: ['basis-1/2'],
+    targetSelector: '.yellow'
+  },
+  {
+    id: 31, mode: 'flex', name: 'Level 31',
+    instructions: 'Use the shorthand `flex: 1 1 auto` (or `flex-auto` in Tailwind) on the yellow frog to grow and shrink it as needed.',
+    frogs: [{ ...GREEN_FROG, id: 'g1' }, { ...YELLOW_FROG, id: 'y1' }, { ...GREEN_FROG, id: 'g2' }],
+    targetItemCSS: { 'y1': { flex: '1 1 auto' } },
+    editorBefore: '#pond {\n  display: flex;\n}\n\n.yellow {\n', editorAfter: '}',
+    expectedRegex: ['flex\\s*:\\s*1\\s+1\\s+auto'], expectedTailwind: ['flex-auto'],
+    targetSelector: '.yellow'
+  },
+  {
+    id: 32, mode: 'flex', name: 'Level 32',
+    instructions: 'Help the frogs find their spots by reversing direction, spacing them evenly, and adding a gap of 12px (Tailwind: `flex-row-reverse justify-normal gap-3`).',
+    frogs: THREE_MIX,
+    targetContainerCSS: { flexDirection: 'row-reverse', justifyContent: 'normal', gap: '12px' },
+    editorBefore: '#pond {\n  display: flex;\n', editorAfter: '}',
+    expectedRegex: ['flex-direction\\s*:\\s*row-reverse', 'gap\\s*:\\s*12px'], expectedTailwind: ['flex-row-reverse', 'gap-3']
+  },
+  {
+    id: 33, mode: 'flex', name: 'Level 33',
+    instructions: 'Reorder the green frog using `order: 2` (or `order-2` in Tailwind) and center it with `align-self: center` (or `self-center` in Tailwind).',
+    frogs: THREE_MIX,
+    targetItemCSS: { 'g1': { order: 2, alignSelf: 'center' } },
+    editorBefore: '#pond {\n  display: flex;\n  align-items: flex-start;\n}\n\n.green {\n', editorAfter: '}',
+    expectedRegex: ['order\\s*:\\s*2', 'align-self\\s*:\\s*center'], expectedTailwind: ['order-2', 'self-center'],
+    targetSelector: '.green'
+  },
+  {
+    id: 34, mode: 'flex', name: 'Level 34',
+    instructions: 'Wrap the frogs in reverse order of lines with `flex-wrap: wrap-reverse` and space the lines evenly with `align-content: space-around` (Tailwind: `flex-wrap-reverse content-around`).',
+    frogs: [...THREE_MIX, ...THREE_MIX],
+    targetContainerCSS: { flexWrap: 'wrap-reverse', alignContent: 'space-around' },
+    editorBefore: '#pond {\n  display: flex;\n', editorAfter: '}',
+    expectedRegex: ['flex-wrap\\s*:\\s*wrap-reverse', 'align-content\\s*:\\s*space-around'], expectedTailwind: ['flex-wrap-reverse', 'content-around']
+  },
+  {
+    id: 35, mode: 'flex', name: 'Level 35',
+    instructions: 'The Ultimate Flex Challenge! Lay out the frogs in a reverse column, wrap them, justify them with space-between, align items to the end, and add a gap of 8px.',
+    frogs: FIVE_MIX,
+    targetContainerCSS: { flexDirection: 'column-reverse', flexWrap: 'wrap', justifyContent: 'space-between', alignItems: 'flex-end', gap: '8px' },
+    editorBefore: '#pond {\n  display: flex;\n', editorAfter: '}',
+    expectedRegex: ['flex-direction\\s*:\\s*column-reverse', 'flex-wrap\\s*:\\s*wrap', 'justify-content\\s*:\\s*space-between', 'align-items\\s*:\\s*flex-end', 'gap\\s*:\\s*8px'], expectedTailwind: ['flex-col-reverse', 'flex-wrap', 'justify-between', 'items-end', 'gap-2']
   }
 ];
 
@@ -439,5 +532,101 @@ export const gridLevels: LayoutLevel[] = [
     targetContainerCSS: { display: 'grid', gridTemplateColumns: '50px 1fr 50px', gridTemplateRows: '50px 1fr 50px', justifyContent: 'center', alignContent: 'center' },
     editorBefore: '#garden {\n  display: grid;\n', editorAfter: '}',
     expectedRegex: ['grid-template-columns\\s*:\\s*50px\\s*1fr\\s*50px', 'grid-template-rows\\s*:\\s*50px\\s*1fr\\s*50px'], expectedTailwind: ['grid-cols-\\[50px_1fr_50px\\]', 'grid-rows-\\[50px_1fr_50px\\]']
+  },
+  {
+    id: 25, mode: 'grid', name: 'Grid 25',
+    instructions: 'Use the `gap` property (or `gap-4` in Tailwind) to add 16px of spacing between all grid cells.',
+    frogs: FIVE_MIX,
+    targetContainerCSS: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px' },
+    editorBefore: '#garden {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n', editorAfter: '}',
+    expectedRegex: ['gap\\s*:\\s*16px'], expectedTailwind: ['gap-4']
+  },
+  {
+    id: 26, mode: 'grid', name: 'Grid 26',
+    instructions: 'Use the `row-gap` property (or `gap-y-6` in Tailwind) to add 24px of vertical spacing between rows.',
+    frogs: FIVE_MIX,
+    targetContainerCSS: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', rowGap: '24px' },
+    editorBefore: '#garden {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n', editorAfter: '}',
+    expectedRegex: ['row-gap\\s*:\\s*24px'], expectedTailwind: ['gap-y-6']
+  },
+  {
+    id: 27, mode: 'grid', name: 'Grid 27',
+    instructions: 'Use the `column-gap` property (or `gap-x-3` in Tailwind) to add 12px of horizontal spacing between columns.',
+    frogs: FIVE_MIX,
+    targetContainerCSS: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', columnGap: '12px' },
+    editorBefore: '#garden {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n', editorAfter: '}',
+    expectedRegex: ['column-gap\\s*:\\s*12px'], expectedTailwind: ['gap-x-3']
+  },
+  {
+    id: 28, mode: 'grid', name: 'Grid 28',
+    instructions: 'Use `place-items: center` (or `place-items-center` in Tailwind) to center the frogs both horizontally and vertically inside their cells.',
+    frogs: FIVE_MIX,
+    targetContainerCSS: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', placeItems: 'center' },
+    editorBefore: '#garden {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n', editorAfter: '}',
+    expectedRegex: ['place-items\\s*:\\s*center'], expectedTailwind: ['place-items-center']
+  },
+  {
+    id: 29, mode: 'grid', name: 'Grid 29',
+    instructions: 'Align the yellow frog to the end of its grid cell horizontally using `justify-self: end` (or `justify-self-end` in Tailwind).',
+    frogs: [GREEN_FROG, YELLOW_FROG, RED_FROG],
+    targetContainerCSS: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' },
+    targetItemCSS: { 'y1': { justifySelf: 'end' } },
+    editorBefore: '#garden {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n}\n\n.yellow {\n', editorAfter: '}',
+    expectedRegex: ['justify-self\\s*:\\s*end'], expectedTailwind: ['justify-self-end'],
+    targetSelector: '.yellow'
+  },
+  {
+    id: 30, mode: 'grid', name: 'Grid 30',
+    instructions: 'Align the red frog to the center of its grid cell vertically using `align-self: center` (or `self-center` in Tailwind).',
+    frogs: [GREEN_FROG, YELLOW_FROG, RED_FROG],
+    targetContainerCSS: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' },
+    targetItemCSS: { 'r1': { alignSelf: 'center' } },
+    editorBefore: '#garden {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n}\n\n.red {\n', editorAfter: '}',
+    expectedRegex: ['align-self\\s*:\\s*center'], expectedTailwind: ['self-center'],
+    targetSelector: '.red'
+  },
+  {
+    id: 31, mode: 'grid', name: 'Grid 31',
+    instructions: 'Align the green frog to the center of its cell both horizontally and vertically using `place-self: center` (or `place-self-center` in Tailwind).',
+    frogs: [GREEN_FROG, YELLOW_FROG, RED_FROG],
+    targetContainerCSS: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' },
+    targetItemCSS: { 'g1': { placeSelf: 'center' } },
+    editorBefore: '#garden {\n  display: grid;\n  grid-template-columns: repeat(3, 1fr);\n}\n\n.green {\n', editorAfter: '}',
+    expectedRegex: ['place-self\\s*:\\s*center'], expectedTailwind: ['place-self-center'],
+    targetSelector: '.green'
+  },
+  {
+    id: 32, mode: 'grid', name: 'Grid 32',
+    instructions: 'Set the size of implicitly-created rows to 60px using `grid-auto-rows: 60px` (or `auto-rows-[60px]` in Tailwind).',
+    frogs: FIVE_MIX,
+    targetContainerCSS: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gridAutoRows: '60px' },
+    editorBefore: '#garden {\n  display: grid;\n  grid-template-columns: repeat(2, 1fr);\n', editorAfter: '}',
+    expectedRegex: ['grid-auto-rows\\s*:\\s*60px'], expectedTailwind: ['auto-rows-\\[60px\\]']
+  },
+  {
+    id: 33, mode: 'grid', name: 'Grid 33',
+    instructions: 'Use the `minmax()` function to create 3 columns that are at least 100px wide but grow to fill available space (CSS: `grid-template-columns: repeat(3, minmax(100px, 1fr))`, Tailwind: `grid-cols-[repeat(3,minmax(100px,1fr))]`).',
+    frogs: THREE_MIX,
+    targetContainerCSS: { display: 'grid', gridTemplateColumns: 'repeat(3, minmax(100px, 1fr))' },
+    editorBefore: '#garden {\n  display: grid;\n', editorAfter: '}',
+    expectedRegex: ['grid-template-columns\\s*:\\s*repeat\\(3,\\s*minmax\\(100px,\\s*1fr\\)\\)'], expectedTailwind: ['grid-cols-\\[repeat\\(3,minmax\\(100px,1fr\\)\\)\\]']
+  },
+  {
+    id: 34, mode: 'grid', name: 'Grid 34',
+    instructions: 'Make the yellow frog span 2 columns and 2 rows using `grid-column: span 2` and `grid-row: span 2` (or `col-span-2 row-span-2` in Tailwind).',
+    frogs: [YELLOW_FROG],
+    targetContainerCSS: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(4, 1fr)' },
+    targetItemCSS: { 'y1': { gridColumn: 'span 2 / span 2', gridRow: 'span 2 / span 2' } },
+    editorBefore: '#garden {\n  display: grid;\n  grid-template-columns: repeat(4, 1fr);\n  grid-template-rows: repeat(4, 1fr);\n}\n\n.yellow {\n', editorAfter: '}',
+    expectedRegex: ['grid-column\\s*:\\s*span\\s*2', 'grid-row\\s*:\\s*span\\s*2'], expectedTailwind: ['col-span-2', 'row-span-2'],
+    targetSelector: '.yellow'
+  },
+  {
+    id: 35, mode: 'grid', name: 'Grid 35',
+    instructions: 'The Final Grid Challenge! Recreate this grid with 4 columns, 4 rows, a gap of 10px, and center the entire grid both horizontally and vertically.',
+    frogs: FIVE_MIX,
+    targetContainerCSS: { display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gridTemplateRows: 'repeat(4, 1fr)', gap: '10px', justifyContent: 'center', alignContent: 'center' },
+    editorBefore: '#garden {\n  display: grid;\n', editorAfter: '}',
+    expectedRegex: ['grid-template-columns\\s*:\\s*repeat\\(4,\\s*1fr\\)', 'grid-template-rows\\s*:\\s*repeat\\(4,\\s*1fr\\)', 'gap\\s*:\\s*10px', 'justify-content\\s*:\\s*center', 'align-content\\s*:\\s*center'], expectedTailwind: ['grid-cols-4', 'grid-rows-4', 'gap-2.5', 'justify-center', 'content-center']
   }
 ];

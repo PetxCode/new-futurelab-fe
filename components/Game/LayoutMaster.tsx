@@ -1,11 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { flexLevels, gridLevels, LayoutLevel, LevelMode, Frog } from './layoutMasterData';
 import { motion } from 'framer-motion';
+import CharacterSelect, { Character } from './components/CharacterSelect';
+import ChallengeGame from './components/ChallengeGame';
+
+type ChallengeMode = 'idle' | 'selecting' | 'playing';
+
+interface ChallengePlayer {
+  character: Character;
+  name: string;
+}
 
 export default function LayoutMaster() {
   const [mode, setMode] = useState<LevelMode>('flex');
-  const [syntaxMode, setSyntaxMode] = useState<'css' | 'tailwind'>('css');
-  const [levelIndex, setLevelIndex] = useState(0);
+  const [syntaxMode, setSyntaxMode] = useState<'tailwind'>('tailwind');
+
+  // Tailwind mode indicator – CSS mode removed for a pure Tailwind UI
+  const syntaxLabel = (
+    <div className="flex items-center justify-center p-2 bg-[#161b22] border-b border-gray-800 text-sm text-gray-300">
+      TailwindCSS mode (fixed)
+    </div>
+  );  const [levelIndex, setLevelIndex] = useState(0);
+
+  // Challenge a Friend
+  const [challengeMode, setChallengeMode] = useState<ChallengeMode>('idle');
+  const [p1, setP1] = useState<ChallengePlayer | null>(null);
+  const [p2, setP2] = useState<ChallengePlayer | null>(null);
   
   const [userInput, setUserInput] = useState('');
   const [appliedInput, setAppliedInput] = useState(''); // Only updates when 'Run Code' is clicked
@@ -14,12 +34,30 @@ export default function LayoutMaster() {
   const levels = mode === 'flex' ? flexLevels : gridLevels;
   const currentLevel = levels[levelIndex];
 
-  // Reset states when level or mode changes
-  useEffect(() => {
-    setUserInput('');
-    setAppliedInput('');
-    setIsSuccess(false);
-  }, [mode, levelIndex, syntaxMode]);
+  // ── Challenge Mode Rendering ────────────────────────────────────────
+  if (challengeMode === 'selecting') {
+    return (
+      <CharacterSelect
+        onReady={(player1, player2) => {
+          setP1(player1);
+          setP2(player2);
+          setChallengeMode('playing');
+        }}
+        onBack={() => setChallengeMode('idle')}
+      />
+    );
+  }
+
+  if (challengeMode === 'playing' && p1 && p2) {
+    return (
+      <ChallengeGame
+        p1={p1}
+        p2={p2}
+        onExit={() => { setChallengeMode('idle'); setP1(null); setP2(null); }}
+      />
+    );
+  }
+
 
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setUserInput(e.target.value);
@@ -29,17 +67,8 @@ export default function LayoutMaster() {
   const handleRunCode = () => {
     setAppliedInput(userInput);
     
-    // Validation
-    let passed = false;
-    if (syntaxMode === 'css') {
-      passed = currentLevel.expectedRegex.every(regStr => {
-        const regex = new RegExp(regStr, 'i');
-        return regex.test(userInput);
-      });
-    } else {
-      // Tailwind validation
-      passed = currentLevel.expectedTailwind.every(tw => userInput.includes(tw));
-    }
+    // Tailwind‑only validation
+    const passed = currentLevel.expectedTailwind.every(tw => userInput.includes(tw));
 
     setIsSuccess(passed);
   };
@@ -54,13 +83,8 @@ export default function LayoutMaster() {
 
   const containerId = mode === 'flex' ? '#pond' : '#garden';
   
-  // Safely scope the user's CSS to our game board if in CSS mode
-  const injectedCSS = syntaxMode === 'css' ? `
-    #layout-master-game-board ${containerId} {
-      ${!currentLevel.targetSelector ? appliedInput : ''}
-    }
-    ${currentLevel.targetSelector ? `#layout-master-game-board ${currentLevel.targetSelector} { ${appliedInput} }` : ''}
-  ` : '';
+  // No CSS injection needed – Tailwind mode only
+  const injectedCSS = '';
 
   // Tailwind classes to apply (if in tailwind mode)
   const containerTailwind = syntaxMode === 'tailwind' && !currentLevel.targetSelector ? appliedInput : '';
@@ -110,21 +134,34 @@ export default function LayoutMaster() {
         
         {/* Header - Game Mode */}
         <div className="flex items-center justify-between p-4 bg-[#0d1117] border-b border-gray-800">
-          <div className="flex bg-gray-800 rounded-lg p-1">
+          {/* Left: Mode toggles */}
+          <div className="flex space-x-2">
             <button
               onClick={() => { setMode('flex'); setLevelIndex(0); }}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${mode === 'flex' ? 'bg-blue-600 text-white' : 'text-gray-400 hover:text-white'}`}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${mode === 'flex' ? 'bg-emerald-600 text-white' : 'text-gray-400 hover:text-white'}`}
             >
               <span className="text-xl">☰</span> Flex
             </button>
             <button
               onClick={() => { setMode('grid'); setLevelIndex(0); }}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${mode === 'grid' ? 'bg-purple-600 text-white' : 'text-gray-400 hover:text-white'}`}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${mode === 'grid' ? 'bg-emerald-600 text-white' : 'text-gray-400 hover:text-white'}`}
             >
               <span className="text-xl">▦</span> Grid
             </button>
           </div>
-          
+
+          {/* Right: Challenge button */}
+          <button
+            onClick={() => setChallengeMode('selecting')}
+            className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-700 text-white hover:from-emerald-600 hover:to-emerald-800 transition-transform transform hover:scale-105 shadow-md"
+            aria-label="Challenge a Friend"
+          >
+            ⚔️ <span>Challenge</span>
+          </button>
+        </div>
+
+        {/* Level Navigation */}
+        <div className="flex items-center justify-end p-2 border-b border-gray-800 bg-[#161b22]">
           <div className="flex items-center gap-2">
             <button onClick={prevLevel} disabled={levelIndex === 0} className="p-1 text-gray-400 hover:text-white disabled:opacity-30 text-xl font-bold">
               ←
@@ -138,22 +175,20 @@ export default function LayoutMaster() {
           </div>
         </div>
 
-        {/* Header - Syntax Mode */}
-        <div className="flex items-center justify-center p-2 bg-[#161b22] border-b border-gray-800">
-          <div className="flex bg-gray-900 rounded-full p-1 border border-gray-700">
-            <button
-              onClick={() => setSyntaxMode('css')}
-              className={`px-4 py-1 rounded-full text-xs font-bold transition-colors ${syntaxMode === 'css' ? 'bg-indigo-500 text-white' : 'text-gray-400 hover:text-white'}`}
-            >
-              CSS
-            </button>
-            <button
-              onClick={() => setSyntaxMode('tailwind')}
-              className={`px-4 py-1 rounded-full text-xs font-bold transition-colors ${syntaxMode === 'tailwind' ? 'bg-sky-500 text-white' : 'text-gray-400 hover:text-white'}`}
-            >
-              Tailwind
-            </button>
-          </div>
+        {/* Syntax Mode Toggle (CSS / Tailwind) */}
+        <div className="flex items-center justify-center p-2 bg-[#161b22] border-b border-gray-800 space-x-2">
+          <button
+            onClick={() => setSyntaxMode('css')}
+            className={`px-4 py-1 rounded-full text-xs font-bold transition-colors ${syntaxMode === 'css' ? 'bg-indigo-500 text-white' : 'text-gray-400 hover:text-white'}`}
+          >
+            CSS
+          </button>
+          <button
+            onClick={() => setSyntaxMode('tailwind')}
+            className={`px-4 py-1 rounded-full text-xs font-bold transition-colors ${syntaxMode === 'tailwind' ? 'bg-sky-500 text-white' : 'text-gray-400 hover:text-white'}`}
+          >
+            Tailwind
+          </button>
         </div>
 
         {/* Instructions */}
