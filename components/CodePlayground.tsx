@@ -20,7 +20,7 @@ const CodePlayground: React.FC<CodePlaygroundProps> = ({
       setSrcDoc(`
         <html>
           <head>
-            <script src="https://cdn.tailwindcss.com"></script>
+            <script src="/tailwindcss.js"></script>
             <style>${css}</style>
           </head>
           <body>${html}</body>
