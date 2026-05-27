@@ -3,8 +3,9 @@ import { flexLevels, gridLevels, LayoutLevel, LevelMode, Frog } from './layoutMa
 import { motion } from 'framer-motion';
 import CharacterSelect, { Character } from './components/CharacterSelect';
 import ChallengeGame from './components/ChallengeGame';
+import MultiplayerChallenge from './components/MultiplayerChallenge';
 
-type ChallengeMode = 'idle' | 'selecting' | 'playing';
+type ChallengeMode = 'idle' | 'selecting' | 'playing' | 'multiplayer';
 
 interface ChallengePlayer {
   character: Character;
@@ -31,6 +32,13 @@ export default function LayoutMaster() {
   const [appliedInput, setAppliedInput] = useState(''); // Only updates when 'Run Code' is clicked
   const [isSuccess, setIsSuccess] = useState(false);
 
+  // Reset input and success state on navigation/mode changes
+  useEffect(() => {
+    setUserInput('');
+    setAppliedInput('');
+    setIsSuccess(false);
+  }, [levelIndex, mode, syntaxMode]);
+
   const levels = mode === 'flex' ? flexLevels : gridLevels;
   const currentLevel = levels[levelIndex];
 
@@ -54,6 +62,14 @@ export default function LayoutMaster() {
         p1={p1}
         p2={p2}
         onExit={() => { setChallengeMode('idle'); setP1(null); setP2(null); }}
+      />
+    );
+  }
+
+  if (challengeMode === 'multiplayer') {
+    return (
+      <MultiplayerChallenge
+        onExit={() => setChallengeMode('idle')}
       />
     );
   }
@@ -150,14 +166,23 @@ export default function LayoutMaster() {
             </button>
           </div>
 
-          {/* Right: Challenge button */}
-          <button
-            onClick={() => setChallengeMode('selecting')}
-            className="flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-700 text-white hover:from-emerald-600 hover:to-emerald-800 transition-transform transform hover:scale-105 shadow-md"
-            aria-label="Challenge a Friend"
-          >
-            ⚔️ <span>Challenge</span>
-          </button>
+          {/* Right: Challenge options */}
+          <div className="flex items-center gap-2">
+            {/* <button
+              onClick={() => setChallengeMode('selecting')}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs font-bold text-white transition-transform transform hover:scale-105"
+              aria-label="Challenge a Friend"
+            >
+              ⚔️ <span>Challenge</span>
+            </button> */}
+            <button
+              onClick={() => setChallengeMode('multiplayer')}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-emerald-500 to-emerald-700 hover:from-emerald-600 hover:to-emerald-800 text-xs font-bold text-white transition-transform transform hover:scale-105 shadow-md"
+              aria-label="Multiplayer Race"
+            >
+              🌐 <span>Multiplayer</span>
+            </button>
+          </div>
         </div>
 
         {/* Level Navigation */}

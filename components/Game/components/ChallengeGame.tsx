@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { io } from 'socket.io-client';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion'; // Imported to enable presence animations
 import { challengeLevels, STAGES } from '../challengeData';
 import type { Character } from './CharacterSelect';
 import StageIntro from './StageIntro';
