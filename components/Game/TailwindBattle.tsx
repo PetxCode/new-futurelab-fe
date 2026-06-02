@@ -29,8 +29,10 @@ export default function TailwindBattle() {
   const [mobileTab, setMobileTab] = useState<MobileTab>('info');
 
   const currentLevel = battleLevels[levelIndex];
-  const targetIframeRef = useRef<HTMLIFrameElement>(null);
-  const userIframeRef = useRef<HTMLIFrameElement>(null);
+  const desktopTargetIframeRef = useRef<HTMLIFrameElement>(null);
+  const desktopUserIframeRef = useRef<HTMLIFrameElement>(null);
+  const mobileTargetIframeRef = useRef<HTMLIFrameElement>(null);
+  const mobileUserIframeRef = useRef<HTMLIFrameElement>(null);
 
   // Check admin status from localStorage (same pattern as App.tsx)
   const isAdmin = (() => {
@@ -54,35 +56,23 @@ export default function TailwindBattle() {
     setRunKey(prev => prev + 1);
   }, [levelIndex, currentLevel]);
 
-  // Update iframe contents
+  // Helper to generate the iframe document content
+  const getHtmlDoc = (html: string) => `<!DOCTYPE html><html><head><script src="https://cdn.tailwindcss.com"></script><style>body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }</style></head><body>${html}</body></html>`;
+
+  // Validate on code change
   useEffect(() => {
-    const tailwindScript = `<script src="https://cdn.tailwindcss.com"></script>`;
-    const styleTag = `<style>body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }</style>`;
-
-    const writeToIframe = (ref: React.RefObject<HTMLIFrameElement>, html: string) => {
-      try {
-        const doc = ref.current?.contentDocument || ref.current?.contentWindow?.document;
-        if (doc) {
-          doc.open();
-          doc.write(`<!DOCTYPE html><html><head>${tailwindScript}${styleTag}</head><body>${html}</body></html>`);
-          doc.close();
-        }
-      } catch (err) {
-        console.warn('iframe write error:', err);
-      }
-    };
-
-    writeToIframe(targetIframeRef, currentLevel.targetHtml);
-    writeToIframe(userIframeRef, code);
-
     const timer = setTimeout(validateSolution, 600);
     return () => clearTimeout(timer);
-  }, [code, runKey]);
+  }, [code, runKey, viewMode, mobileTab]);
 
   const validateSolution = () => {
     try {
-      const targetIframe = targetIframeRef.current;
-      const userIframe = userIframeRef.current;
+      // Find the currently visible iframes (desktop or mobile)
+      const isMobileTargetVisible = (mobileTargetIframeRef.current?.getBoundingClientRect().width || 0) > 0;
+      const targetIframe = isMobileTargetVisible ? mobileTargetIframeRef.current : desktopTargetIframeRef.current;
+      
+      const isMobileUserVisible = (mobileUserIframeRef.current?.getBoundingClientRect().width || 0) > 0;
+      const userIframe = isMobileUserVisible ? mobileUserIframeRef.current : desktopUserIframeRef.current;
       if (!targetIframe || !userIframe) return;
 
       const targetDoc = targetIframe.contentDocument || targetIframe.contentWindow?.document;
@@ -408,7 +398,7 @@ export default function TailwindBattle() {
 
   // ─── Preview Panel ───
 
-  const renderPreviewPanel = (className: string = '') => (
+  const renderPreviewPanel = (className: string = '', isMobile: boolean = false) => (
     <div className={`bg-[#0f172a] flex flex-col ${className}`}>
       {/* View mode tabs */}
       <div className="flex items-center justify-between px-4 lg:px-6 py-2.5 lg:py-3 bg-[#111827] border-b border-slate-800">
@@ -434,7 +424,7 @@ export default function TailwindBattle() {
           <div className="flex-1 flex flex-col min-h-[140px] lg:min-h-[160px]">
             <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1.5">🎯 Target</span>
             <div className="relative flex-1 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner">
-              <iframe ref={targetIframeRef} title="Target Preview" className="w-full h-full border-none pointer-events-none" sandbox="allow-scripts allow-same-origin" />
+              <iframe ref={isMobile ? mobileTargetIframeRef : desktopTargetIframeRef} srcDoc={getHtmlDoc(currentLevel.targetHtml)} title="Target Preview" className="w-full h-full border-none pointer-events-none" sandbox="allow-scripts allow-same-origin" />
             </div>
           </div>
         )}
@@ -442,7 +432,7 @@ export default function TailwindBattle() {
           <div className="flex-1 flex flex-col min-h-[140px] lg:min-h-[160px]">
             <span className="text-[10px] font-black text-sky-400 uppercase tracking-widest mb-1.5">💻 Yours</span>
             <div className="relative flex-1 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner">
-              <iframe ref={userIframeRef} title="User Preview" className="w-full h-full border-none pointer-events-none" sandbox="allow-scripts allow-same-origin" />
+              <iframe ref={isMobile ? mobileUserIframeRef : desktopUserIframeRef} srcDoc={getHtmlDoc(code)} title="User Preview" className="w-full h-full border-none pointer-events-none" sandbox="allow-scripts allow-same-origin" />
             </div>
           </div>
         )}
@@ -478,13 +468,13 @@ export default function TailwindBattle() {
       {renderEditorPanel("hidden lg:flex flex-1 border-r border-slate-800/80")}
 
       {/* Right preview – desktop only */}
-      {renderPreviewPanel("hidden lg:flex w-96")}
+      {renderPreviewPanel("hidden lg:flex w-96", false)}
 
       {/* ── Mobile: tab-switched single panel ── */}
       <div className="lg:hidden flex-1 flex flex-col min-h-0 overflow-hidden">
         {mobileTab === 'info' && renderInfoPanel("flex-1")}
         {mobileTab === 'editor' && renderEditorPanel("flex-1")}
-        {mobileTab === 'preview' && renderPreviewPanel("flex-1")}
+        {mobileTab === 'preview' && renderPreviewPanel("flex-1", true)}
       </div>
     </div>
   );
