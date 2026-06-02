@@ -17,7 +17,10 @@ const PASS_THRESHOLD = 75;
 type MobileTab = 'info' | 'editor' | 'preview';
 
 export default function TailwindBattle() {
-  const [levelIndex, setLevelIndex] = useState(0);
+  const [levelIndex, setLevelIndex] = useState(() => {
+    const saved = localStorage.getItem('tailwind-battle-level');
+    return saved ? parseInt(saved, 10) : 0;
+  });
   const [code, setCode] = useState('');
   const [score, setScore] = useState({ position: 0, size: 0, styles: 0, total: 0 });
   const [runKey, setRunKey] = useState(0);
@@ -25,7 +28,16 @@ export default function TailwindBattle() {
   const [feedbackMsg, setFeedbackMsg] = useState('Write your HTML and Tailwind classes to match the target!');
   const [isSuccess, setIsSuccess] = useState(false);
   const [viewMode, setViewMode] = useState<'split' | 'target' | 'mine'>('split');
-  const [unlockedLevels, setUnlockedLevels] = useState<Set<number>>(new Set([0]));
+  const [unlockedLevels, setUnlockedLevels] = useState<Set<number>>(() => {
+    const saved = localStorage.getItem('tailwind-battle-unlocked');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return new Set(parsed);
+      } catch (e) {}
+    }
+    return new Set([0]);
+  });
   const [mobileTab, setMobileTab] = useState<MobileTab>('info');
 
   const currentLevel = battleLevels[levelIndex];
@@ -45,6 +57,14 @@ export default function TailwindBattle() {
       return false;
     }
   })();
+
+  useEffect(() => {
+    localStorage.setItem('tailwind-battle-level', levelIndex.toString());
+  }, [levelIndex]);
+
+  useEffect(() => {
+    localStorage.setItem('tailwind-battle-unlocked', JSON.stringify(Array.from(unlockedLevels)));
+  }, [unlockedLevels]);
 
   // Load level initial code
   useEffect(() => {
