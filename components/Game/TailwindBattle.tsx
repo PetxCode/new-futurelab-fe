@@ -57,7 +57,7 @@ export default function TailwindBattle() {
   }, [levelIndex, currentLevel]);
 
   // Helper to generate the iframe document content
-  const getHtmlDoc = (html: string) => `<!DOCTYPE html><html><head><script src="https://cdn.tailwindcss.com"></script><style>body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }</style></head><body>${html}</body></html>`;
+  const getHtmlDoc = (html: string) => `<!DOCTYPE html><html><head><script src="/tailwindcss.js"></script><style>body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }</style></head><body>${html}</body></html>`;
 
   // Validate on code change
   useEffect(() => {
