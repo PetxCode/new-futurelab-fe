@@ -17,7 +17,7 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: "autoUpdate",
-        includeAssets: ["favIcon.png", "logo.svg", "robots.txt"],
+        includeAssets: ["favIcon.png", "logo.svg", "robots.txt", "tailwindcss.js"],
         workbox: {
           globPatterns: [
             "**/*.{js,css,html,ico,png,svg,webp,woff,woff2,ttf,eot}",
@@ -25,6 +25,18 @@ export default defineConfig(({ mode }) => {
           globIgnores: ["**/node_modules/**/*", "**/dist/**/*"],
           maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
           runtimeCaching: [
+            // Cache Unsplash images used in TailwindBattle
+            {
+              urlPattern: /^https:\/\/images\.unsplash\.com\/.*/,
+              handler: "CacheFirst",
+              options: {
+                cacheName: "unsplash-images",
+                expiration: {
+                  maxEntries: 50,
+                  maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
+                },
+              },
+            },
             // Cache images
             {
               urlPattern: /^https:\/\/.*\.(png|jpg|jpeg|svg|gif|webp)$/,
