@@ -12,6 +12,8 @@ import TugOfWar from './TugOfWar';
 import LayoutMaster from './LayoutMaster';
 import HtmlTagMaster from './HtmlTagMaster';
 import TailwindBattle from './TailwindBattle';
+import TailwindInvaders from './TailwindInvaders';
+import UiDetective from './UiDetective';
 
 interface GameConfig {
   id: string;
@@ -111,6 +113,22 @@ const GAMES: GameConfig[] = [
     description: 'Recreate target element designs exactly using HTML and Tailwind CSS classes!',
     icon: '⚡',
     color: 'from-blue-600 via-indigo-650 to-purple-600',
+    isNew: true
+  },
+  {
+    id: 'tailwindinvaders',
+    title: 'Tailwind Invaders',
+    description: 'Defend the UI from unstyled elements! Type Tailwind classes fast to style them before they crash.',
+    icon: '👾',
+    color: 'from-cyan-500 to-blue-600',
+    isNew: true
+  },
+  {
+    id: 'uidetective',
+    title: 'UI Detective',
+    description: 'Find and fix bugs in broken Tailwind UIs to match the perfect target design.',
+    icon: '🕵️‍♂️',
+    color: 'from-amber-500 to-orange-600',
     isNew: true
   },
   {
@@ -312,6 +330,38 @@ const GameCenter: React.FC = () => {
         </button>
         <div className="w-full h-full pt-16 pb-4 px-4 lg:px-8">
             <TailwindBattle />
+        </div>
+      </div>
+    );
+  }
+
+  if (activeGame === 'tailwindinvaders') {
+    return (
+      <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden">
+        <button 
+          onClick={() => setActiveGame(null)}
+          className="absolute top-4 left-4 z-50 px-4 py-2 bg-slate-800/80 backdrop-blur text-white rounded-lg border border-slate-700 hover:bg-slate-700 transition flex items-center gap-2 font-bold text-sm"
+        >
+          <span>←</span> Back to Arcade
+        </button>
+        <div className="w-full h-full pt-16 pb-4 px-4 lg:px-8">
+            <TailwindInvaders />
+        </div>
+      </div>
+    );
+  }
+
+  if (activeGame === 'uidetective') {
+    return (
+      <div className="relative w-full h-[calc(100vh-64px)] overflow-hidden">
+        <button 
+          onClick={() => setActiveGame(null)}
+          className="absolute top-4 left-4 z-50 px-4 py-2 bg-slate-800/80 backdrop-blur text-white rounded-lg border border-slate-700 hover:bg-slate-700 transition flex items-center gap-2 font-bold text-sm"
+        >
+          <span>←</span> Back to Arcade
+        </button>
+        <div className="w-full h-full pt-16 pb-4 px-4 lg:px-8">
+            <UiDetective />
         </div>
       </div>
     );
