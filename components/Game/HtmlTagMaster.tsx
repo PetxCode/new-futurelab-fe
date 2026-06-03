@@ -1,21 +1,25 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { HTML_TAG_STAGES } from './htmlTagMasterData';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useRef } from "react";
+import { HTML_TAG_STAGES } from "./htmlTagMasterData";
+import { motion, AnimatePresence } from "framer-motion";
+import MultiplayerHtmlTag from "./components/MultiplayerHtmlTag";
 
 export default function HtmlTagMaster() {
   const [stageIndex, setStageIndex] = useState(0);
   const [levelIndex, setLevelIndex] = useState(0);
-  const [userInput, setUserInput] = useState('');
+  const [userInput, setUserInput] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [showHint, setShowHint] = useState(false);
   const [shake, setShake] = useState(false);
+  const [challengeMode, setChallengeMode] = useState<"idle" | "multiplayer">(
+    "idle",
+  );
 
   const currentStage = HTML_TAG_STAGES[stageIndex];
   const currentLevel = currentStage.levels[levelIndex];
   const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    setUserInput('');
+    setUserInput("");
     setIsSuccess(false);
     setShowHint(false);
     if (inputRef.current) {
@@ -31,13 +35,14 @@ export default function HtmlTagMaster() {
 
   const checkAnswer = () => {
     const sanitizedInput = userInput.trim().toLowerCase();
-    
+
     // Check against expected tags
-    const isCorrect = currentLevel.expectedTags.some(tag => 
-      sanitizedInput === tag || 
-      sanitizedInput === `<${tag}>` || 
-      sanitizedInput === `</${tag}>` ||
-      sanitizedInput === `<${tag}/>`
+    const isCorrect = currentLevel.expectedTags.some(
+      (tag) =>
+        sanitizedInput === tag ||
+        sanitizedInput === `<${tag}>` ||
+        sanitizedInput === `</${tag}>` ||
+        sanitizedInput === `<${tag}/>`,
     );
 
     if (isCorrect) {
@@ -52,7 +57,7 @@ export default function HtmlTagMaster() {
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
+    if (e.key === "Enter") {
       checkAnswer();
     }
   };
@@ -75,38 +80,64 @@ export default function HtmlTagMaster() {
     }
   };
 
+  if (challengeMode === "multiplayer") {
+    return <MultiplayerHtmlTag onExit={() => setChallengeMode("idle")} />;
+  }
+
   return (
     <div className="flex w-full h-full bg-[#0d1117] text-gray-200 font-sans rounded-xl overflow-hidden border border-gray-800 shadow-2xl">
-      
       {/* Left Pane - Navigation & Instructions */}
       <div className="w-1/3 bg-[#161b22] flex flex-col h-full border-r border-gray-800 z-10">
-        
         {/* Header - Stage Selection */}
-        <div className="p-4 bg-[#0d1117] border-b border-gray-800">
-          <select 
-            value={stageIndex}
-            onChange={(e) => {
-              setStageIndex(Number(e.target.value));
-              setLevelIndex(0);
-            }}
-            className="w-full bg-gray-800 text-white p-2 rounded border border-gray-700 outline-none focus:border-emerald-500 transition-colors"
+        <div className="p-4 bg-[#0d1117] border-b border-gray-800 flex justify-between items-start gap-3">
+          <div className="flex-1">
+            <select
+              value={stageIndex}
+              onChange={(e) => {
+                setStageIndex(Number(e.target.value));
+                setLevelIndex(0);
+              }}
+              className="w-full bg-gray-800 text-white p-2 rounded border border-gray-700 outline-none focus:border-emerald-500 transition-colors"
+            >
+              {HTML_TAG_STAGES.map((stage, idx) => (
+                <option key={stage.id} value={idx}>
+                  {stage.title}
+                </option>
+              ))}
+            </select>
+            <div className="text-xs text-gray-400 mt-2">
+              {currentStage.description}
+            </div>
+          </div>
+          <button
+            onClick={() => setChallengeMode("multiplayer")}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-xs font-bold text-white transition-transform transform hover:scale-105 shadow-md h-fit"
+            aria-label="Multiplayer Race"
           >
-            {HTML_TAG_STAGES.map((stage, idx) => (
-              <option key={stage.id} value={idx}>{stage.title}</option>
-            ))}
-          </select>
-          <div className="text-xs text-gray-400 mt-2">{currentStage.description}</div>
+            🌐 <span>Multiplayer</span>
+          </button>
         </div>
-        
+
         {/* Level Navigation */}
         <div className="flex items-center justify-between p-4 bg-[#161b22] border-b border-gray-800">
-          <button onClick={prevLevel} disabled={stageIndex === 0 && levelIndex === 0} className="text-gray-400 hover:text-white disabled:opacity-30">
+          <button
+            onClick={prevLevel}
+            disabled={stageIndex === 0 && levelIndex === 0}
+            className="text-gray-400 hover:text-white disabled:opacity-30"
+          >
             ← Prev
           </button>
           <span className="text-sm font-medium">
             Level {levelIndex + 1} of {currentStage.levels.length}
           </span>
-          <button onClick={nextLevel} disabled={stageIndex === HTML_TAG_STAGES.length - 1 && levelIndex === currentStage.levels.length - 1} className="text-gray-400 hover:text-white disabled:opacity-30">
+          <button
+            onClick={nextLevel}
+            disabled={
+              stageIndex === HTML_TAG_STAGES.length - 1 &&
+              levelIndex === currentStage.levels.length - 1
+            }
+            className="text-gray-400 hover:text-white disabled:opacity-30"
+          >
             Next →
           </button>
         </div>
@@ -123,14 +154,14 @@ export default function HtmlTagMaster() {
           {/* Hint Section */}
           <div className="mt-8 border-t border-gray-800 pt-6">
             {!showHint ? (
-              <button 
+              <button
                 onClick={() => setShowHint(true)}
                 className="text-sm text-yellow-500 hover:text-yellow-400 border border-yellow-500/30 rounded px-3 py-1 bg-yellow-500/10 transition-colors"
               >
                 💡 Need a Hint?
               </button>
             ) : (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
                 className="bg-gray-800/50 p-4 rounded-lg border border-gray-700 text-sm text-yellow-300"
@@ -140,12 +171,10 @@ export default function HtmlTagMaster() {
             )}
           </div>
         </div>
-
       </div>
 
       {/* Right Pane - Visual Element & Input */}
       <div className="w-2/3 bg-[#1f2937] flex flex-col relative overflow-hidden pattern-dots pattern-gray-800 pattern-bg-transparent pattern-size-4 pattern-opacity-100">
-        
         {/* Visual Mockup Display */}
         <div className="flex-1 flex items-center justify-center p-12">
           <motion.div
@@ -160,7 +189,7 @@ export default function HtmlTagMaster() {
               <div className="w-2.5 h-2.5 rounded-full bg-yellow-400"></div>
               <div className="w-2.5 h-2.5 rounded-full bg-green-400"></div>
             </div>
-            
+
             <div className="mt-6 whitespace-pre-wrap">
               {currentLevel.visualMock}
             </div>
@@ -182,9 +211,13 @@ export default function HtmlTagMaster() {
               disabled={isSuccess}
               placeholder="tagname"
               className={`flex-1 bg-gray-900 border-2 rounded-lg px-4 py-3 text-2xl font-mono text-center outline-none transition-colors
-                ${isSuccess ? 'border-emerald-500 text-emerald-400 bg-emerald-500/10' : 
-                  shake ? 'border-red-500 text-red-400 bg-red-500/10' : 
-                  'border-gray-700 text-blue-400 focus:border-blue-500 focus:bg-gray-800'}
+                ${
+                  isSuccess
+                    ? "border-emerald-500 text-emerald-400 bg-emerald-500/10"
+                    : shake
+                      ? "border-red-500 text-red-400 bg-red-500/10"
+                      : "border-gray-700 text-blue-400 focus:border-blue-500 focus:bg-gray-800"
+                }
               `}
               autoFocus
               autoComplete="off"
@@ -192,22 +225,25 @@ export default function HtmlTagMaster() {
             />
             <span className="text-2xl text-gray-500 font-mono">&gt;</span>
           </div>
-          
-          <button 
+
+          <button
             onClick={checkAnswer}
             disabled={isSuccess || !userInput}
             className={`mt-6 px-8 py-2 rounded-full font-bold transition-all
-              ${isSuccess ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/20' : 
-                'bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-50 disabled:cursor-not-allowed'}
+              ${
+                isSuccess
+                  ? "bg-emerald-500 text-white shadow-lg shadow-emerald-500/20"
+                  : "bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+              }
             `}
           >
-            {isSuccess ? 'Correct!' : 'Check Tag'}
+            {isSuccess ? "Correct!" : "Check Tag"}
           </button>
 
           {/* Success Confetti overlay */}
           <AnimatePresence>
             {isSuccess && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0 }}
@@ -217,11 +253,8 @@ export default function HtmlTagMaster() {
               </motion.div>
             )}
           </AnimatePresence>
-
         </div>
-
       </div>
-
     </div>
   );
 }

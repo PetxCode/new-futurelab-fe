@@ -82,12 +82,19 @@ define(['./workbox-1fbd7631'], (function (workbox) { 'use strict';
     "revision": "d41d8cd98f00b204e9800998ecf8427e"
   }, {
     "url": "index.html",
-    "revision": "0.3v1sar7mnb4"
+    "revision": "0.kilbe3geguo"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
     allowlist: [/^\/$/]
   }));
+  workbox.registerRoute(/^https:\/\/images\.unsplash\.com\/.*/, new workbox.CacheFirst({
+    "cacheName": "unsplash-images",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 50,
+      maxAgeSeconds: 2592000
+    })]
+  }), 'GET');
   workbox.registerRoute(/^https:\/\/.*\.(png|jpg|jpeg|svg|gif|webp)$/, new workbox.CacheFirst({
     "cacheName": "images",
     plugins: [new workbox.ExpirationPlugin({
