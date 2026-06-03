@@ -373,7 +373,7 @@ export default function TailwindBattle() {
               className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 text-[10px] font-bold text-white transition-transform transform hover:scale-105 shadow-md h-fit"
               title="Multiplayer Race"
             >
-              🌐 <span>Multiplayer2</span>
+              🌐 <span>Multiplayer</span>
             </button>
             {/* {isAdmin && (
               <span className="px-2 py-0.5 text-[9px] uppercase font-black tracking-widest bg-amber-500/20 text-amber-400 rounded border border-amber-500/30">
