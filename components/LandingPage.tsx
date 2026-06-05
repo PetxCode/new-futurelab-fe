@@ -912,8 +912,8 @@ const LandingPage: React.FC<LandingPageProps> = ({
             {[
               {
                 n: 1,
-                title: "Sign Up Free",
-                desc: "Create your account in under 60 seconds. No credit card required to explore.",
+                title: "Easy Sign Up",
+                desc: "Create your account in under 60 seconds. Get an Instructor or Just flow with your school.",
               },
               {
                 n: 2,
