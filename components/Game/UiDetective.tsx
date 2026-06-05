@@ -8,21 +8,18 @@ const getHtmlDoc = (html: string) => `<!DOCTYPE html><html><head><script src="/t
 // Memoized iframe to completely prevent flashing (wiping away) on re-renders
 const IframePreview = React.memo(({ html, isTarget = false }: { html: string, isTarget?: boolean }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
   
   // Use innerHTML for live updates to avoid srcDoc reload flashes
-  // We MUST wait for isLoaded, otherwise the browser will overwrite our innerHTML when it finishes parsing srcDoc!
   useEffect(() => {
-    if (!isTarget && isLoaded && iframeRef.current?.contentDocument?.body) {
+    if (!isTarget && iframeRef.current?.contentDocument?.body) {
       iframeRef.current.contentDocument.body.innerHTML = html;
     }
-  }, [html, isTarget, isLoaded]);
+  }, [html, isTarget]);
 
   return (
     <iframe 
       ref={iframeRef}
       srcDoc={getHtmlDoc(isTarget ? html : '')} 
-      onLoad={() => setIsLoaded(true)}
       className={`w-full h-full border-none pointer-events-none ${isTarget ? 'absolute inset-0' : ''}`}
       sandbox="allow-scripts allow-same-origin" 
     />
