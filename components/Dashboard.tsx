@@ -376,21 +376,47 @@ const Dashboard: React.FC<{
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {calendarEvents.length > 0 ? (
-              calendarEvents.map((event) => (
-                <div key={event._id} className="bg-slate-800/60 border border-slate-700 rounded-3xl p-6 hover:border-indigo-500/50 transition-colors group">
-                  <div className="flex items-center space-x-3 mb-4">
-                    <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 font-black">
-                      {new Date(event.date).getDate()}
-                    </div>
-                    <div>
-                      <div className="text-white font-bold text-lg leading-tight group-hover:text-indigo-300 transition-colors">{event.topic}</div>
-                      <div className="text-slate-400 text-xs font-medium uppercase tracking-widest mt-1">
-                        {new Date(event.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+              calendarEvents.map((event) => {
+                const eventDate = new Date(event.date);
+                return (
+                  <div key={event._id} className="relative bg-slate-800/40 backdrop-blur-md border border-slate-700/50 rounded-[2rem] overflow-hidden hover:border-indigo-500/40 transition-all hover:-translate-y-1 hover:shadow-xl hover:shadow-indigo-500/10 group flex flex-col h-full">
+                    {/* The Top Calendar Bar */}
+                    <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500 to-cyan-400 opacity-50 group-hover:opacity-100 transition-opacity"></div>
+                    
+                    <div className="p-6 flex items-start space-x-5 flex-1">
+                      {/* Calendar Tear-off Icon */}
+                      <div className="flex-shrink-0 flex flex-col items-center w-16 bg-slate-900 rounded-2xl border border-slate-700 shadow-inner overflow-hidden group-hover:border-indigo-500/30 transition-colors">
+                        <div className="w-full bg-indigo-600/20 text-indigo-400 text-[10px] font-black uppercase tracking-widest py-1.5 text-center border-b border-indigo-500/10">
+                          {eventDate.toLocaleDateString('en-US', { month: 'short' })}
+                        </div>
+                        <div className="w-full bg-slate-800 py-2.5 flex flex-col items-center justify-center">
+                          <span className="text-2xl font-black text-white leading-none mb-1">
+                            {eventDate.getDate().toString().padStart(2, '0')}
+                          </span>
+                          <span className="text-[8px] text-slate-500 font-bold uppercase tracking-wider">
+                            {eventDate.toLocaleDateString('en-US', { weekday: 'short' })}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      {/* Topic Details */}
+                      <div className="flex-1 min-w-0 pt-1">
+                        <h4 className="text-white font-black text-lg leading-tight group-hover:text-indigo-300 transition-colors line-clamp-3">
+                          {event.topic}
+                        </h4>
+                        <div className="mt-4 flex items-center space-x-3">
+                          <div className="flex items-center space-x-1.5 px-3 py-1 bg-slate-900/50 rounded-lg border border-slate-700/50 w-fit">
+                            <svg className="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                              {eventDate.getFullYear()} Curriculum
+                            </span>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             ) : (
               <div className="col-span-full p-8 bg-slate-800/40 border border-slate-700/50 rounded-[2rem] text-center">
                 <p className="text-slate-500 font-medium italic">No recent curriculum events posted yet.</p>
