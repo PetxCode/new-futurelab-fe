@@ -30,6 +30,12 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [totalUsers, setTotalUsers] = useState(0);
+  const [showCalendarModal, setShowCalendarModal] = useState(false);
+  const [selectedSchoolForCalendar, setSelectedSchoolForCalendar] = useState('');
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
+  const [newCalendarDate, setNewCalendarDate] = useState('');
+  const [newCalendarTopic, setNewCalendarTopic] = useState('');
+  const [isAddingCalendarEvent, setIsAddingCalendarEvent] = useState(false);
   const LIMIT = 20;
 
   // Sync filter with context
@@ -178,6 +184,82 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
       toast.error('Error connecting to server');
     }
   };
+
+  const fetchCalendarEvents = async (schoolName: string) => {
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/calendar/${encodeURIComponent(schoolName)}`, {
+        headers: { 'x-auth-token': localStorage.getItem('token') || '' }
+      });
+      if (response.ok) {
+        const data = await response.json();
+        setCalendarEvents(data);
+      } else {
+        toast.error('Failed to fetch calendar events');
+      }
+    } catch (err) {
+      toast.error('Error connecting to server');
+    }
+  };
+
+  const handleOpenCalendar = (schoolName: string) => {
+    setSelectedSchoolForCalendar(schoolName);
+    setShowCalendarModal(true);
+    fetchCalendarEvents(schoolName);
+  };
+
+  const handleAddCalendarEvent = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCalendarDate || !newCalendarTopic.trim()) return;
+
+    setIsAddingCalendarEvent(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/calendar`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': localStorage.getItem('token') || ''
+        },
+        body: JSON.stringify({
+          schoolName: selectedSchoolForCalendar,
+          date: newCalendarDate,
+          topic: newCalendarTopic
+        })
+      });
+
+      if (response.ok) {
+        toast.success('Calendar event added successfully');
+        setNewCalendarDate('');
+        setNewCalendarTopic('');
+        fetchCalendarEvents(selectedSchoolForCalendar);
+      } else {
+        const data = await response.json();
+        toast.error(data.message || 'Failed to add event');
+      }
+    } catch (err) {
+      toast.error('Error connecting to server');
+    } finally {
+      setIsAddingCalendarEvent(false);
+    }
+  };
+
+  const handleDeleteCalendarEvent = async (eventId: string) => {
+    if (!confirm('Are you sure you want to delete this event?')) return;
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/calendar/${eventId}`, {
+        method: 'DELETE',
+        headers: { 'x-auth-token': localStorage.getItem('token') || '' }
+      });
+      if (response.ok) {
+        toast.success('Event deleted');
+        fetchCalendarEvents(selectedSchoolForCalendar);
+      } else {
+        toast.error('Failed to delete event');
+      }
+    } catch (err) {
+      toast.error('Error connecting to server');
+    }
+  };
+
 
   const handleDeleteUser = async () => {
     if (!userToDelete) return;
@@ -347,6 +429,16 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
                             </div>
                           </td>
                           <td className="py-6 px-4 text-right">
+                            <div className="flex items-center justify-end space-x-2">
+                              <button 
+                                onClick={() => handleOpenCalendar(school.name)}
+                                className="p-3 rounded-xl transition-all shadow-sm group/btn bg-indigo-500/10 text-indigo-500 hover:bg-indigo-500 hover:text-white"
+                                title="Manage Calendar"
+                              >
+                                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                              </button>
                             <button 
                               onClick={() => handleToggleSchoolSuspension(school._id, school.name, !!school.isSuspended)}
                               className={`p-3 rounded-xl transition-all shadow-sm group/btn ${
@@ -366,6 +458,7 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
                                 </svg>
                               )}
                             </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
@@ -381,6 +474,93 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
                 <span className="text-[10px] font-black uppercase tracking-widest opacity-80">Real-time Sync Active</span>
               </div>
               <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest italic">Total School's Info</p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* School Calendar Modal */}
+      {showCalendarModal && (
+        <div className="fixed inset-0 z-[120] flex items-center justify-center p-6 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-300">
+          <div className="bg-slate-800 border border-slate-700 w-full max-w-3xl rounded-[2.5rem] shadow-3xl animate-in zoom-in-95 duration-300 flex flex-col max-h-[85vh]">
+            <div className="p-8 border-b border-slate-700/50 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-black text-white italic tracking-tight mb-1">Calendar: {selectedSchoolForCalendar}</h2>
+                <p className="text-slate-400 font-medium text-sm">Manage curriculum events and topics for this school.</p>
+              </div>
+              <button 
+                onClick={() => setShowCalendarModal(false)}
+                className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-400 hover:text-white transition-all"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-8 custom-scroll space-y-6">
+              {/* Add New Event Form */}
+              <form onSubmit={handleAddCalendarEvent} className="bg-slate-900/50 p-6 rounded-2xl border border-slate-700">
+                <h3 className="text-sm font-black text-white uppercase tracking-widest mb-4">Add New Event</h3>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div>
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Date</label>
+                    <input 
+                      type="date" 
+                      value={newCalendarDate}
+                      onChange={(e) => setNewCalendarDate(e.target.value)}
+                      required
+                      className="w-full bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 font-bold"
+                    />
+                  </div>
+                  <div className="md:col-span-2">
+                    <label className="block text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2">Topic Learnt</label>
+                    <div className="flex gap-2">
+                      <input 
+                        type="text" 
+                        value={newCalendarTopic}
+                        onChange={(e) => setNewCalendarTopic(e.target.value)}
+                        placeholder="e.g. Introduction to Python"
+                        required
+                        className="flex-1 bg-slate-800 border border-slate-700 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-indigo-500 font-bold"
+                      />
+                      <button 
+                        type="submit"
+                        disabled={isAddingCalendarEvent}
+                        className="px-6 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-xl shadow-lg transition-all flex items-center justify-center disabled:opacity-50 uppercase text-[10px] tracking-widest"
+                      >
+                        {isAddingCalendarEvent ? 'Adding...' : 'Add'}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+
+              {/* List Events */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-black text-white uppercase tracking-widest">Existing Events</h3>
+                {calendarEvents.length === 0 ? (
+                  <p className="text-slate-500 italic text-sm">No calendar events added for this school yet.</p>
+                ) : (
+                  <div className="grid grid-cols-1 gap-3">
+                    {calendarEvents.map(event => (
+                      <div key={event._id} className="flex items-center justify-between bg-slate-800/50 border border-slate-700/50 p-4 rounded-xl hover:border-slate-600 transition-colors">
+                        <div className="flex items-center space-x-4">
+                          <div className="px-3 py-2 bg-indigo-500/10 text-indigo-400 rounded-lg font-black text-xs uppercase">
+                            {new Date(event.date).toLocaleDateString()}
+                          </div>
+                          <span className="text-white font-bold">{event.topic}</span>
+                        </div>
+                        <button
+                          onClick={() => handleDeleteCalendarEvent(event._id)}
+                          className="p-2 text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors"
+                          title="Delete Event"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

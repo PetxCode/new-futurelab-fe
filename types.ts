@@ -27,6 +27,14 @@ export interface Metric {
   color?: string;
 }
 
+export interface CalendarEvent {
+  _id: string;
+  schoolName: string;
+  date: string;
+  topic: string;
+  createdAt?: string;
+}
+
 export interface Assignment {
   id: string;
   title: string;

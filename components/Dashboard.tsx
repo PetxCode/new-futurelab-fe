@@ -21,6 +21,7 @@ const Dashboard: React.FC<{
   const [selectedResource, setSelectedResource] = useState<LearningResource | null>(null);
   const [selectedMission, setSelectedMission] = useState<Mission | null>(null);
   const [blogPosts, setBlogPosts] = useState<any[]>([]);
+  const [calendarEvents, setCalendarEvents] = useState<any[]>([]);
   const [showTermsFocus, setShowTermsFocus] = useState(false);
   const [showCodePlayground, setShowCodePlayground] = useState(false);
 
@@ -131,9 +132,26 @@ const Dashboard: React.FC<{
       }
     };
 
+    const fetchCalendarEvents = async () => {
+      if (userData?.schoolName) {
+        try {
+          const res = await fetch(`${API_BASE_URL}/api/calendar/${encodeURIComponent(userData.schoolName)}`, {
+             headers: { 'x-auth-token': localStorage.getItem('token') || '' }
+          });
+          if (res.ok) {
+            const events = await res.json();
+            setCalendarEvents(events);
+          }
+        } catch (err) {
+          console.error('Error fetching calendar events:', err);
+        }
+      }
+    };
+
     fetchDashboardData();
     fetchBlogPosts();
-  }, [timeframe]);
+    fetchCalendarEvents();
+  }, [timeframe, userData?.schoolName]);
 
   const metrics = [
     { label: 'Current GPA', value: data?.summary?.gpa || '0.00', color: 'text-indigo-400', percentage: 4 },
@@ -342,6 +360,45 @@ const Dashboard: React.FC<{
           </button>
         </div>
       </div>
+
+      {/* School Calendar Section */}
+      {userData?.schoolName && (
+        <div className="mb-12">
+          <div className="flex items-center justify-between mb-8">
+            <div>
+              <h3 className="text-2xl font-black text-white">School Curriculum Calendar</h3>
+              <p className="text-slate-500 text-sm font-medium">Topics covered recently at {userData.schoolName}</p>
+            </div>
+            <div className="p-3 bg-indigo-600/10 rounded-2xl border border-indigo-500/20">
+               <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {calendarEvents.length > 0 ? (
+              calendarEvents.map((event) => (
+                <div key={event._id} className="bg-slate-800/60 border border-slate-700 rounded-3xl p-6 hover:border-indigo-500/50 transition-colors group">
+                  <div className="flex items-center space-x-3 mb-4">
+                    <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 font-black">
+                      {new Date(event.date).getDate()}
+                    </div>
+                    <div>
+                      <div className="text-white font-bold text-lg leading-tight group-hover:text-indigo-300 transition-colors">{event.topic}</div>
+                      <div className="text-slate-400 text-xs font-medium uppercase tracking-widest mt-1">
+                        {new Date(event.date).toLocaleDateString('en-US', { month: 'short', year: 'numeric' })}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="col-span-full p-8 bg-slate-800/40 border border-slate-700/50 rounded-[2rem] text-center">
+                <p className="text-slate-500 font-medium italic">No recent curriculum events posted yet.</p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Blog Section (Replacing Subjects) */}
       <div>
