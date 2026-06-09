@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as Blockly from 'blockly';
 import { javascriptGenerator } from 'blockly/javascript';
 import toast from 'react-hot-toast';
+import MultiplayerDino from './Game/components/MultiplayerDino';
 
 // --- DINO GAME CONSTANTS ---
 const CANVAS_WIDTH = 600;
@@ -135,7 +136,14 @@ const defineDinoGenerators = () => {
     javascriptGenerator.forBlock['get_obstacle_distance'] = () => [`game.getObstacleDistance()`, (javascriptGenerator as any).ORDER_ATOMIC];
 };
 
-const DinoGame: React.FC = () => {
+interface DinoGameProps {
+    isMultiplayer?: boolean;
+    onProgress?: (score: number) => void;
+    onGameOver?: (score: number) => void;
+    multiplayerGameState?: 'setup' | 'lobby' | 'playing' | 'ended';
+}
+
+const DinoGame: React.FC<DinoGameProps> = ({ isMultiplayer, onProgress, onGameOver, multiplayerGameState }) => {
     const blocklyDivRef = useRef<HTMLDivElement>(null);
     const workspaceRef = useRef<Blockly.WorkspaceSvg | null>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -143,7 +151,9 @@ const DinoGame: React.FC = () => {
     const [gameState, setGameState] = useState<'IDLE' | 'RUNNING' | 'GAMEOVER'>('IDLE');
     const [score, setScore] = useState(0);
     const [highScore, setHighScore] = useState(0);
+    const [customInitialSpeed, setCustomInitialSpeed] = useState(INITIAL_SPEED);
     const [gameSpeed, setGameSpeed] = useState(INITIAL_SPEED);
+    const [challengeMode, setChallengeMode] = useState<"idle" | "multiplayer">("idle");
     
     // Game State Refs
     const gameLoopRef = useRef<number | null>(null);
@@ -242,11 +252,12 @@ const DinoGame: React.FC = () => {
         // Keyboard Logic
         const keyDownHandler = (e: KeyboardEvent) => {
             if (e.code === "Space" || e.key === " ") {
+                if (document.activeElement?.tagName === 'INPUT') return;
                 e.preventDefault(); 
                 if (stateRef.current === 'RUNNING') {
                     if (logicRef.current['when_space_pressed']) logicRef.current['when_space_pressed']();
                 } else {
-                    startGame();
+                    if (!isMultiplayer) startGame();
                 }
             }
         };
@@ -333,8 +344,8 @@ const DinoGame: React.FC = () => {
             compileLogic();
             
             setScore(0);
-            setGameSpeed(INITIAL_SPEED);
-            speedRef.current = INITIAL_SPEED;
+            setGameSpeed(customInitialSpeed);
+            speedRef.current = customInitialSpeed;
             
             dinoRef.current = { y: GROUND_Y - DINO_HEIGHT, vy: 0, isJumping: false, isDucking: false, width: DINO_WIDTH, height: DINO_HEIGHT };
         obstaclesRef.current = [];
@@ -461,9 +472,10 @@ const DinoGame: React.FC = () => {
                 if (newScore > 0 && newScore % 50 === 0) {
                      speedRef.current += 0.3;
                      setGameSpeed(speedRef.current);
-                     toast("Speed Up!", { icon: '⚡', id: 'speed-up' });
+                     if (!isMultiplayer) toast("Speed Up!", { icon: '⚡', id: 'speed-up' });
                 }
                 if (newScore > highScore) setHighScore(newScore);
+                if (isMultiplayer && onProgress) onProgress(newScore);
                 return newScore;
             });
         }
@@ -474,7 +486,8 @@ const DinoGame: React.FC = () => {
     const gameOver = () => {
         setGameState('GAMEOVER');
         stateRef.current = 'GAMEOVER';
-        toast.error(`Game Over! Score: ${score}`);
+        if (isMultiplayer && onGameOver) onGameOver(score);
+        if (!isMultiplayer) toast.error(`Game Over! Score: ${score}`);
     };
 
     const draw = () => {
@@ -548,11 +561,22 @@ const DinoGame: React.FC = () => {
         ctx.fillText(`SPEED: ${speedRef.current.toFixed(1)}x`, 10, 20);
     };
 
+    // Auto-start game if multiplayer starts
+    useEffect(() => {
+        if (isMultiplayer && multiplayerGameState === 'playing' && gameState === 'IDLE') {
+            startGame();
+        }
+    }, [isMultiplayer, multiplayerGameState, gameState]);
+
+    if (challengeMode === 'multiplayer') {
+        return <MultiplayerDino onExit={() => setChallengeMode('idle')} />;
+    }
+
     return (
         <div className="flex flex-col lg:flex-row h-full w-full bg-slate-900 border-t border-slate-800 font-inter text-white overflow-hidden">
              {/* LEFT SIDE - GAME */}
             <div className="w-full lg:w-[600px] flex flex-col items-center p-6 border-b lg:border-r lg:border-b-0 border-slate-800 bg-slate-950/50 backdrop-blur-xl shrink-0">
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-800 shadow-indigo-500/10 mb-6 bg-slate-50">
+                <div className="relative rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-800 shadow-indigo-500/10 mb-6 bg-slate-50 w-full max-w-[600px]">
                     <canvas 
                         ref={canvasRef} 
                         width={CANVAS_WIDTH} 
@@ -565,14 +589,35 @@ const DinoGame: React.FC = () => {
                              <h2 className={`text-5xl font-black mb-2 tracking-tighter uppercase italic ${gameState === 'GAMEOVER' ? 'text-red-500' : 'text-white'}`}>
                                 {gameState === 'GAMEOVER' ? 'Game Over' : 'Dino Runner'}
                             </h2>
-                            {/* <p className="text-slate-300 text-sm mb-8 font-medium max-w-xs text-center">Program the dino to jump! Use "Forever" + "If distance &lt; 100".</p> */}
-                             <button 
-                                onClick={startGame}
-                                className="px-12 py-4 mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/40 transition-all active:scale-95 group flex items-center space-x-3"
-                            >
-                                <svg className="w-6 h-6 group-hover:rotate-12 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                                <span>{gameState === 'IDLE' ? 'Start Run' : 'Try Again'}</span>
-                            </button>
+                             
+                             {!isMultiplayer && gameState === 'IDLE' && (
+                                 <div className="mt-4 mb-4 flex flex-col items-center">
+                                     <label className="text-xs font-bold text-slate-300 uppercase tracking-widest mb-2">Initial Speed</label>
+                                     <input 
+                                         type="number" 
+                                         value={customInitialSpeed} 
+                                         onChange={e => setCustomInitialSpeed(Number(e.target.value))} 
+                                         className="w-24 px-3 py-2 bg-slate-900/80 border border-slate-700 rounded-lg text-white font-mono text-center outline-none focus:border-indigo-500"
+                                         min="1" 
+                                         max="50"
+                                     />
+                                 </div>
+                             )}
+
+                             {!isMultiplayer && (
+                                <button 
+                                    onClick={startGame}
+                                    className="px-12 py-4 mt-2 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-600/40 transition-all active:scale-95 group flex items-center space-x-3"
+                                >
+                                    <svg className="w-6 h-6 group-hover:rotate-12 transition-transform" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
+                                    <span>{gameState === 'IDLE' ? 'Start Run' : 'Try Again'}</span>
+                                </button>
+                             )}
+                             {isMultiplayer && gameState === 'GAMEOVER' && (
+                                <div className="mt-4 px-6 py-3 bg-red-500/20 text-red-300 border border-red-500/40 rounded-xl font-bold">
+                                    Waiting for other players...
+                                </div>
+                             )}
                         </div>
                      )}
 
@@ -588,11 +633,22 @@ const DinoGame: React.FC = () => {
                      </div>
                 </div>
 
-                <div className="w-full bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
-                     <p className="text-[10px] font-black uppercase text-slate-500 mb-2">Challenge Mode</p>
-                     <p className="text-xs text-slate-400 leading-relaxed">
-                        The game speed increases every 100 points! Can you automate the dino to survive indefinitely using the <span className="text-indigo-400 font-bold">"distance to obstacle"</span> block?
-                     </p>
+                <div className="w-full bg-slate-900/60 p-4 rounded-2xl border border-slate-800 flex justify-between items-center">
+                     <div>
+                        <p className="text-[10px] font-black uppercase text-slate-500 mb-2">Challenge Mode</p>
+                        <p className="text-xs text-slate-400 leading-relaxed max-w-[300px]">
+                            The game speed increases every 100 points! Can you automate the dino to survive indefinitely using the <span className="text-indigo-400 font-bold">"distance to obstacle"</span> block?
+                        </p>
+                     </div>
+                     {!isMultiplayer && (
+                        <button
+                          onClick={() => setChallengeMode("multiplayer")}
+                          className="flex items-center gap-1.5 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 text-xs font-bold text-white transition-transform transform hover:scale-105 shadow-md shrink-0"
+                          title="Multiplayer Race"
+                        >
+                          🌐 <span>Multiplayer</span>
+                        </button>
+                     )}
                 </div>
             </div>
 
