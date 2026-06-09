@@ -382,15 +382,15 @@ export default function TailwindInvaders() {
                 transform: "translate(-50%, -50%)",
               }}
             >
-              <div className="bg-slate-900/90 backdrop-blur border border-cyan-500/50 text-cyan-100 text-xs font-bold px-3 py-1.5 rounded-full mb-3 shadow-[0_0_15px_rgba(6,182,212,0.3)] whitespace-nowrap">
-                {invader.instruction}
-              </div>
               <div
                 className={`transition-all duration-300 ${invader.baseClasses}`}
               >
                 <span className="opacity-50 text-xs font-mono">
                   &lt;div/&gt;
                 </span>
+              </div>
+              <div className="bg-slate-900/90 backdrop-blur border border-cyan-500/50 text-cyan-100 text-xs font-bold px-3 py-1.5 rounded-full mt-2 shadow-[0_0_15px_rgba(6,182,212,0.3)] whitespace-nowrap">
+                {invader.instruction}
               </div>
             </motion.div>
           ))}
