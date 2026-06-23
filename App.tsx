@@ -18,6 +18,8 @@ import Projects from "./components/Projects";
 import Utilities from "./components/Utilities";
 import JuniorCode from "./components/JuniorCode";
 import CodeBattle from "./components/CodeBattle";
+import SuperTestStudentWrapper from "./components/SuperTestStudentWrapper";
+import AdminSuperTestDashboard from "./components/AdminSuperTestDashboard";
 import BlogList from "./components/Blog/BlogList";
 import BlogPost from "./components/Blog/BlogPost";
 import BlogDashboard from "./components/Blog/BlogDashboard";
@@ -328,6 +330,10 @@ const App: React.FC = () => {
           <Dashboard
             userData={userData}
             onNavigate={(tab) => setActiveTab(tab)}
+            onBlogClick={(slug) => {
+              setActiveTab("Blog");
+              setSelectedBlogPostSlug(slug);
+            }}
           />
         );
       case "Assignments":
@@ -362,6 +368,21 @@ const App: React.FC = () => {
         return <JuniorCode userData={userData} />;
       case "Code Battle":
         return <CodeBattle />;
+      case "Super Test":
+        if (userData?.isAdmin || userData?.isSchoolAdmin) {
+          // Provide a schoolId for the admin dashboard
+          return (
+            <AdminSuperTestDashboard
+              schoolId={userData.school || "000000000000000000000000"}
+            />
+          );
+        }
+        return (
+          <SuperTestStudentWrapper
+            userData={userData}
+            onBack={() => setActiveTab("Hub")}
+          />
+        );
       case "Python Engine":
         return <CodingEngine />;
       case "Engine Blocks":
@@ -387,7 +408,7 @@ const App: React.FC = () => {
         return (
           <BlogList onNavigate={(slug) => setSelectedBlogPostSlug(slug)} />
         );
-      case "Signal Control":
+      case "Write Blog":
         return <BlogDashboard userData={userData} />;
       case "Learning Path":
         return <LearningPath user={userData} />;

@@ -19,10 +19,10 @@ const GAME_SPEED_BASE = 0.0005;
 const GAME_HEIGHT = 80;
 
 const SPEED_PRESETS = [
-  { label: "🐢 Chill", value: 0.6 },
-  { label: "😊 Normal", value: 1 },
-  { label: "🔥 Fast", value: 2 },
-  { label: "⚡ Insane", value: 4 },
+  { label: "🐢 Chill", value: 2 },
+  { label: "😊 Normal", value: 4 },
+  { label: "🔥 Fast", value: 6 },
+  { label: "⚡ Insane", value: 8 },
 ];
 
 export default function TailwindInvaders() {

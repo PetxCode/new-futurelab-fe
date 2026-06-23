@@ -1,4 +1,3 @@
-
 export interface SubCourse {
   id: string;
   title: string;
@@ -22,7 +21,7 @@ export interface StudentProfile {
 export interface Metric {
   label: string;
   value: string | number;
-  trend: 'up' | 'down' | 'neutral';
+  trend: "up" | "down" | "neutral";
   percentage: number;
   color?: string;
 }
@@ -40,8 +39,8 @@ export interface Assignment {
   title: string;
   subject: string;
   dueDate: string;
-  priority: 'High' | 'Medium' | 'Low';
-  status: 'Not Started' | 'In Progress' | 'Review' | 'Completed';
+  priority: "High" | "Medium" | "Low";
+  status: "Not Started" | "In Progress" | "Review" | "Completed";
   points: number;
   questions?: {
     text: string;
@@ -65,7 +64,16 @@ export interface Mission {
     explanation?: string;
   }[];
   bannerImage?: string;
-  difficulty: 'Elementary' | 'Junior' | 'Explorer' | 'Beginner' | 'Easy' | 'Medium' | 'Hard' | 'Intermediate' | 'Advanced';
+  difficulty:
+    | "Elementary"
+    | "Junior"
+    | "Explorer"
+    | "Beginner"
+    | "Easy"
+    | "Medium"
+    | "Hard"
+    | "Intermediate"
+    | "Advanced";
   isLocked: boolean;
   isCompleted: boolean;
   reward: string;
@@ -91,7 +99,7 @@ export interface Subject {
   id: string;
   title: string;
   teacher: string;
-  status: 'Exam Prep' | 'Steady' | 'Needs Review';
+  status: "Exam Prep" | "Steady" | "Needs Review";
   grade: string;
   progress: number;
   thumbnail: string;
@@ -139,7 +147,7 @@ export interface User {
     otherCriticalInfo?: string[];
   };
   school?: string; // Legacy support
-  name?: string;   // Legacy support
+  name?: string; // Legacy support
   [key: string]: any;
 }
 
@@ -174,7 +182,7 @@ export interface Project {
   _id: string;
   categoryId: string;
   title: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  difficulty: "Beginner" | "Intermediate" | "Advanced";
   time: string;
   description: string;
   materials: string[];
@@ -194,7 +202,7 @@ export interface Category {
 export interface ProjectFormData {
   categoryId: string;
   title: string;
-  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  difficulty: "Beginner" | "Intermediate" | "Advanced";
   time: string;
   description: string;
   materials: string[];
@@ -202,4 +210,28 @@ export interface ProjectFormData {
   thumbnail: string;
 }
 
-export type NavigationItem = 'Hub' | 'Courses' | 'Assignments' | 'Analytics' |  'Focus' | 'AI Study Coach' | 'Games' | 'Settings' | 'Admin Users' | 'School Registry' | 'Python Engine' | 'Engine Blocks' | 'Junior Code' | 'ML4Kids' | 'NEXT Teach' | 'Projects' | 'Utilities' | 'Code Battle' | 'Learning Path' | 'Reports' | 'Blog' | 'Signal Control' | 'Trainers';
+export type NavigationItem =
+  | "Hub"
+  | "Courses"
+  | "Assignments"
+  | "Analytics"
+  | "Focus"
+  | "AI Study Coach"
+  | "Games"
+  | "Settings"
+  | "Admin Users"
+  | "School Registry"
+  | "Python Engine"
+  | "Engine Blocks"
+  | "Junior Code"
+  | "ML4Kids"
+  | "NEXT Teach"
+  | "Projects"
+  | "Utilities"
+  | "Code Battle"
+  | "Learning Path"
+  | "Reports"
+  | "Blog"
+  | "Write Blog"
+  | "Trainers"
+  | "Super Test";

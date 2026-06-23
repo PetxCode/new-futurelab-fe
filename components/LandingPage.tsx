@@ -462,27 +462,52 @@ const LandingPage: React.FC<LandingPageProps> = ({
   // ── Blog post view ──────────────────────────────────────────────────────────
   if (selectedPostSlug) {
     return (
-      <div className="min-h-screen bg-[#080c14] pt-20">
-        <nav className="fixed top-0 w-full z-50 bg-[#080c14]/90 backdrop-blur-2xl border-b border-white/5 px-6 py-4">
-          <div className="max-w-7xl mx-auto">
+      <div
+        className="fixed inset-0 bg-[#080c14] z-[200] overflow-y-auto"
+        ref={(el) => {
+          if (el) el.scrollTop = 0;
+        }}
+      >
+        <nav className="sticky top-0 w-full z-50 bg-[#080c14]/90 backdrop-blur-2xl border-b border-white/5 px-6 py-4">
+          <div className="max-w-7xl mx-auto flex items-center gap-4">
             <button
               onClick={() => setSelectedPostSlug(null)}
-              className="flex flex-col items-end group"
+              className="flex items-center gap-2 text-slate-400 hover:text-white transition-colors group"
             >
+              <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center group-hover:bg-indigo-600 transition-colors">
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+                  />
+                </svg>
+              </div>
+              <span className="font-bold text-sm">Back</span>
+            </button>
+            <div className="ml-auto flex flex-col items-end group">
               <img
                 src="/logo.png"
                 alt="FutureLab"
                 className="h-10 w-auto object-contain group-hover:scale-105 transition-transform duration-300"
               />
               <PoweredByNext className="-mt-1 mr-1 opacity-50 group-hover:opacity-80 transition-opacity" />
-            </button>
+            </div>
           </div>
         </nav>
-        <BlogPost
-          slug={selectedPostSlug}
-          userData={null}
-          onBack={() => setSelectedPostSlug(null)}
-        />
+        <div className="pt-6 pb-24">
+          <BlogPost
+            slug={selectedPostSlug}
+            userData={null}
+            onBack={() => setSelectedPostSlug(null)}
+          />
+        </div>
       </div>
     );
   }
@@ -991,28 +1016,30 @@ const LandingPage: React.FC<LandingPageProps> = ({
                 </svg>
               }
             />
-            <FeatureCard
-              delay={100}
-              glowColor="bg-gradient-to-r from-emerald-500 to-teal-600"
-              iconBg="bg-emerald-500/10"
-              title="Boot Camps"
-              desc="Week-long deep dives into Game Dev, Robotics, AI, and Python. Intensive, project-driven, and genuinely fun. The fastest way to level up before school resumes."
-              icon={
-                <svg
-                  className="w-7 h-7 text-emerald-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M13 10V3L4 14h7v7l9-11h-7z"
-                  />
-                </svg>
-              }
-            />
+            <a href="https://career.futurelab.ng" target="_blank">
+              <FeatureCard
+                delay={100}
+                glowColor="bg-gradient-to-r from-emerald-500 to-teal-600"
+                iconBg="bg-emerald-500/10"
+                title="Boot Camps"
+                desc="Week-long deep dives into Game Dev, Robotics, AI, and Python. Intensive, project-driven, and genuinely fun. The fastest way to level up before school resumes."
+                icon={
+                  <svg
+                    className="w-7 h-7 text-emerald-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                }
+              />
+            </a>
             <FeatureCard
               delay={200}
               glowColor="bg-gradient-to-r from-sky-500 to-blue-600"
@@ -1380,9 +1407,9 @@ const LandingPage: React.FC<LandingPageProps> = ({
                   "linear-gradient(135deg,#0c4a6e,#075985)",
                 ];
                 return (
-                  <div
+                   <div
                     key={post._id}
-                    onClick={() => setSelectedPostSlug(post.slug)}
+                    onClick={() => setSelectedPostSlug(post.slug || post._id)}
                     className="group cursor-pointer rounded-3xl border border-slate-800 bg-slate-900/60 overflow-hidden hover:border-slate-600 transition-all duration-300 hover:-translate-y-2 flex flex-col"
                   >
                     <div className="relative h-48 overflow-hidden shrink-0">

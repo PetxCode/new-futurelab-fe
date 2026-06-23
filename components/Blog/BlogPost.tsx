@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { API_BASE_URL } from '../../App';
 import toast from 'react-hot-toast';
 import DOMPurify from 'dompurify';
@@ -12,13 +12,19 @@ interface BlogPostProps {
 const BlogPost: React.FC<BlogPostProps> = ({ slug, userData, onBack }) => {
   const [post, setPost] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [commentText, setCommentText] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
+  const onBackRef = useRef(onBack);
+  useEffect(() => { onBackRef.current = onBack; }, [onBack]);
 
   useEffect(() => {
+    setLoading(true);
+    setError(null);
+    setPost(null);
     fetch(`${API_BASE_URL}/api/blog/${slug}`)
       .then(res => {
-        if (!res.ok) throw new Error('Post not found');
+        if (!res.ok) throw new Error(`Server returned ${res.status}`);
         return res.json();
       })
       .then(data => {
@@ -26,12 +32,11 @@ const BlogPost: React.FC<BlogPostProps> = ({ slug, userData, onBack }) => {
         setLoading(false);
       })
       .catch(err => {
-        console.error(err);
+        console.error('BlogPost fetch error:', err);
+        setError(err.message || 'Failed to load post');
         setLoading(false);
-        toast.error('Failed to load blog post');
-        onBack();
       });
-  }, [slug, onBack]);
+  }, [slug]);
 
   const handleDisplayContent = (html: string) => {
     if (!html) return { __html: '' };
@@ -83,12 +88,27 @@ const BlogPost: React.FC<BlogPostProps> = ({ slug, userData, onBack }) => {
   };
 
   if (loading) return (
-    <div className="flex justify-center items-center h-full p-20">
-      <div className="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+    <div className="flex flex-col justify-center items-center min-h-[60vh] gap-4">
+      <div className="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+      <p className="text-slate-400 font-medium animate-pulse">Loading article...</p>
     </div>
   );
 
-  if (!post) return null;
+  if (error || !post) return (
+    <div className="flex flex-col justify-center items-center min-h-[60vh] gap-6 text-center px-6">
+      <div className="text-6xl">😕</div>
+      <div>
+        <h2 className="text-2xl font-black text-white mb-2">Couldn't load this post</h2>
+        <p className="text-slate-400 font-medium">{error || 'Post not found'}</p>
+      </div>
+      <button
+        onClick={() => onBackRef.current()}
+        className="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl transition-all hover:scale-105"
+      >
+        ← Go Back
+      </button>
+    </div>
+  );
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-8 animate-in fade-in pb-24">

@@ -1,0 +1,473 @@
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import Editor from "@monaco-editor/react";
+import html2canvas from "html2canvas";
+import pixelmatch from "pixelmatch";
+import { API_BASE_URL } from "../App";
+
+interface SuperTestQuestion {
+  targetHtml: string;
+  targetCss: string;
+  targetImageUrl?: string;
+}
+
+interface SuperTestRunnerProps {
+  testId: string;
+  studentId?: string; // Needed for checking existing results
+  questions: SuperTestQuestion[];
+  durationMinutes: number;
+  onBack: () => void;
+  onSubmit: (responses: any[]) => void;
+}
+
+const buildSrcDoc = (html: string, css: string) => {
+  const twUrl =
+    typeof window !== "undefined"
+      ? `${window.location.origin}/tailwindcss.js`
+      : "/tailwindcss.js";
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <script src="${twUrl}"><\/script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0; width: 400px; height: 300px; overflow: hidden; background: white; }
+    ${css}
+  </style>
+</head>
+<body>
+${html}
+</body>
+</html>`;
+};
+
+const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
+  testId,
+  studentId,
+  questions,
+  durationMinutes,
+  onBack,
+  onSubmit,
+}) => {
+  const [currentQIndex, setCurrentQIndex] = useState(0);
+  const [isCompleted, setIsCompleted] = useState(false);
+  const [checkLoading, setCheckLoading] = useState(true);
+
+  // Storage Keys
+  const draftKey = `supertest_draft_${testId}_${studentId || 'guest'}`;
+  const endTimerKey = `supertest_endtimer_${testId}_${studentId || 'guest'}`;
+
+  // Initialize responses from LocalStorage or Default
+  const [responses, setResponses] = useState(() => {
+    try {
+      const saved = localStorage.getItem(draftKey);
+      if (saved) return JSON.parse(saved);
+    } catch (e) {
+      console.error("Failed to parse saved drafts");
+    }
+    return questions.map(() => ({ html: '<div class="w-32 h-32 bg-blue-500"></div>', css: "/* Custom CSS here */\nbody { margin: 0; }", score: 0 }));
+  });
+
+  const currentResponse = responses[currentQIndex];
+  const currentQuestion = questions[currentQIndex];
+
+  const [activeTab, setActiveTab] = useState<"html" | "css">("html");
+  const [studentSrcDoc, setStudentSrcDoc] = useState("");
+  const [isChecking, setIsChecking] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(durationMinutes * 60);
+
+  const targetIframeRef = useRef<HTMLIFrameElement>(null);
+  const studentIframeRef = useRef<HTMLIFrameElement>(null);
+  const targetCanvasRef = useRef<HTMLCanvasElement>(null);
+  const outputCanvasRef = useRef<HTMLCanvasElement>(null);
+
+  // Check if already taken
+  useEffect(() => {
+    const checkTaken = async () => {
+      if (!studentId) {
+        setCheckLoading(false);
+        return;
+      }
+      try {
+        const res = await fetch(`${API_BASE_URL}/api/super-test/check/${testId}/${studentId}`);
+        const data = await res.json();
+        if (data.success && data.completed) {
+          setIsCompleted(true);
+        }
+      } catch (err) {
+        console.error("Failed to check test status", err);
+      } finally {
+        setCheckLoading(false);
+      }
+    };
+    checkTaken();
+  }, [testId, studentId]);
+
+  // Timer Initialization & Logic
+  useEffect(() => {
+    if (isCompleted || checkLoading) return;
+
+    let endTime = parseInt(localStorage.getItem(endTimerKey) || "0", 10);
+    const now = Date.now();
+
+    if (!endTime || endTime <= now - 10000) { // If no timer or already expired completely
+      endTime = now + durationMinutes * 60 * 1000;
+      localStorage.setItem(endTimerKey, endTime.toString());
+    }
+
+    const calculateTimeLeft = () => {
+      const remaining = Math.max(0, Math.floor((endTime - Date.now()) / 1000));
+      setTimeLeft(remaining);
+      if (remaining <= 0) {
+        handleFinalSubmit(); // Auto submit
+      }
+    };
+
+    calculateTimeLeft(); // Initial tick
+    const timer = setInterval(calculateTimeLeft, 1000);
+    return () => clearInterval(timer);
+  }, [isCompleted, checkLoading, durationMinutes]);
+
+  // Target srcdoc
+  const targetSrcDoc = currentQuestion ? buildSrcDoc(currentQuestion.targetHtml, currentQuestion.targetCss) : "";
+
+  // Debounce student preview
+  useEffect(() => {
+    if (!currentResponse) return;
+    const timer = setTimeout(() => {
+      setStudentSrcDoc(buildSrcDoc(currentResponse.html, currentResponse.css));
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [currentResponse]);
+
+  const updateResponse = (field: "html" | "css", value: string) => {
+    setResponses((prev: any) => {
+      const newResp = [...prev];
+      newResp[currentQIndex] = { ...newResp[currentQIndex], [field]: value };
+      // Save to persistence
+      localStorage.setItem(draftKey, JSON.stringify(newResp));
+      return newResp;
+    });
+  };
+
+  const calculateScore = async () => {
+    if (
+      !targetIframeRef.current ||
+      !studentIframeRef.current ||
+      !targetCanvasRef.current ||
+      !outputCanvasRef.current
+    )
+      return;
+    setIsChecking(true);
+    try {
+      const targetBody = targetIframeRef.current.contentDocument?.body;
+      const studentBody = studentIframeRef.current.contentDocument?.body;
+      if (!targetBody || !studentBody) return;
+
+      const [targetCanvas, studentCanvas] = await Promise.all([
+        html2canvas(targetBody, { width: 400, height: 300, useCORS: true }),
+        html2canvas(studentBody, { width: 400, height: 300, useCORS: true }),
+      ]);
+
+      const targetCtx = targetCanvas.getContext("2d");
+      const studentCtx = studentCanvas.getContext("2d");
+      const outputCtx = outputCanvasRef.current.getContext("2d");
+      if (!targetCtx || !studentCtx || !outputCtx) return;
+
+      const targetData = targetCtx.getImageData(0, 0, 400, 300);
+      const studentData = studentCtx.getImageData(0, 0, 400, 300);
+      const outputData = outputCtx.createImageData(400, 300);
+
+      const numDiffPixels = pixelmatch(
+        studentData.data,
+        targetData.data,
+        outputData.data,
+        400,
+        300,
+        { threshold: 0.15 }
+      );
+
+      const totalPixels = 400 * 300;
+      const matchPercentage = ((totalPixels - numDiffPixels) / totalPixels) * 100;
+      const roundedScore = Math.round(matchPercentage);
+
+      setResponses((prev: any) => {
+        const newResp = [...prev];
+        newResp[currentQIndex] = { ...newResp[currentQIndex], score: roundedScore };
+        // Save score persistence too
+        localStorage.setItem(draftKey, JSON.stringify(newResp));
+        return newResp;
+      });
+    } catch (err) {
+      console.error("Error calculating score:", err);
+    } finally {
+      setIsChecking(false);
+    }
+  };
+
+  const handleFinalSubmit = () => {
+    // Clear persistence
+    localStorage.removeItem(draftKey);
+    localStorage.removeItem(endTimerKey);
+
+    const formattedResponses = responses.map((r: any, i: number) => ({
+      questionIndex: i,
+      submittedHtml: r.html,
+      submittedCss: r.css,
+      score: r.score,
+    }));
+    onSubmit(formattedResponses);
+  };
+
+  const quitAndClear = () => {
+    // Optionally we leave the draft if they quit? Yes, leave it so they can resume if there's time.
+    onBack();
+  };
+
+  if (checkLoading) {
+    return <div className="flex items-center justify-center h-full text-white">Loading Test...</div>;
+  }
+
+  if (isCompleted) {
+    return (
+      <div className="flex flex-col h-[calc(100vh-2rem)] bg-[#090e1a] text-white rounded-xl overflow-hidden shadow-2xl border border-slate-800 items-center justify-center p-8 text-center">
+        <span className="text-6xl mb-4">🔒</span>
+        <h2 className="text-3xl font-black mb-2 text-rose-500">Test Completed</h2>
+        <p className="text-slate-400 mb-8 max-w-md">
+          You have already completed this Super Test. You cannot retake it unless cleared by an instructor or school administrator.
+        </p>
+        <button onClick={onBack} className="px-6 py-3 bg-slate-800 hover:bg-slate-700 rounded-lg font-bold">
+          Return to Hub
+        </button>
+      </div>
+    );
+  }
+
+  if (!questions || questions.length === 0) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-2rem)] text-slate-400">
+        No questions provided.
+      </div>
+    );
+  }
+
+  const scoreColor =
+    currentResponse?.score >= 80
+      ? "text-emerald-400"
+      : currentResponse?.score >= 50
+      ? "text-amber-400"
+      : "text-rose-400";
+
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}:${s.toString().padStart(2, "0")}`;
+  };
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-2rem)] bg-[#090e1a] text-white rounded-xl overflow-hidden shadow-2xl border border-slate-800">
+      {/* ── Header ── */}
+      <div className="flex justify-between items-center bg-[#0d1424] px-4 py-3 border-b border-slate-800 shrink-0">
+        <button
+          onClick={quitAndClear}
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-800 hover:bg-slate-700 border border-slate-700 rounded-lg text-sm font-bold text-slate-300 hover:text-white transition"
+        >
+          ← Quit
+        </button>
+
+        {/* Timer */}
+        <div className="flex flex-col items-center">
+          <span className={`text-xl font-black font-mono ${timeLeft < 60 ? "text-rose-500 animate-pulse" : "text-white"}`}>
+            {formatTime(timeLeft)}
+          </span>
+          <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Time Remaining</span>
+        </div>
+
+        {/* Score bar for current question */}
+        <div className="flex flex-col items-center gap-1">
+          <span className={`text-sm font-black ${scoreColor}`}>
+            Q{currentQIndex + 1} Match: {currentResponse?.score || 0}%
+          </span>
+          <div className="w-32 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+            <div
+              className={`h-full rounded-full transition-all duration-700 ${
+                currentResponse?.score >= 80
+                  ? "bg-emerald-400"
+                  : currentResponse?.score >= 50
+                  ? "bg-amber-400"
+                  : "bg-rose-400"
+              }`}
+              style={{ width: `${currentResponse?.score || 0}%` }}
+            />
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            onClick={calculateScore}
+            disabled={isChecking}
+            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-lg font-bold text-sm transition"
+          >
+            {isChecking ? "Checking…" : "⚡ Check Q"}
+          </button>
+          <button
+            onClick={handleFinalSubmit}
+            className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-bold text-sm transition"
+          >
+            ✓ Final Submit
+          </button>
+        </div>
+      </div>
+
+      {/* Question Navigation */}
+      {questions.length > 1 && (
+        <div className="flex bg-[#0b101a] border-b border-slate-800 shrink-0 p-2 gap-2 justify-center">
+          {questions.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCurrentQIndex(idx)}
+              className={`px-4 py-1.5 rounded text-sm font-bold transition ${
+                currentQIndex === idx
+                  ? "bg-indigo-600 text-white"
+                  : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white"
+              }`}
+            >
+              Question {idx + 1}
+            </button>
+          ))}
+        </div>
+      )}
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* ── Editor Pane ── */}
+        <div className="w-1/2 flex flex-col border-r border-slate-800">
+          {/* Tabs */}
+          <div className="flex bg-[#0d1424] border-b border-slate-800 shrink-0">
+            {(["html", "css"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest transition relative ${
+                  activeTab === tab
+                    ? "bg-[#090e1a] text-white"
+                    : "text-slate-500 hover:text-slate-300"
+                }`}
+              >
+                {activeTab === tab && (
+                  <span className="absolute top-0 inset-x-0 h-0.5 bg-indigo-500 rounded-b" />
+                )}
+                {tab === "html" ? "🟧 HTML" : "🟦 CSS"}
+              </button>
+            ))}
+          </div>
+          {/* Monaco */}
+          <div className="flex-1 overflow-hidden">
+            <Editor
+              height="100%"
+              language={activeTab}
+              value={activeTab === "html" ? currentResponse?.html : currentResponse?.css}
+              onChange={(val) => updateResponse(activeTab, val || "")}
+              theme="vs-dark"
+              options={{
+                minimap: { enabled: false },
+                fontSize: 14,
+                fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
+                fontLigatures: true,
+                scrollBeyondLastLine: false,
+                wordWrap: "on",
+                padding: { top: 12, bottom: 12 },
+              }}
+            />
+          </div>
+        </div>
+
+        {/* ── Preview Pane ── */}
+        <div className="w-1/2 flex flex-col bg-slate-900 overflow-y-auto">
+          {/* Target */}
+          <div className="p-4 border-b border-slate-800 flex justify-center items-center flex-col">
+            <div className="flex w-full items-center gap-2 mb-3 max-w-[400px]">
+              <span className="w-2 h-2 rounded-full bg-indigo-400" />
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
+                Target UI (Q{currentQIndex + 1})
+              </h3>
+              <span className="ml-auto text-[10px] text-slate-600 font-mono">
+                Match this exactly
+              </span>
+            </div>
+            <div className="w-[400px] h-[300px] shrink-0 rounded-lg border border-slate-700 overflow-hidden shadow-lg bg-white">
+              <iframe
+                ref={targetIframeRef}
+                srcDoc={targetSrcDoc}
+                title="Target UI"
+                className="w-full h-full border-none"
+                sandbox="allow-scripts allow-same-origin"
+              />
+            </div>
+          </div>
+
+          {/* Student output */}
+          <div className="p-4 flex justify-center items-center flex-col">
+            <div className="flex w-full items-center gap-2 mb-3 max-w-[400px]">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
+                Your Live Output
+              </h3>
+            </div>
+            <div className="w-[400px] h-[300px] shrink-0 rounded-lg border border-slate-700 overflow-hidden shadow-lg bg-white relative">
+              <iframe
+                ref={studentIframeRef}
+                srcDoc={studentSrcDoc}
+                title="Live Preview"
+                className="w-full h-full border-none pointer-events-none"
+                sandbox="allow-scripts allow-same-origin"
+              />
+            </div>
+          </div>
+
+          {/* Hidden canvases for pixelmatch diff */}
+          <canvas ref={targetCanvasRef} style={{ display: "none" }} width={400} height={300} />
+          <canvas ref={outputCanvasRef} style={{ display: "none" }} width={400} height={300} />
+
+          {/* Reference Image URL */}
+          <div className="p-4 border-t border-slate-800">
+            <div className="flex items-center gap-2 mb-2 max-w-[400px] mx-auto">
+              <span className="w-2 h-2 rounded-full bg-slate-500" />
+              <h3 className="text-xs font-black uppercase tracking-widest text-slate-500">
+                Reference Image
+              </h3>
+            </div>
+            <div className="max-w-[400px] mx-auto w-full">
+            {currentQuestion?.targetImageUrl ? (
+              <div className="space-y-2">
+                <img
+                  src={currentQuestion.targetImageUrl}
+                  alt="Reference"
+                  className="w-full rounded-lg border border-slate-700 shadow"
+                />
+                <div className="flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-2 border border-slate-700">
+                  <svg className="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  <span className="text-xs text-slate-400 font-mono truncate flex-1">{currentQuestion.targetImageUrl}</span>
+                  <button
+                    onClick={() => navigator.clipboard.writeText(currentQuestion.targetImageUrl!)}
+                    className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold shrink-0 transition"
+                  >
+                    Copy
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p className="text-xs text-slate-600 italic">No reference image provided for this challenge.</p>
+            )}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default SuperTestRunner;
