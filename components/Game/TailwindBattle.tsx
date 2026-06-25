@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import MonacoEditor from "@monaco-editor/react";
 
 // ─── Monaco theme ─────────────────────────────────────────────────────
@@ -153,10 +153,44 @@ export default function TailwindBattle() {
   }, [levelIndex, currentLevel]);
 
   // Helper to generate the iframe document content
-  const getHtmlDoc = (html: string) =>
-    `<!DOCTYPE html><html><head><script src="/tailwindcss.js"></script><style>body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }</style></head><body>${html}</body></html>`;
+  // tailwindcss.js is served from /public — works fully offline once cached
+  const getHtmlDoc = useCallback(
+    (html: string) =>
+      `<!DOCTYPE html><html><head><script src="/tailwindcss.js"></script><style>body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }</style></head><body>${html}</body></html>`,
+    [],
+  );
 
-  // Validate on code change
+  // ── Target srcDoc: memoized per level — NEVER recalculates on code edits ──
+  const targetSrcDoc = useMemo(
+    () => getHtmlDoc(currentLevel.targetHtml),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [levelIndex],
+  );
+
+  // ── User ("Yours") srcDoc: debounced 150ms for fast but non-thrashing updates ──
+  const [userSrcDoc, setUserSrcDoc] = useState(() => getHtmlDoc(""));
+  const userDebounceRef = useRef<ReturnType<typeof setTimeout>>();
+
+  const flushUserPreview = useCallback(() => {
+    clearTimeout(userDebounceRef.current);
+    setUserSrcDoc(getHtmlDoc(code));
+  }, [code, getHtmlDoc]);
+
+  useEffect(() => {
+    clearTimeout(userDebounceRef.current);
+    userDebounceRef.current = setTimeout(() => {
+      setUserSrcDoc(getHtmlDoc(code));
+    }, 150);
+    return () => clearTimeout(userDebounceRef.current);
+  }, [code, getHtmlDoc]);
+
+  // Reset user preview immediately on level change
+  useEffect(() => {
+    setUserSrcDoc(getHtmlDoc(currentLevel.initialCode));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [levelIndex]);
+
+  // Validate on code change (600ms — kept independent of preview debounce)
   useEffect(() => {
     const timer = setTimeout(validateSolution, 600);
     return () => clearTimeout(timer);
@@ -541,7 +575,10 @@ export default function TailwindBattle() {
           {feedbackMsg}
         </span>
         <button
-          onClick={() => setRunKey((prev) => prev + 1)}
+          onClick={() => {
+            flushUserPreview();          // instant preview update
+            setRunKey((prev) => prev + 1); // re-validate
+          }}
           className="px-3 lg:px-4 py-2 bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold rounded-lg transition-all shadow-md shadow-indigo-900/20 active:scale-95 flex items-center gap-1.5 whitespace-nowrap"
         >
           <span>▶</span> Run
@@ -622,9 +659,11 @@ export default function TailwindBattle() {
               🎯 Target
             </span>
             <div className="relative flex-1 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+              {/* key=levelIndex: reloads ONLY on level change, not on code edits */}
               <iframe
+                key={`target-${levelIndex}-${isMobile ? "m" : "d"}`}
                 ref={isMobile ? mobileTargetIframeRef : desktopTargetIframeRef}
-                srcDoc={getHtmlDoc(currentLevel.targetHtml)}
+                srcDoc={targetSrcDoc}
                 title="Target Preview"
                 className="w-full h-full border-none pointer-events-none"
                 sandbox="allow-scripts allow-same-origin"
@@ -638,9 +677,10 @@ export default function TailwindBattle() {
               💻 Yours
             </span>
             <div className="relative flex-1 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+              {/* userSrcDoc: debounced 150ms — fast updates without thrashing */}
               <iframe
                 ref={isMobile ? mobileUserIframeRef : desktopUserIframeRef}
-                srcDoc={getHtmlDoc(code)}
+                srcDoc={userSrcDoc}
                 title="User Preview"
                 className="w-full h-full border-none pointer-events-none"
                 sandbox="allow-scripts allow-same-origin"
