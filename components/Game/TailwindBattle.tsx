@@ -1,4 +1,59 @@
 import React, { useState, useEffect, useRef } from "react";
+import MonacoEditor from "@monaco-editor/react";
+
+// ─── Monaco theme ─────────────────────────────────────────────────────
+const defineMonacoTheme = (monaco: any) => {
+  monaco.editor.defineTheme("futurelab-dark", {
+    base: "vs-dark",
+    inherit: true,
+    rules: [
+      { token: "tag", foreground: "38bdf8" },
+      { token: "attribute.name", foreground: "7dd3fc" },
+      { token: "attribute.value", foreground: "a3e635" },
+      { token: "comment", foreground: "475569", fontStyle: "italic" },
+      { token: "keyword", foreground: "c084fc" },
+      { token: "string", foreground: "fde68a" },
+      { token: "number", foreground: "fb923c" },
+      { token: "type", foreground: "34d399" },
+    ],
+    colors: {
+      "editor.background": "#090e1a",
+      "editor.foreground": "#cbd5e1",
+      "editor.lineHighlightBackground": "#1e293b80",
+      "editorLineNumber.foreground": "#334155",
+      "editorLineNumber.activeForeground": "#94a3b8",
+      "editor.selectionBackground": "#6366f140",
+      "editorCursor.foreground": "#a78bfa",
+      "editorIndentGuide.background": "#1e293b",
+      "editorIndentGuide.activeBackground": "#334155",
+    },
+  });
+};
+
+const MONACO_OPTIONS = {
+  fontSize: 13,
+  fontFamily: "'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace",
+  fontLigatures: true,
+  lineNumbers: "on" as const,
+  minimap: { enabled: false },
+  scrollBeyondLastLine: false,
+  wordWrap: "on" as const,
+  tabSize: 2,
+  smoothScrolling: true,
+  cursorBlinking: "phase" as const,
+  cursorSmoothCaretAnimation: "on" as const,
+  bracketPairColorization: { enabled: true },
+  formatOnPaste: true,
+  formatOnType: true,
+  autoClosingBrackets: "always" as const,
+  autoClosingQuotes: "always" as const,
+  suggest: { showKeywords: true },
+  quickSuggestions: true,
+  padding: { top: 14, bottom: 14 },
+  overviewRulerBorder: false,
+  hideCursorInOverviewRuler: true,
+  scrollbar: { verticalScrollbarSize: 5, horizontalScrollbarSize: 5 },
+};
 import {
   battleLevels,
   AVATAR_IMAGE_URL,
@@ -465,21 +520,16 @@ export default function TailwindBattle() {
         </span>
       </div>
 
-      {/* Editor body */}
-      <div className="flex-1 flex overflow-hidden min-h-0">
-        <div className="w-8 lg:w-12 bg-[#090d16] text-[#2c374e] text-right pr-2 lg:pr-3 pt-3 lg:pt-4 select-none font-mono text-[10px] lg:text-xs leading-6 border-r border-slate-800 overflow-hidden">
-          {Array.from({ length: Math.max(code.split("\n").length, 12) }).map(
-            (_, i) => (
-              <div key={i}>{i + 1}</div>
-            ),
-          )}
-        </div>
-        <textarea
+      {/* Monaco Editor body */}
+      <div className="flex-1 overflow-hidden min-h-0">
+        <MonacoEditor
+          height="100%"
+          language="html"
           value={code}
-          onChange={(e) => setCode(e.target.value)}
-          className="flex-1 bg-transparent text-slate-200 p-3 lg:p-4 outline-none resize-none font-mono text-[11px] lg:text-xs leading-6 selection:bg-indigo-500/30"
-          spellCheck={false}
-          placeholder="Type your HTML & Tailwind code here..."
+          onChange={(val) => setCode(val ?? "")}
+          theme="futurelab-dark"
+          beforeMount={defineMonacoTheme}
+          options={MONACO_OPTIONS}
         />
       </div>
 

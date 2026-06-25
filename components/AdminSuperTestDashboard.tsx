@@ -1,5 +1,58 @@
 import React, { useState, useEffect } from "react";
+import MonacoEditor from "@monaco-editor/react";
 import { API_BASE_URL } from "../App";
+
+// ─── Monaco theme (matches CodePlayground) ─────────────────────────
+const defineMonacoTheme = (monaco: any) => {
+  monaco.editor.defineTheme("futurelab-dark", {
+    base: "vs-dark",
+    inherit: true,
+    rules: [
+      { token: "tag", foreground: "38bdf8" },
+      { token: "attribute.name", foreground: "7dd3fc" },
+      { token: "attribute.value", foreground: "a3e635" },
+      { token: "comment", foreground: "475569", fontStyle: "italic" },
+      { token: "keyword", foreground: "c084fc" },
+      { token: "string", foreground: "fde68a" },
+      { token: "number", foreground: "fb923c" },
+      { token: "type", foreground: "34d399" },
+    ],
+    colors: {
+      "editor.background": "#090e1a",
+      "editor.foreground": "#cbd5e1",
+      "editor.lineHighlightBackground": "#1e293b80",
+      "editorLineNumber.foreground": "#334155",
+      "editorLineNumber.activeForeground": "#94a3b8",
+      "editor.selectionBackground": "#6366f140",
+      "editorCursor.foreground": "#a78bfa",
+      "editorIndentGuide.background": "#1e293b",
+      "editorIndentGuide.activeBackground": "#334155",
+    },
+  });
+};
+
+const MONACO_OPTIONS = {
+  fontSize: 13,
+  fontFamily: "'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace",
+  fontLigatures: true,
+  lineNumbers: "on" as const,
+  minimap: { enabled: false },
+  scrollBeyondLastLine: false,
+  wordWrap: "on" as const,
+  tabSize: 2,
+  smoothScrolling: true,
+  cursorBlinking: "phase" as const,
+  cursorSmoothCaretAnimation: "on" as const,
+  bracketPairColorization: { enabled: true },
+  formatOnPaste: true,
+  formatOnType: true,
+  autoClosingBrackets: "always" as const,
+  autoClosingQuotes: "always" as const,
+  quickSuggestions: true,
+  padding: { top: 10, bottom: 10 },
+  overviewRulerBorder: false,
+  scrollbar: { verticalScrollbarSize: 4, horizontalScrollbarSize: 4 },
+};
 
 const buildSrcDoc = (html: string, css: string) => {
   const twUrl =
@@ -414,9 +467,9 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
         {/* Create Test Modal */}
         {isModalOpen && (
           <div className="fixed inset-0 bg-slate-900/50 flex items-center justify-center p-4 z-50 print:hidden overflow-y-auto">
-            <div className="bg-white rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col my-auto">
-              <div className="p-6 border-b border-slate-200 flex justify-between items-center shrink-0">
-                <h2 className="text-xl font-bold text-slate-800">
+            <div className="bg-[#090e1a] border border-slate-700 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col my-auto">
+              <div className="p-6 border-b border-slate-700 flex justify-between items-center shrink-0 bg-[#0d1424]">
+                <h2 className="text-xl font-bold text-white">
                   Create New Super Test
                 </h2>
                 <button
@@ -441,11 +494,11 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
 
               <form
                 onSubmit={handleCreateTest}
-                className="flex-1 overflow-y-auto p-6 space-y-6 text-neutral-800"
+                className="flex-1 overflow-y-auto p-6 space-y-6 text-neutral-200 bg-[#090e1a]"
               >
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-sm font-medium  mb-1 ">
+                    <label className="block text-sm font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                       Test Title
                     </label>
                     <input
@@ -453,12 +506,12 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                       type="text"
                       value={newTestTitle}
                       onChange={(e) => setNewTestTitle(e.target.value)}
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                      className="w-full bg-[#0d1424] border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 placeholder:text-slate-600"
                       placeholder="e.g., Weekly UI Challenge"
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium  mb-1">
+                    <label className="block text-sm font-bold text-slate-400 uppercase tracking-widest mb-1.5">
                       Duration (Minutes)
                     </label>
                     <input
@@ -470,21 +523,21 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                       onChange={(e) =>
                         setNewTestDuration(parseInt(e.target.value) || 10)
                       }
-                      className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                      className="w-full bg-[#0d1424] border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-6">
-                  <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                    <h3 className="text-lg font-semibold text-slate-800">
+                  <div className="flex items-center justify-between border-b border-slate-700 pb-2">
+                    <h3 className="text-lg font-semibold text-slate-200">
                       Questions ({newTestQuestions.length}/4)
                     </h3>
                     <button
                       type="button"
                       onClick={handleAddQuestion}
                       disabled={newTestQuestions.length >= 4}
-                      className="text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-700 disabled:bg-slate-300 disabled:cursor-not-allowed px-4 py-2 rounded-lg transition-all shadow-md"
+                      className="text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-500 disabled:bg-slate-600 disabled:cursor-not-allowed px-4 py-2 rounded-lg transition-all shadow-md"
                     >
                       + Add Question
                     </button>
@@ -493,50 +546,84 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                   {newTestQuestions.map((q, i) => (
                     <div
                       key={i}
-                      className="p-4 bg-slate-50 border border-slate-200 rounded-lg space-y-4 relative"
+                      className="p-4 bg-[#0d1424] border border-slate-700 rounded-xl space-y-4 relative shadow-xl"
                     >
                       {newTestQuestions.length > 1 && (
                         <button
                           type="button"
                           onClick={() => handleRemoveQuestion(i)}
-                          className="absolute top-4 right-4 text-sm text-rose-500 hover:text-rose-700"
+                          className="absolute top-3 right-3 text-xs font-bold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 px-2 py-1 rounded transition"
                         >
-                          Remove
+                          ✕ Remove
                         </button>
                       )}
-                      <h4 className="font-medium ">Question {i + 1}</h4>
+                      <h4 className="font-bold text-slate-200 flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center">
+                          {i + 1}
+                        </span>{" "}
+                        Question {i + 1}
+                      </h4>
 
                       <div className="grid grid-cols-2 gap-4">
+                        {/* HTML Monaco Editor */}
                         <div>
-                          <label className="block text-xs font-medium text-slate-500 mb-1">
-                            Target HTML (Match this)
-                          </label>
-                          <textarea
-                            required
-                            value={q.targetHtml}
-                            onChange={(e) =>
-                              updateQuestion(i, "targetHtml", e.target.value)
-                            }
-                            className="w-full h-32 border border-slate-300 rounded px-3 py-2 text-sm font-mono outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                            placeholder="<div class='bg-blue-500 w-10 h-10'></div>"
-                          />
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span className="text-lg">🟧</span>
+                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                              Target HTML
+                            </label>
+                            <span className="ml-auto text-[10px] text-slate-600 font-mono">
+                              html
+                            </span>
+                          </div>
+                          <div
+                            className="rounded-lg overflow-hidden border border-slate-700 shadow-lg"
+                            style={{ height: 160 }}
+                          >
+                            <MonacoEditor
+                              height="100%"
+                              language="html"
+                              value={q.targetHtml}
+                              onChange={(val) =>
+                                updateQuestion(i, "targetHtml", val ?? "")
+                              }
+                              theme="futurelab-dark"
+                              beforeMount={defineMonacoTheme}
+                              options={MONACO_OPTIONS}
+                            />
+                          </div>
                         </div>
+                        {/* CSS Monaco Editor */}
                         <div>
-                          <label className="block text-xs font-medium text-slate-500 mb-1">
-                            Target CSS (Match this)
-                          </label>
-                          <textarea
-                            value={q.targetCss}
-                            onChange={(e) =>
-                              updateQuestion(i, "targetCss", e.target.value)
-                            }
-                            className="w-full h-32 border border-slate-300 rounded px-3 py-2 text-sm font-mono outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                            placeholder="body { margin: 0; }"
-                          />
+                          <div className="flex items-center gap-2 mb-1.5">
+                            <span className="text-lg">🟦</span>
+                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                              Target CSS
+                            </label>
+                            <span className="ml-auto text-[10px] text-slate-600 font-mono">
+                              css
+                            </span>
+                          </div>
+                          <div
+                            className="rounded-lg overflow-hidden border border-slate-700 shadow-lg"
+                            style={{ height: 160 }}
+                          >
+                            <MonacoEditor
+                              height="100%"
+                              language="css"
+                              value={q.targetCss}
+                              onChange={(val) =>
+                                updateQuestion(i, "targetCss", val ?? "")
+                              }
+                              theme="futurelab-dark"
+                              beforeMount={defineMonacoTheme}
+                              options={MONACO_OPTIONS}
+                            />
+                          </div>
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-slate-500 mb-1">
+                        <label className="block text-xs font-medium text-slate-500 mb-1 bg-[#0D1423]">
                           Reference Image URL (Optional)
                         </label>
                         <input
@@ -551,9 +638,9 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                       </div>
 
                       {/* Live Preview */}
-                      <div className="pt-2 border-t border-slate-200">
-                        <label className="block text-xs font-medium text-slate-500 mb-2">
-                          Live Target Preview (What the student needs to build)
+                      <div className="pt-2 border-t border-slate-700">
+                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                          🖥 Live Target Preview
                         </label>
                         <div className="w-[400px] h-[300px] rounded-lg border border-slate-300 overflow-hidden shadow-sm bg-white mx-auto relative">
                           {q.targetHtml || q.targetCss ? (
@@ -578,11 +665,11 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                 </div>
               </form>
 
-              <div className="p-6 border-t border-slate-200 flex justify-end gap-3 shrink-0 bg-slate-50 rounded-b-xl">
+              <div className="p-6 border-t border-slate-700 flex justify-end gap-3 shrink-0 bg-[#0d1424] rounded-b-xl">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 font-medium text-slate-600 hover:text-slate-800"
+                  className="px-4 py-2 font-medium text-slate-400 hover:text-white transition"
                 >
                   Cancel
                 </button>
@@ -590,7 +677,7 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                   type="button"
                   onClick={handleCreateTest}
                   disabled={isSubmitting}
-                  className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-6 py-2 rounded-lg font-medium shadow transition-colors"
+                  className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-indigo-500/20 transition-all"
                 >
                   {isSubmitting ? "Saving..." : "Save & Publish Test"}
                 </button>
