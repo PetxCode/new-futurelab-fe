@@ -4,9 +4,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 
-const TAILWIND_TAG = `<script src="${window.location.origin}/tailwindcss.js"><\/script>`;
+import { useTailwindScript } from '../../hooks/useTailwindScript';
 
-const getHtmlDoc = (html: string) => `<!DOCTYPE html><html><head>${TAILWIND_TAG}<style>*, *::before, *::after { box-sizing: border-box; } ::-webkit-scrollbar { display: none; } body { -ms-overflow-style: none; scrollbar-width: none; margin: 0; padding: 1rem; min-height: 100vh; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }</style></head><body>${html}</body></html>`;
+const getHtmlDoc = (html: string, tailwindTag: string) => `<!DOCTYPE html><html><head>${tailwindTag}<style>*, *::before, *::after { box-sizing: border-box; } ::-webkit-scrollbar { display: none; } body { -ms-overflow-style: none; scrollbar-width: none; margin: 0; padding: 1rem; min-height: 100vh; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }</style></head><body>${html}</body></html>`;
 
 function createBlobUrl(html: string): string {
   const blob = new Blob([html], { type: "text/html" });
@@ -14,16 +14,16 @@ function createBlobUrl(html: string): string {
 }
 
 // Memoized iframe to completely prevent flashing (wiping away) on re-renders
-const IframePreview = React.memo(({ html, isTarget = false }: { html: string, isTarget?: boolean }) => {
+const IframePreview = React.memo(({ html, isTarget = false, tailwindTag }: { html: string, isTarget?: boolean, tailwindTag: string }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [previewUrl, setPreviewUrl] = useState("");
   
   useEffect(() => {
-    const docHtml = getHtmlDoc(isTarget ? html : '');
+    const docHtml = getHtmlDoc(isTarget ? html : '', tailwindTag);
     const url = createBlobUrl(docHtml);
     setPreviewUrl(url);
     return () => URL.revokeObjectURL(url);
-  }, [isTarget, isTarget ? html : null]); // only re-create blob if target html changes or isTarget changes
+  }, [isTarget, isTarget ? html : null, tailwindTag]); // only re-create blob if target html changes or isTarget changes
 
   // For the live "suspect" panel: push html changes directly into the iframe body
   // without reloading src (avoids flash).
@@ -45,7 +45,8 @@ const IframePreview = React.memo(({ html, isTarget = false }: { html: string, is
   );
 });
 
-export default function UiDetective() {
+export default function UiDetective({ onExit }: { onExit?: () => void }) {
+  const { scriptTag: tailwindScriptTag } = useTailwindScript();
   const [levelIndex, setLevelIndex] = useState(0);
   const [code, setCode] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
@@ -122,8 +123,8 @@ export default function UiDetective() {
 
           <div>
             <h4 className="text-[10px] uppercase font-black tracking-wider text-emerald-500 mb-1">Target Evidence (Perfect UI)</h4>
-            <div className="relative h-44 bg-slate-950 rounded-xl overflow-hidden border border-emerald-500/30 shadow-inner">
-              <IframePreview html={currentLevel.targetHtml} isTarget={true} />
+            <div className="relative w-full aspect-[4/3] bg-slate-900 border-2 border-indigo-500 rounded-xl overflow-hidden shadow-inner">
+              <IframePreview html={currentLevel.targetHtml} isTarget={true} tailwindTag={tailwindScriptTag} />
             </div>
           </div>
 
@@ -180,8 +181,8 @@ export default function UiDetective() {
             <span className="text-[10px] font-black text-rose-400 uppercase tracking-widest">Suspect UI (Broken)</span>
             <span className="text-xs font-mono text-slate-400">Live Preview</span>
           </div>
-          <div className="flex-1 relative bg-slate-950 overflow-hidden">
-            <IframePreview html={code} />
+          <div className="relative w-full aspect-[4/3] bg-slate-900 border-2 border-cyan-500 rounded-xl overflow-hidden shadow-inner flex flex-col">
+            <IframePreview html={code} tailwindTag={tailwindScriptTag} />
             {isSuccess && (
               <motion.div 
                 initial={{ opacity: 0 }}

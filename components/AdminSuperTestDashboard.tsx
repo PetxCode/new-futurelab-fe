@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
 import MonacoEditor from "@monaco-editor/react";
 import { API_BASE_URL } from "../App";
-
-const TAILWIND_TAG = `<script src="${window.location.origin}/tailwindcss.js"><\/script>`;
+import { useTailwindScript } from "../hooks/useTailwindScript";
 
 function createBlobUrl(html: string): string {
   const blob = new Blob([html], { type: "text/html" });
@@ -61,13 +60,13 @@ const MONACO_OPTIONS = {
   scrollbar: { verticalScrollbarSize: 4, horizontalScrollbarSize: 4 },
 };
 
-const buildHtmlDoc = (html: string, css: string) => {
+const buildHtmlDoc = (html: string, css: string, tailwindTag: string) => {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  ${TAILWIND_TAG}
+  ${tailwindTag}
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; padding: 0; width: 400px; height: 300px; overflow: hidden; background: white; }
@@ -81,7 +80,7 @@ ${html}
 };
 
 // Sub-component to safely manage Blob URLs for previews in a list
-const LivePreviewIframe = ({ html, css, index }: { html: string; css: string; index: number }) => {
+const LivePreviewIframe = ({ html, css, index, tailwindTag }: { html: string; css: string; index: number; tailwindTag: string }) => {
   const [url, setUrl] = useState("");
 
   useEffect(() => {
@@ -89,14 +88,14 @@ const LivePreviewIframe = ({ html, css, index }: { html: string; css: string; in
       setUrl("");
       return;
     }
-    const htmlContent = buildHtmlDoc(html, css);
+    const htmlContent = buildHtmlDoc(html, css, tailwindTag);
     const blobUrl = createBlobUrl(htmlContent);
     setUrl(blobUrl);
 
     return () => {
       URL.revokeObjectURL(blobUrl);
     };
-  }, [html, css]);
+  }, [html, css, tailwindTag]);
 
   if (!url) {
     return (
@@ -133,6 +132,7 @@ interface AdminSuperTestDashboardProps {
 const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
   schoolId,
 }) => {
+  const { scriptTag: tailwindScriptTag } = useTailwindScript();
   const [results, setResults] = useState<SuperTestResult[]>([]);
   const [activeTests, setActiveTests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -683,7 +683,7 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                           🖥 Live Target Preview
                         </label>
                         <div className="w-[400px] h-[300px] rounded-lg border border-slate-300 overflow-hidden shadow-sm bg-white mx-auto relative">
-                          <LivePreviewIframe html={q.targetHtml} css={q.targetCss} index={i + 1} />
+                          <LivePreviewIframe html={q.targetHtml} css={q.targetCss} index={i + 1} tailwindTag={tailwindScriptTag} />
                         </div>
                       </div>
                     </div>

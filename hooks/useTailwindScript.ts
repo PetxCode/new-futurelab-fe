@@ -38,15 +38,32 @@ export function useTailwindScript() {
     }
   }, [tailwindScript]);
 
-  // Always inline the script — never use src= inside a srcDoc iframe.
-  // A srcDoc iframe has a null origin, so relative URLs like /tailwindcss.js
-  // are unresolvable by the browser and the script silently fails to load.
-  const scriptTag = tailwindScript
-    ? `<script>${tailwindScript}</script>`
+  const [blobUrl, setBlobUrl] = useState<string>("");
+
+  useEffect(() => {
+    if (tailwindScript && !blobUrl) {
+      const blob = new Blob([tailwindScript], { type: "application/javascript" });
+      const url = URL.createObjectURL(blob);
+      setBlobUrl(url);
+    }
+  }, [tailwindScript, blobUrl]);
+
+  useEffect(() => {
+    return () => {
+      if (blobUrl) {
+        URL.revokeObjectURL(blobUrl);
+      }
+    };
+  }, [blobUrl]);
+
+  // We use a Blob URL as the src so that document.currentScript.src is not null,
+  // which is required by the Tailwind CDN for async PostCSS compilation.
+  // This also guarantees it works completely offline since the file is served from memory.
+  const scriptTag = blobUrl
+    ? `<script src="${blobUrl}"><\/script>`
     : "";
 
-  // isReady lets consumers defer iframe rendering until the script is available
-  const isReady = tailwindScript.length > 0;
+  const isReady = !!blobUrl;
 
-  return { tailwindScript, scriptTag, isReady };
+  return { tailwindScript, scriptTag, isReady, blobUrl };
 }

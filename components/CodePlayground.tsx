@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Editor from "@monaco-editor/react";
-
-
+import { useTailwindScript } from "../hooks/useTailwindScript";
 // ─── Types ────────────────────────────────────────────────────────────
 interface CodePlaygroundProps {
   onBack: () => void;
@@ -148,9 +147,9 @@ const defineMonacoTheme = (monaco: any) => {
 // async PostCSS pipeline correctly. The Blob URL approach makes this
 // work because Blob URLs are same-origin with the parent (localhost:3000),
 // so relative paths like /tailwindcss.js resolve correctly.
-const TAILWIND_TAG = `<script src="${window.location.origin}/tailwindcss.js"><\/script>`;
+// Note: TAILWIND_TAG is now passed dynamically from useTailwindScript
 
-const buildHtml = (html: string, css: string, js: string) => {
+const buildHtml = (html: string, css: string, js: string, tailwindTag: string) => {
   const isFull = /<html/i.test(html);
   
   // Encode JS as a data URL so it's not swallowed by unclosed tags in the body
@@ -160,7 +159,7 @@ const buildHtml = (html: string, css: string, js: string) => {
 
   if (isFull) {
     let doc = html;
-    const headInject = `${TAILWIND_TAG}\n<style>${css}</style>\n${jsInject}`;
+    const headInject = `${tailwindTag}\n<style>${css}</style>\n${jsInject}`;
     if (/<\/head>/i.test(doc)) {
       doc = doc.replace(/<\/head>/i, `${headInject}\n</head>`);
     } else {
@@ -174,7 +173,7 @@ const buildHtml = (html: string, css: string, js: string) => {
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  ${TAILWIND_TAG}
+  ${tailwindTag}
   <style>${css}</style>
   ${jsInject}
 </head>
@@ -198,7 +197,7 @@ const CodePlayground: React.FC<CodePlaygroundProps> = ({
   initialCss = DEFAULT_CSS,
   initialJs = DEFAULT_JS,
 }) => {
-  // No longer need useTailwindScript — Tailwind is loaded via <script src> in Blob URL
+  const { scriptTag, isReady } = useTailwindScript();
   const [html, setHtml] = useState(
     () => localStorage.getItem("pg_html") ?? initialHtml,
   );
@@ -277,7 +276,7 @@ const CodePlayground: React.FC<CodePlaygroundProps> = ({
           window.onerror = function(msg){ post('error', [msg]); return false; };
         })();
       `;
-      const htmlContent = buildHtml(html, css, consolePatch + js);
+      const htmlContent = buildHtml(html, css, consolePatch + js, scriptTag);
       const newUrl = createBlobUrl(htmlContent);
 
       // Revoke previous blob URL to avoid memory leaks
@@ -287,7 +286,7 @@ const CodePlayground: React.FC<CodePlaygroundProps> = ({
       setPreviewUrl(newUrl);
       setIsSaved(true);
     }, 300);
-  }, [html, css, js]);
+  }, [html, css, js, scriptTag]);
 
   useEffect(() => {
     refresh();

@@ -62,7 +62,7 @@ import {
 } from "./tailwindBattleData";
 import MultiplayerTailwind from "./components/MultiplayerTailwind";
 
-const TAILWIND_TAG = `<script src="${window.location.origin}/tailwindcss.js"><\/script>`;
+import { useTailwindScript } from "../../hooks/useTailwindScript";
 
 function createBlobUrl(html: string): string {
   const blob = new Blob([html], { type: "text/html" });
@@ -85,6 +85,7 @@ const PASS_THRESHOLD = 75;
 type MobileTab = "info" | "editor" | "preview";
 
 export default function TailwindBattle() {
+  const { scriptTag: tailwindScriptTag } = useTailwindScript();
   const [levelIndex, setLevelIndex] = useState(() => {
     const saved = localStorage.getItem("tailwind-battle-level");
     return saved ? parseInt(saved, 10) : 0;
@@ -162,8 +163,8 @@ export default function TailwindBattle() {
   // Helper to generate the iframe document content
   const getHtmlDoc = useCallback(
     (html: string) =>
-      `<!DOCTYPE html><html><head>${TAILWIND_TAG}<style>body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }</style></head><body>${html}</body></html>`,
-    [],
+      `<!DOCTYPE html><html><head>${tailwindScriptTag}<style>body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }</style></head><body>${html}</body></html>`,
+    [tailwindScriptTag]
   );
 
   const [targetPreviewUrl, setTargetPreviewUrl] = useState("");

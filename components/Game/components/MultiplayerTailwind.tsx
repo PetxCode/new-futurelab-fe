@@ -5,9 +5,10 @@ import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
 import { API_BASE_URL } from '../../../App';
 import { battleLevels, AVATAR_IMAGE_URL, PRODUCT_IMAGE_URL, BANNER_IMAGE_URL } from '../tailwindBattleData';
+import { useTailwindScript } from "../../../hooks/useTailwindScript";
 import { CHARACTERS, Character } from './CharacterSelect';
 
-const TAILWIND_TAG = `<script src="${window.location.origin}/tailwindcss.js"><\/script>`;
+const TAILWIND_TAG = ""; // handled by useTailwindScript
 
 function createBlobUrl(html: string): string {
   const blob = new Blob([html], { type: "text/html" });
@@ -168,11 +169,13 @@ export default function MultiplayerTailwind({ onExit }: MultiplayerTailwindProps
     }
   };
 
+  const { scriptTag: tailwindScriptTag } = useTailwindScript();
+
   // Helper to generate iframe content
   const getHtmlDoc = useCallback(
     (html: string) =>
-      `<!DOCTYPE html><html><head>${TAILWIND_TAG}<style>body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }</style></head><body>${html}</body></html>`,
-    []
+      `<!DOCTYPE html><html><head>${tailwindScriptTag}<style>body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }</style></head><body>${html}</body></html>`,
+    [tailwindScriptTag]
   );
 
   const [targetPreviewUrl, setTargetPreviewUrl] = useState("");
