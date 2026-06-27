@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import Editor from "@monaco-editor/react";
 
+
 // ─── Types ────────────────────────────────────────────────────────────
 interface CodePlaygroundProps {
   onBack: () => void;
@@ -141,31 +142,29 @@ const defineMonacoTheme = (monaco: any) => {
   });
 };
 
-// ─── Build srcdoc without any network fetch ───────────────────────────
-const buildSrcDoc = (html: string, css: string, js: string) => {
-  // Inject CSS and JS into the user's HTML. If the user wrote a full <html> doc,
-  // we detect it and inject; otherwise we wrap a minimal shell.
+// ─── Build preview HTML ──────────────────────────────────────────────
+// Uses <script src="/tailwindcss.js"> (NOT inlined) so the Tailwind CDN
+// can locate its own URL via document.currentScript.src and run its
+// async PostCSS pipeline correctly. The Blob URL approach makes this
+// work because Blob URLs are same-origin with the parent (localhost:3000),
+// so relative paths like /tailwindcss.js resolve correctly.
+const TAILWIND_TAG = `<script src="${window.location.origin}/tailwindcss.js"><\/script>`;
+
+const buildHtml = (html: string, css: string, js: string) => {
   const isFull = /<html/i.test(html);
-  const twUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/tailwindcss.js`
-      : "/tailwindcss.js";
+  
+  // Encode JS as a data URL so it's not swallowed by unclosed tags in the body
+  // and we use defer so it runs after the DOM is fully parsed
+  const jsDataUrl = `data:text/javascript;charset=utf-8,${encodeURIComponent(js)}`;
+  const jsInject = `<script src="${jsDataUrl}" defer><\/script>`;
 
   if (isFull) {
-    // Insert <style> before </head> and <script> before </body>
     let doc = html;
-    const styleTag = `<style>${css}</style>`;
-    const scriptTag = `<script src="${twUrl}"><\/script><script>${js}<\/script>`;
-
+    const headInject = `${TAILWIND_TAG}\n<style>${css}</style>\n${jsInject}`;
     if (/<\/head>/i.test(doc)) {
-      doc = doc.replace(/<\/head>/i, `${styleTag}\n</head>`);
+      doc = doc.replace(/<\/head>/i, `${headInject}\n</head>`);
     } else {
-      doc = styleTag + doc;
-    }
-    if (/<\/body>/i.test(doc)) {
-      doc = doc.replace(/<\/body>/i, `${scriptTag}\n</body>`);
-    } else {
-      doc = doc + scriptTag;
+      doc = headInject + doc;
     }
     return doc;
   }
@@ -175,15 +174,22 @@ const buildSrcDoc = (html: string, css: string, js: string) => {
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <script src="${twUrl}"><\/script>
+  ${TAILWIND_TAG}
   <style>${css}</style>
+  ${jsInject}
 </head>
 <body>
 ${html}
-<script>${js}<\/script>
 </body>
 </html>`;
 };
+
+// Creates a Blob URL from HTML string (must be revoked after use)
+function createBlobUrl(html: string): string {
+  const blob = new Blob([html], { type: "text/html" });
+  return URL.createObjectURL(blob);
+}
+
 
 // ─── Component ────────────────────────────────────────────────────────
 const CodePlayground: React.FC<CodePlaygroundProps> = ({
@@ -192,6 +198,7 @@ const CodePlayground: React.FC<CodePlaygroundProps> = ({
   initialCss = DEFAULT_CSS,
   initialJs = DEFAULT_JS,
 }) => {
+  // No longer need useTailwindScript — Tailwind is loaded via <script src> in Blob URL
   const [html, setHtml] = useState(
     () => localStorage.getItem("pg_html") ?? initialHtml,
   );
@@ -202,7 +209,8 @@ const CodePlayground: React.FC<CodePlaygroundProps> = ({
     () => localStorage.getItem("pg_js") ?? initialJs,
   );
   const [activeTab, setActiveTab] = useState<TabId>("html");
-  const [srcDoc, setSrcDoc] = useState("");
+  const [previewUrl, setPreviewUrl] = useState("");
+  const prevUrlRef = useRef<string>("");
   const [isSaved, setIsSaved] = useState(true);
   const [layout, setLayout] = useState<"split" | "editor" | "preview">("split");
   const [splitRatio, setSplitRatio] = useState(50); // percentage for editor width
@@ -252,7 +260,7 @@ const CodePlayground: React.FC<CodePlaygroundProps> = ({
     localStorage.setItem("pg_js", js);
   }, [js]);
 
-  // Debounced preview refresh
+  // Debounced preview refresh — builds Blob URL from HTML+CSS+JS
   const refresh = useCallback(() => {
     clearTimeout(debounceRef.current);
     setIsSaved(false);
@@ -269,14 +277,23 @@ const CodePlayground: React.FC<CodePlaygroundProps> = ({
           window.onerror = function(msg){ post('error', [msg]); return false; };
         })();
       `;
-      const doc = buildSrcDoc(html, css, consolePatch + js);
-      setSrcDoc(doc);
+      const htmlContent = buildHtml(html, css, consolePatch + js);
+      const newUrl = createBlobUrl(htmlContent);
+
+      // Revoke previous blob URL to avoid memory leaks
+      if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current);
+      prevUrlRef.current = newUrl;
+
+      setPreviewUrl(newUrl);
       setIsSaved(true);
     }, 300);
   }, [html, css, js]);
 
   useEffect(() => {
     refresh();
+  // Cleanup blob URL on unmount
+  return () => { if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current); };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [html, css, js, refresh]);
 
   // Console message listener
@@ -576,9 +593,9 @@ const CodePlayground: React.FC<CodePlaygroundProps> = ({
             <div className="flex-1 bg-white relative overflow-hidden">
               <iframe
                 ref={iframeRef}
-                srcDoc={srcDoc}
+                src={previewUrl}
                 title="Live Preview"
-                sandbox="allow-scripts allow-modals"
+                sandbox="allow-scripts allow-modals allow-same-origin"
                 className="w-full h-full border-none"
               />
             </div>

@@ -4,6 +4,13 @@ import html2canvas from "html2canvas";
 import pixelmatch from "pixelmatch";
 import { API_BASE_URL } from "../App";
 
+const TAILWIND_TAG = `<script src="${window.location.origin}/tailwindcss.js"><\/script>`;
+
+function createBlobUrl(html: string): string {
+  const blob = new Blob([html], { type: "text/html" });
+  return URL.createObjectURL(blob);
+}
+
 interface SuperTestQuestion {
   targetHtml: string;
   targetCss: string;
@@ -19,18 +26,13 @@ interface SuperTestRunnerProps {
   onSubmit: (responses: any[]) => void;
 }
 
-const buildSrcDoc = (html: string, css: string) => {
-  const twUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/tailwindcss.js`
-      : "/tailwindcss.js";
-
+const buildHtmlDoc = (html: string, css: string) => {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <script src="${twUrl}"><\/script>
+  ${TAILWIND_TAG}
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; padding: 0; width: 400px; height: 300px; overflow: hidden; background: white; }
@@ -74,7 +76,10 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
   const currentQuestion = questions[currentQIndex];
 
   const [activeTab, setActiveTab] = useState<"html" | "css">("html");
-  const [studentSrcDoc, setStudentSrcDoc] = useState("");
+  const [studentPreviewUrl, setStudentPreviewUrl] = useState("");
+  const studentUrlRef = useRef<string>("");
+  const [targetPreviewUrl, setTargetPreviewUrl] = useState("");
+  const targetUrlRef = useRef<string>("");
   const [isChecking, setIsChecking] = useState(false);
   const [timeLeft, setTimeLeft] = useState(durationMinutes * 60);
 
@@ -130,17 +135,36 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
     return () => clearInterval(timer);
   }, [isCompleted, checkLoading, durationMinutes]);
 
-  // Target srcdoc
-  const targetSrcDoc = currentQuestion ? buildSrcDoc(currentQuestion.targetHtml, currentQuestion.targetCss) : "";
+  // Target preview URL
+  useEffect(() => {
+    if (!currentQuestion) return;
+    const htmlContent = buildHtmlDoc(currentQuestion.targetHtml, currentQuestion.targetCss);
+    const newUrl = createBlobUrl(htmlContent);
+    if (targetUrlRef.current) URL.revokeObjectURL(targetUrlRef.current);
+    targetUrlRef.current = newUrl;
+    setTargetPreviewUrl(newUrl);
+  }, [currentQuestion]);
 
   // Debounce student preview
   useEffect(() => {
     if (!currentResponse) return;
     const timer = setTimeout(() => {
-      setStudentSrcDoc(buildSrcDoc(currentResponse.html, currentResponse.css));
+      const htmlContent = buildHtmlDoc(currentResponse.html, currentResponse.css);
+      const newUrl = createBlobUrl(htmlContent);
+      if (studentUrlRef.current) URL.revokeObjectURL(studentUrlRef.current);
+      studentUrlRef.current = newUrl;
+      setStudentPreviewUrl(newUrl);
     }, 500);
     return () => clearTimeout(timer);
   }, [currentResponse]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (targetUrlRef.current) URL.revokeObjectURL(targetUrlRef.current);
+      if (studentUrlRef.current) URL.revokeObjectURL(studentUrlRef.current);
+    };
+  }, []);
 
   const updateResponse = (field: "html" | "css", value: string) => {
     setResponses((prev: any) => {
@@ -399,7 +423,7 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
             <div className="w-[400px] h-[300px] shrink-0 rounded-lg border border-slate-700 overflow-hidden shadow-lg bg-white">
               <iframe
                 ref={targetIframeRef}
-                srcDoc={targetSrcDoc}
+                src={targetPreviewUrl}
                 title="Target UI"
                 className="w-full h-full border-none"
                 sandbox="allow-scripts allow-same-origin"
@@ -418,7 +442,7 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
             <div className="w-[400px] h-[300px] shrink-0 rounded-lg border border-slate-700 overflow-hidden shadow-lg bg-white relative">
               <iframe
                 ref={studentIframeRef}
-                srcDoc={studentSrcDoc}
+                src={studentPreviewUrl}
                 title="Live Preview"
                 className="w-full h-full border-none pointer-events-none"
                 sandbox="allow-scripts allow-same-origin"

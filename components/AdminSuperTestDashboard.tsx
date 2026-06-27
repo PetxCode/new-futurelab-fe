@@ -2,6 +2,13 @@ import React, { useState, useEffect } from "react";
 import MonacoEditor from "@monaco-editor/react";
 import { API_BASE_URL } from "../App";
 
+const TAILWIND_TAG = `<script src="${window.location.origin}/tailwindcss.js"><\/script>`;
+
+function createBlobUrl(html: string): string {
+  const blob = new Blob([html], { type: "text/html" });
+  return URL.createObjectURL(blob);
+}
+
 // ─── Monaco theme (matches CodePlayground) ─────────────────────────
 const defineMonacoTheme = (monaco: any) => {
   monaco.editor.defineTheme("futurelab-dark", {
@@ -54,18 +61,13 @@ const MONACO_OPTIONS = {
   scrollbar: { verticalScrollbarSize: 4, horizontalScrollbarSize: 4 },
 };
 
-const buildSrcDoc = (html: string, css: string) => {
-  const twUrl =
-    typeof window !== "undefined"
-      ? `${window.location.origin}/tailwindcss.js`
-      : "/tailwindcss.js";
-
+const buildHtmlDoc = (html: string, css: string) => {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
-  <script src="${twUrl}"><\/script>
+  ${TAILWIND_TAG}
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; padding: 0; width: 400px; height: 300px; overflow: hidden; background: white; }
@@ -77,6 +79,44 @@ ${html}
 </body>
 </html>`;
 };
+
+// Sub-component to safely manage Blob URLs for previews in a list
+const LivePreviewIframe = ({ html, css, index }: { html: string; css: string; index: number }) => {
+  const [url, setUrl] = useState("");
+
+  useEffect(() => {
+    if (!html && !css) {
+      setUrl("");
+      return;
+    }
+    const htmlContent = buildHtmlDoc(html, css);
+    const blobUrl = createBlobUrl(htmlContent);
+    setUrl(blobUrl);
+
+    return () => {
+      URL.revokeObjectURL(blobUrl);
+    };
+  }, [html, css]);
+
+  if (!url) {
+    return (
+      <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-50">
+        <span className="text-4xl mb-2">👀</span>
+        <p className="text-sm">Type HTML/CSS to preview</p>
+      </div>
+    );
+  }
+
+  return (
+    <iframe
+      src={url}
+      title={`Preview Q${index}`}
+      className="w-full h-full border-none pointer-events-none"
+      sandbox="allow-scripts allow-same-origin"
+    />
+  );
+};
+
 
 interface SuperTestResult {
   _id: string;
@@ -643,21 +683,7 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                           🖥 Live Target Preview
                         </label>
                         <div className="w-[400px] h-[300px] rounded-lg border border-slate-300 overflow-hidden shadow-sm bg-white mx-auto relative">
-                          {q.targetHtml || q.targetCss ? (
-                            <iframe
-                              srcDoc={buildSrcDoc(q.targetHtml, q.targetCss)}
-                              title={`Preview Q${i + 1}`}
-                              className="w-full h-full border-none pointer-events-none"
-                              sandbox="allow-scripts allow-same-origin"
-                            />
-                          ) : (
-                            <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-400 bg-slate-50">
-                              <span className="text-4xl mb-2">👀</span>
-                              <p className="text-sm">
-                                Type HTML/CSS to preview
-                              </p>
-                            </div>
-                          )}
+                          <LivePreviewIframe html={q.targetHtml} css={q.targetCss} index={i + 1} />
                         </div>
                       </div>
                     </div>

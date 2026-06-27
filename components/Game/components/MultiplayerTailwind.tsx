@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
@@ -6,6 +6,13 @@ import confetti from 'canvas-confetti';
 import { API_BASE_URL } from '../../../App';
 import { battleLevels, AVATAR_IMAGE_URL, PRODUCT_IMAGE_URL, BANNER_IMAGE_URL } from '../tailwindBattleData';
 import { CHARACTERS, Character } from './CharacterSelect';
+
+const TAILWIND_TAG = `<script src="${window.location.origin}/tailwindcss.js"><\/script>`;
+
+function createBlobUrl(html: string): string {
+  const blob = new Blob([html], { type: "text/html" });
+  return URL.createObjectURL(blob);
+}
 
 const PASS_THRESHOLD = 75;
 
@@ -161,8 +168,48 @@ export default function MultiplayerTailwind({ onExit }: MultiplayerTailwindProps
     }
   };
 
-  // Helper to generate the iframe document content
-  const getHtmlDoc = (html: string) => `<!DOCTYPE html><html><head><script src="/tailwindcss.js"></script><style>body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }</style></head><body>${html}</body></html>`;
+  // Helper to generate iframe content
+  const getHtmlDoc = useCallback(
+    (html: string) =>
+      `<!DOCTYPE html><html><head>${TAILWIND_TAG}<style>body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }</style></head><body>${html}</body></html>`,
+    []
+  );
+
+  const [targetPreviewUrl, setTargetPreviewUrl] = useState("");
+  const targetUrlRef = useRef<string>("");
+
+  useEffect(() => {
+    if (!currentLevel) return;
+    const htmlContent = getHtmlDoc(currentLevel.targetHtml);
+    const newUrl = createBlobUrl(htmlContent);
+    if (targetUrlRef.current) URL.revokeObjectURL(targetUrlRef.current);
+    targetUrlRef.current = newUrl;
+    setTargetPreviewUrl(newUrl);
+
+    return () => {
+      if (targetUrlRef.current) URL.revokeObjectURL(targetUrlRef.current);
+    };
+  }, [currentLevel, getHtmlDoc]);
+
+  const [userPreviewUrl, setUserPreviewUrl] = useState("");
+  const userUrlRef = useRef<string>("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      const htmlContent = getHtmlDoc(code);
+      const newUrl = createBlobUrl(htmlContent);
+      if (userUrlRef.current) URL.revokeObjectURL(userUrlRef.current);
+      userUrlRef.current = newUrl;
+      setUserPreviewUrl(newUrl);
+    }, 150);
+    return () => clearTimeout(timer);
+  }, [code, getHtmlDoc]);
+
+  useEffect(() => {
+    return () => {
+      if (userUrlRef.current) URL.revokeObjectURL(userUrlRef.current);
+    };
+  }, []);
 
   useEffect(() => {
     if (gameState !== 'playing' || isSuccess) return;
@@ -440,13 +487,13 @@ export default function MultiplayerTailwind({ onExit }: MultiplayerTailwindProps
             <div className="flex-1 flex flex-col min-h-[140px]">
               <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest mb-1.5">🎯 Target</span>
               <div className="relative flex-1 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner">
-                <iframe ref={desktopTargetIframeRef} srcDoc={getHtmlDoc(currentLevel.targetHtml)} title="Target Preview" className="w-full h-full border-none pointer-events-none" sandbox="allow-scripts allow-same-origin" />
+                <iframe ref={desktopTargetIframeRef} src={targetPreviewUrl} title="Target Preview" className="w-full h-full border-none pointer-events-none" sandbox="allow-scripts allow-same-origin" />
               </div>
             </div>
             <div className="flex-1 flex flex-col min-h-[140px]">
               <span className="text-[10px] font-black text-sky-400 uppercase tracking-widest mb-1.5">💻 Yours</span>
               <div className="relative flex-1 bg-slate-950 rounded-xl overflow-hidden border border-slate-800 shadow-inner">
-                <iframe ref={desktopUserIframeRef} srcDoc={getHtmlDoc(code)} title="User Preview" className="w-full h-full border-none pointer-events-none" sandbox="allow-scripts allow-same-origin" />
+                <iframe ref={desktopUserIframeRef} src={userPreviewUrl} title="User Preview" className="w-full h-full border-none pointer-events-none" sandbox="allow-scripts allow-same-origin" />
               </div>
             </div>
           </div>

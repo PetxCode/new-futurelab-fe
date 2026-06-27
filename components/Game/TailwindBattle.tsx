@@ -62,6 +62,13 @@ import {
 } from "./tailwindBattleData";
 import MultiplayerTailwind from "./components/MultiplayerTailwind";
 
+const TAILWIND_TAG = `<script src="${window.location.origin}/tailwindcss.js"><\/script>`;
+
+function createBlobUrl(html: string): string {
+  const blob = new Blob([html], { type: "text/html" });
+  return URL.createObjectURL(blob);
+}
+
 // Map level ids that use images to their URLs
 const LEVEL_IMAGE_MAP: Record<number, string> = {
   1: AVATAR_IMAGE_URL,
@@ -153,40 +160,66 @@ export default function TailwindBattle() {
   }, [levelIndex, currentLevel]);
 
   // Helper to generate the iframe document content
-  // tailwindcss.js is served from /public — works fully offline once cached
   const getHtmlDoc = useCallback(
     (html: string) =>
-      `<!DOCTYPE html><html><head><script src="/tailwindcss.js"></script><style>body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }</style></head><body>${html}</body></html>`,
+      `<!DOCTYPE html><html><head>${TAILWIND_TAG}<style>body { margin: 0; padding: 0; overflow: hidden; height: 100vh; width: 100vw; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; }</style></head><body>${html}</body></html>`,
     [],
   );
 
-  // ── Target srcDoc: memoized per level — NEVER recalculates on code edits ──
-  const targetSrcDoc = useMemo(
-    () => getHtmlDoc(currentLevel.targetHtml),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [levelIndex],
-  );
+  const [targetPreviewUrl, setTargetPreviewUrl] = useState("");
+  const targetUrlRef = useRef<string>("");
 
-  // ── User ("Yours") srcDoc: debounced 150ms for fast but non-thrashing updates ──
-  const [userSrcDoc, setUserSrcDoc] = useState(() => getHtmlDoc(""));
+  useEffect(() => {
+    const htmlContent = getHtmlDoc(currentLevel.targetHtml);
+    const newUrl = createBlobUrl(htmlContent);
+    if (targetUrlRef.current) URL.revokeObjectURL(targetUrlRef.current);
+    targetUrlRef.current = newUrl;
+    setTargetPreviewUrl(newUrl);
+
+    return () => {
+      if (targetUrlRef.current) URL.revokeObjectURL(targetUrlRef.current);
+    };
+  }, [currentLevel.targetHtml, getHtmlDoc]);
+
+  // ── User ("Yours") preview: debounced 150ms for fast but non-thrashing updates ──
+  const [userPreviewUrl, setUserPreviewUrl] = useState("");
+  const userUrlRef = useRef<string>("");
   const userDebounceRef = useRef<ReturnType<typeof setTimeout>>();
 
   const flushUserPreview = useCallback(() => {
     clearTimeout(userDebounceRef.current);
-    setUserSrcDoc(getHtmlDoc(code));
+    const htmlContent = getHtmlDoc(code);
+    const newUrl = createBlobUrl(htmlContent);
+    if (userUrlRef.current) URL.revokeObjectURL(userUrlRef.current);
+    userUrlRef.current = newUrl;
+    setUserPreviewUrl(newUrl);
   }, [code, getHtmlDoc]);
 
   useEffect(() => {
     clearTimeout(userDebounceRef.current);
     userDebounceRef.current = setTimeout(() => {
-      setUserSrcDoc(getHtmlDoc(code));
+      const htmlContent = getHtmlDoc(code);
+      const newUrl = createBlobUrl(htmlContent);
+      if (userUrlRef.current) URL.revokeObjectURL(userUrlRef.current);
+      userUrlRef.current = newUrl;
+      setUserPreviewUrl(newUrl);
     }, 150);
-    return () => clearTimeout(userDebounceRef.current);
   }, [code, getHtmlDoc]);
+
+  // Cleanup on unmount for user preview
+  useEffect(() => {
+    return () => {
+      if (userUrlRef.current) URL.revokeObjectURL(userUrlRef.current);
+    };
+  }, []);
 
   // Reset user preview immediately on level change
   useEffect(() => {
-    setUserSrcDoc(getHtmlDoc(currentLevel.initialCode));
+    const htmlContent = getHtmlDoc(currentLevel.initialCode);
+    const newUrl = createBlobUrl(htmlContent);
+    if (userUrlRef.current) URL.revokeObjectURL(userUrlRef.current);
+    userUrlRef.current = newUrl;
+    setUserPreviewUrl(newUrl);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [levelIndex]);
 
@@ -663,7 +696,7 @@ export default function TailwindBattle() {
               <iframe
                 key={`target-${levelIndex}-${isMobile ? "m" : "d"}`}
                 ref={isMobile ? mobileTargetIframeRef : desktopTargetIframeRef}
-                srcDoc={targetSrcDoc}
+                src={targetPreviewUrl}
                 title="Target Preview"
                 className="w-full h-full border-none pointer-events-none"
                 sandbox="allow-scripts allow-same-origin"
@@ -680,7 +713,7 @@ export default function TailwindBattle() {
               {/* userSrcDoc: debounced 150ms — fast updates without thrashing */}
               <iframe
                 ref={isMobile ? mobileUserIframeRef : desktopUserIframeRef}
-                srcDoc={userSrcDoc}
+                src={userPreviewUrl}
                 title="User Preview"
                 className="w-full h-full border-none pointer-events-none"
                 sandbox="allow-scripts allow-same-origin"

@@ -3,23 +3,42 @@ import { UI_DETECTIVE_LEVELS, UiDetectiveLevel, BugTarget } from './uiDetectiveD
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 import confetti from 'canvas-confetti';
-const getHtmlDoc = (html: string) => `<!DOCTYPE html><html><head><script src="/tailwindcss.js"></script><style>*, *::before, *::after { box-sizing: border-box; } ::-webkit-scrollbar { display: none; } body { -ms-overflow-style: none; scrollbar-width: none; margin: 0; padding: 1rem; min-height: 100vh; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }</style></head><body>${html}</body></html>`;
+
+const TAILWIND_TAG = `<script src="${window.location.origin}/tailwindcss.js"><\/script>`;
+
+const getHtmlDoc = (html: string) => `<!DOCTYPE html><html><head>${TAILWIND_TAG}<style>*, *::before, *::after { box-sizing: border-box; } ::-webkit-scrollbar { display: none; } body { -ms-overflow-style: none; scrollbar-width: none; margin: 0; padding: 1rem; min-height: 100vh; background-color: #0f172a; color: #f8fafc; font-family: sans-serif; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }</style></head><body>${html}</body></html>`;
+
+function createBlobUrl(html: string): string {
+  const blob = new Blob([html], { type: "text/html" });
+  return URL.createObjectURL(blob);
+}
 
 // Memoized iframe to completely prevent flashing (wiping away) on re-renders
 const IframePreview = React.memo(({ html, isTarget = false }: { html: string, isTarget?: boolean }) => {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [previewUrl, setPreviewUrl] = useState("");
   
-  // Use innerHTML for live updates to avoid srcDoc reload flashes
+  useEffect(() => {
+    const docHtml = getHtmlDoc(isTarget ? html : '');
+    const url = createBlobUrl(docHtml);
+    setPreviewUrl(url);
+    return () => URL.revokeObjectURL(url);
+  }, [isTarget, isTarget ? html : null]); // only re-create blob if target html changes or isTarget changes
+
+  // For the live "suspect" panel: push html changes directly into the iframe body
+  // without reloading src (avoids flash).
   useEffect(() => {
     if (!isTarget && iframeRef.current?.contentDocument?.body) {
       iframeRef.current.contentDocument.body.innerHTML = html;
     }
   }, [html, isTarget]);
 
+  if (!previewUrl) return null;
+
   return (
     <iframe 
       ref={iframeRef}
-      srcDoc={getHtmlDoc(isTarget ? html : '')} 
+      src={previewUrl}
       className={`w-full h-full border-none pointer-events-none ${isTarget ? 'absolute inset-0' : ''}`}
       sandbox="allow-scripts allow-same-origin" 
     />
