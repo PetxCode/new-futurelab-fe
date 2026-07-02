@@ -80,7 +80,17 @@ ${html}
 };
 
 // Sub-component to safely manage Blob URLs for previews in a list
-const LivePreviewIframe = ({ html, css, index, tailwindTag }: { html: string; css: string; index: number; tailwindTag: string }) => {
+const LivePreviewIframe = ({
+  html,
+  css,
+  index,
+  tailwindTag,
+}: {
+  html: string;
+  css: string;
+  index: number;
+  tailwindTag: string;
+}) => {
   const [url, setUrl] = useState("");
 
   useEffect(() => {
@@ -116,11 +126,13 @@ const LivePreviewIframe = ({ html, css, index, tailwindTag }: { html: string; cs
   );
 };
 
-
 interface SuperTestResult {
   _id: string;
   testId: { title: string };
-  studentId: { fullName: string; email: string };
+  studentId?: { fullName: string; email: string };
+  fullName?: string;
+  className?: string;
+  schoolName?: string;
   totalScore: number;
   completedAt: string;
 }
@@ -140,11 +152,13 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [filterName, setFilterName] = useState("");
+  const [filterClass, setFilterClass] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newTestTitle, setNewTestTitle] = useState("");
   const [newTestDuration, setNewTestDuration] = useState(10);
-  const [newTestQuestions, setNewTestQuestions] = useState([
-    { targetHtml: "", targetCss: "", targetImageUrl: "" },
+  const [newTestQuestions, setNewTestQuestions] = useState<any[]>([
+    { type: "ui", targetHtml: "", targetCss: "", targetImageUrl: "" },
   ]);
 
   const fetchDashboardData = async () => {
@@ -204,12 +218,29 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
     window.print();
   };
 
-  const handleAddQuestion = () => {
-    if (newTestQuestions.length >= 4) return;
-    setNewTestQuestions([
-      ...newTestQuestions,
-      { targetHtml: "", targetCss: "", targetImageUrl: "" },
-    ]);
+  const handleAddQuestion = (type: "ui" | "cbt" = "ui") => {
+    if (newTestQuestions.length >= 10) return;
+    if (type === "cbt") {
+      setNewTestQuestions([
+        ...newTestQuestions,
+        {
+          type: "cbt",
+          questionText: "",
+          options: [
+            { label: "A", text: "" },
+            { label: "B", text: "" },
+            { label: "C", text: "" },
+            { label: "D", text: "" },
+          ],
+          correctOption: "A",
+        },
+      ]);
+    } else {
+      setNewTestQuestions([
+        ...newTestQuestions,
+        { type: "ui", targetHtml: "", targetCss: "", targetImageUrl: "" },
+      ]);
+    }
   };
 
   const handleRemoveQuestion = (index: number) => {
@@ -246,7 +277,7 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
         setNewTestTitle("");
         setNewTestDuration(10);
         setNewTestQuestions([
-          { targetHtml: "", targetCss: "", targetImageUrl: "" },
+          { type: "ui", targetHtml: "", targetCss: "", targetImageUrl: "" },
         ]);
       } else {
         alert(data.message);
@@ -327,7 +358,7 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
           </div>
 
           {/* Published Tests Table */}
-          <div className="mb-8">
+          <div className="mb-8 py-4 print:hidden">
             <h2 className="text-xl font-bold text-slate-800 mb-4 px-8">
               Published Tests
             </h2>
@@ -411,9 +442,44 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
 
           {/* Results Table */}
           <div>
-            <h2 className="text-xl font-bold text-slate-800 mb-4 px-8">
-              Student Results
-            </h2>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 px-8 gap-4 print:hidden">
+              <h2 className="text-xl font-bold text-slate-800">
+                Student Results
+              </h2>
+              
+              <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
+                <input
+                  type="text"
+                  placeholder="Filter by Name..."
+                  value={filterName}
+                  onChange={(e) => setFilterName(e.target.value)}
+                  className="bg-white border border-slate-300 rounded-lg px-4 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-48"
+                />
+                <input
+                  type="text"
+                  placeholder="Filter by Class..."
+                  value={filterClass}
+                  onChange={(e) => setFilterClass(e.target.value)}
+                  className="bg-white border border-slate-300 rounded-lg px-4 py-2 text-sm text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full md:w-40"
+                />
+                <button
+                  onClick={() => window.print()}
+                  className="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg text-sm flex items-center gap-2 shadow-sm transition"
+                >
+                  🖨️ Print Results
+                </button>
+              </div>
+            </div>
+
+            <div className="hidden print:block mb-6 px-8">
+              <h2 className="text-2xl font-bold text-slate-800">Student Results Report</h2>
+              <p className="text-sm text-slate-500">
+                {filterName && `Filtered by Name: "${filterName}" | `}
+                {filterClass && `Filtered by Class: "${filterClass}" | `}
+                Generated on {new Date().toLocaleString()}
+              </p>
+            </div>
+
             {loading ? (
               <div className="p-8 text-center text-slate-500">
                 Loading dashboard data...
@@ -431,76 +497,129 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                   scores will appear here.
                 </p>
               </div>
-            ) : (
-              <div className="mx-8 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm print:shadow-none print:border-none print:mx-0">
-                <table className="w-full text-left border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 print:bg-transparent">
-                      <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                        Student Name
-                      </th>
-                      <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                        Email
-                      </th>
-                      <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                        Test Title
-                      </th>
-                      <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                        Score
-                      </th>
-                      <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                        Completed At
-                      </th>
-                      <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider print:hidden">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {results.map((result) => (
-                      <tr
-                        key={result._id}
-                        className="hover:bg-slate-50 print:hover:bg-transparent"
-                      >
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800">
-                          {result.studentId?.fullName}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                          {result.studentId?.email}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                          {result.testId?.title || "Unknown Test"}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                              result.totalScore >= 80
-                                ? "bg-emerald-100 text-emerald-800"
-                                : result.totalScore >= 50
-                                  ? "bg-amber-100 text-amber-800"
-                                  : "bg-rose-100 text-rose-800"
-                            } print:border print:border-gray-300 print:bg-transparent print:text-black`}
-                          >
-                            {result.totalScore}%
-                          </span>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
-                          {new Date(result.completedAt).toLocaleString()}
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium print:hidden">
-                          <button
-                            onClick={() => handleClearResult(result._id)}
-                            className="text-rose-600 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 px-3 py-1 rounded transition-colors"
-                          >
-                            Clear & Retake
-                          </button>
-                        </td>
+            ) : (() => {
+              const filtered = results.filter((result) => {
+                const nameStr = (result.fullName || result.studentId?.fullName || "").toLowerCase();
+                const classStr = (result.className || "").toLowerCase();
+                return nameStr.includes(filterName.toLowerCase()) && classStr.includes(filterClass.toLowerCase());
+              });
+
+              if (filtered.length === 0) {
+                return (
+                  <div className="text-center py-12 px-8 text-slate-500">
+                    No results match your filter criteria.
+                  </div>
+                );
+              }
+
+              return (
+                <div className="mx-8 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm print:shadow-none print:border-none print:mx-0">
+                  <table className="w-full text-left border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50 border-b border-slate-200 print:bg-transparent">
+                        <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                          Student Name
+                        </th>
+                        <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                          Class
+                        </th>
+                        <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                          School
+                        </th>
+                        <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                          Email/ID
+                        </th>
+                        <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                          Test Title
+                        </th>
+                        <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                          Score
+                        </th>
+                        <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                          Completed At
+                        </th>
+                        <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider print:hidden">
+                          Actions
+                        </th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+                    </thead>
+                    <tbody className="divide-y divide-slate-200">
+                      {filtered.map((result) => (
+                        <tr
+                          key={result._id}
+                          className="hover:bg-slate-50 print:hover:bg-transparent"
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-slate-800">
+                            {result.fullName || result.studentId?.fullName}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                            {result.className || "N/A"}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
+                            {result.schoolName || "N/A"}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                            {result.studentId?.email || "Guest User"}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                            {result.testId?.title || "Unknown Test"}
+                          </td>
+                          <td className="px-6 py-4">
+                            <span
+                              className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium mb-1 ${
+                                result.totalScore >= 80
+                                  ? "bg-emerald-100 text-emerald-800"
+                                  : result.totalScore >= 50
+                                    ? "bg-amber-100 text-amber-800"
+                                    : "bg-rose-100 text-rose-800"
+                              } print:border print:border-gray-300 print:bg-transparent print:text-black`}
+                            >
+                              {result.totalScore}% avg
+                            </span>
+                            {/* Per-question breakdown */}
+                            {result.responses && result.responses.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {result.responses.map((resp: any, ri: number) => (
+                                  <span
+                                    key={ri}
+                                    title={
+                                      resp.questionType === "cbt"
+                                        ? `Q${ri + 1} CBT: Selected ${resp.selectedOption || "none"} | Score: ${resp.score}%`
+                                        : `Q${ri + 1} UI: Match ${resp.score}%`
+                                    }
+                                    className={`text-[10px] font-bold px-1.5 py-0.5 rounded border ${
+                                      resp.score >= 80
+                                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                        : resp.score >= 50
+                                        ? "bg-amber-50 text-amber-700 border-amber-200"
+                                        : "bg-rose-50 text-rose-700 border-rose-200"
+                                    }`}
+                                  >
+                                    {resp.questionType === "cbt" ? "📝" : "🎨"} Q{ri + 1}: {resp.score}%
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
+                            {new Date(result.completedAt).toLocaleString()}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm font-medium print:hidden">
+                            <button
+                              onClick={() => handleClearResult(result._id)}
+                              className="text-rose-600 hover:text-rose-900 bg-rose-50 hover:bg-rose-100 px-3 py-1 rounded transition-colors"
+                            >
+                              Clear & Retake
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+
+                  </table>
+                </div>
+              );
+            })()}
           </div>
         </div>
 
@@ -571,16 +690,26 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                 <div className="space-y-6">
                   <div className="flex items-center justify-between border-b border-slate-700 pb-2">
                     <h3 className="text-lg font-semibold text-slate-200">
-                      Questions ({newTestQuestions.length}/4)
+                      Questions ({newTestQuestions.length}/10)
                     </h3>
-                    <button
-                      type="button"
-                      onClick={handleAddQuestion}
-                      disabled={newTestQuestions.length >= 4}
-                      className="text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-500 disabled:bg-slate-600 disabled:cursor-not-allowed px-4 py-2 rounded-lg transition-all shadow-md"
-                    >
-                      + Add Question
-                    </button>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleAddQuestion("ui")}
+                        disabled={newTestQuestions.length >= 10}
+                        className="text-sm font-bold bg-indigo-600 text-white hover:bg-indigo-500 disabled:bg-slate-600 disabled:cursor-not-allowed px-3 py-2 rounded-lg transition-all shadow-md flex items-center gap-1.5"
+                      >
+                        🎨 + UI Question
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleAddQuestion("cbt")}
+                        disabled={newTestQuestions.length >= 10}
+                        className="text-sm font-bold bg-emerald-600 text-white hover:bg-emerald-500 disabled:bg-slate-600 disabled:cursor-not-allowed px-3 py-2 rounded-lg transition-all shadow-md flex items-center gap-1.5"
+                      >
+                        📝 + CBT Question
+                      </button>
+                    </div>
                   </div>
 
                   {newTestQuestions.map((q, i) => (
@@ -600,92 +729,150 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                       <h4 className="font-bold text-slate-200 flex items-center gap-2">
                         <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center">
                           {i + 1}
-                        </span>{" "}
-                        Question {i + 1}
+                        </span>
+                        {q.type === "cbt" ? "📝 CBT Question" : "🎨 UI Detective Question"} {i + 1}
                       </h4>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        {/* HTML Monaco Editor */}
-                        <div>
-                          <div className="flex items-center gap-2 mb-1.5">
-                            <span className="text-lg">🟧</span>
-                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                              Target HTML
-                            </label>
-                            <span className="ml-auto text-[10px] text-slate-600 font-mono">
-                              html
-                            </span>
-                          </div>
-                          <div
-                            className="rounded-lg overflow-hidden border border-slate-700 shadow-lg"
-                            style={{ height: 160 }}
-                          >
-                            <MonacoEditor
-                              height="100%"
-                              language="html"
-                              value={q.targetHtml}
-                              onChange={(val) =>
-                                updateQuestion(i, "targetHtml", val ?? "")
-                              }
-                              theme="futurelab-dark"
-                              beforeMount={defineMonacoTheme}
-                              options={MONACO_OPTIONS}
+                      {q.type === "cbt" ? (
+                        /* CBT Question Form */
+                        <div className="space-y-4">
+                          <div>
+                            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Question Text</label>
+                            <textarea
+                              required
+                              rows={3}
+                              value={q.questionText || ""}
+                              onChange={(e) => updateQuestion(i, "questionText", e.target.value)}
+                              placeholder="e.g., What is the correct HTML tag for a paragraph?"
+                              className="w-full bg-[#090e1a] border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 placeholder:text-slate-600 resize-none"
                             />
                           </div>
-                        </div>
-                        {/* CSS Monaco Editor */}
-                        <div>
-                          <div className="flex items-center gap-2 mb-1.5">
-                            <span className="text-lg">🟦</span>
-                            <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
-                              Target CSS
-                            </label>
-                            <span className="ml-auto text-[10px] text-slate-600 font-mono">
-                              css
-                            </span>
+                          <div className="space-y-2">
+                            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest">Options (A – D)</label>
+                            {(q.options || [{label:"A",text:""},{label:"B",text:""},{label:"C",text:""},{label:"D",text:""}]).map((opt: any) => (
+                              <div key={opt.label} className="flex items-center gap-3">
+                                <span className={`flex-shrink-0 w-7 h-7 rounded-full text-xs font-black flex items-center justify-center border-2 ${
+                                  q.correctOption === opt.label
+                                    ? "bg-emerald-500 border-emerald-400 text-white"
+                                    : "border-slate-600 text-slate-400"
+                                }`}>{opt.label}</span>
+                                <input
+                                  type="text"
+                                  required
+                                  value={opt.text}
+                                  onChange={(e) => {
+                                    const updated = [...newTestQuestions];
+                                    const opts = [...(updated[i].options || [])];
+                                    const optIdx = opts.findIndex((o: any) => o.label === opt.label);
+                                    if (optIdx >= 0) opts[optIdx] = { ...opts[optIdx], text: e.target.value };
+                                    updated[i] = { ...updated[i], options: opts };
+                                    setNewTestQuestions(updated);
+                                  }}
+                                  placeholder={`Option ${opt.label}`}
+                                  className="flex-1 bg-[#090e1a] border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 placeholder:text-slate-600 text-sm"
+                                />
+                              </div>
+                            ))}
                           </div>
-                          <div
-                            className="rounded-lg overflow-hidden border border-slate-700 shadow-lg"
-                            style={{ height: 160 }}
-                          >
-                            <MonacoEditor
-                              height="100%"
-                              language="css"
-                              value={q.targetCss}
-                              onChange={(val) =>
-                                updateQuestion(i, "targetCss", val ?? "")
+                          <div>
+                            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-1.5">Correct Answer</label>
+                            <select
+                              value={q.correctOption || "A"}
+                              onChange={(e) => updateQuestion(i, "correctOption", e.target.value)}
+                              className="bg-[#090e1a] border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                            >
+                              {["A", "B", "C", "D"].map((l) => (
+                                <option key={l} value={l}>Option {l}</option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      ) : (
+                        /* UI Detective Question Form */
+                        <div className="space-y-4">
+                          <div className="grid grid-cols-2 gap-4">
+                            {/* HTML Monaco Editor */}
+                            <div>
+                              <div className="flex items-center gap-2 mb-1.5">
+                                <span className="text-lg">🟧</span>
+                                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                  Target HTML
+                                </label>
+                              </div>
+                              <div
+                                className="rounded-lg overflow-hidden border border-slate-700 shadow-lg"
+                                style={{ height: 160 }}
+                              >
+                                <MonacoEditor
+                                  height="100%"
+                                  language="html"
+                                  value={q.targetHtml}
+                                  onChange={(val) =>
+                                    updateQuestion(i, "targetHtml", val ?? "")
+                                  }
+                                  theme="futurelab-dark"
+                                  beforeMount={defineMonacoTheme}
+                                  options={MONACO_OPTIONS}
+                                />
+                              </div>
+                            </div>
+                            {/* CSS Monaco Editor */}
+                            <div>
+                              <div className="flex items-center gap-2 mb-1.5">
+                                <span className="text-lg">🟦</span>
+                                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+                                  Target CSS
+                                </label>
+                              </div>
+                              <div
+                                className="rounded-lg overflow-hidden border border-slate-700 shadow-lg"
+                                style={{ height: 160 }}
+                              >
+                                <MonacoEditor
+                                  height="100%"
+                                  language="css"
+                                  value={q.targetCss}
+                                  onChange={(val) =>
+                                    updateQuestion(i, "targetCss", val ?? "")
+                                  }
+                                  theme="futurelab-dark"
+                                  beforeMount={defineMonacoTheme}
+                                  options={MONACO_OPTIONS}
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-medium text-slate-500 mb-1 bg-[#0D1423]">
+                              Reference Image URL (Optional)
+                            </label>
+                            <input
+                              type="url"
+                              value={q.targetImageUrl}
+                              onChange={(e) =>
+                                updateQuestion(i, "targetImageUrl", e.target.value)
                               }
-                              theme="futurelab-dark"
-                              beforeMount={defineMonacoTheme}
-                              options={MONACO_OPTIONS}
+                              className="w-full border border-slate-300 rounded px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                              placeholder="https://example.com/reference.png"
                             />
                           </div>
-                        </div>
-                      </div>
-                      <div>
-                        <label className="block text-xs font-medium text-slate-500 mb-1 bg-[#0D1423]">
-                          Reference Image URL (Optional)
-                        </label>
-                        <input
-                          type="url"
-                          value={q.targetImageUrl}
-                          onChange={(e) =>
-                            updateQuestion(i, "targetImageUrl", e.target.value)
-                          }
-                          className="w-full border border-slate-300 rounded px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                          placeholder="https://example.com/reference.png"
-                        />
-                      </div>
 
-                      {/* Live Preview */}
-                      <div className="pt-2 border-t border-slate-700">
-                        <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
-                          🖥 Live Target Preview
-                        </label>
-                        <div className="w-[400px] h-[300px] rounded-lg border border-slate-300 overflow-hidden shadow-sm bg-white mx-auto relative">
-                          <LivePreviewIframe html={q.targetHtml} css={q.targetCss} index={i + 1} tailwindTag={tailwindScriptTag} />
+                          {/* Live Preview */}
+                          <div className="pt-2 border-t border-slate-700">
+                            <label className="block text-xs font-bold text-slate-400 uppercase tracking-widest mb-2">
+                              🖥 Live Target Preview
+                            </label>
+                            <div className="w-[400px] h-[300px] rounded-lg border border-slate-300 overflow-hidden shadow-sm bg-white mx-auto relative">
+                              <LivePreviewIframe
+                                html={q.targetHtml}
+                                css={q.targetCss}
+                                index={i + 1}
+                                tailwindTag={tailwindScriptTag}
+                              />
+                            </div>
+                          </div>
                         </div>
-                      </div>
+                      )}
                     </div>
                   ))}
                 </div>

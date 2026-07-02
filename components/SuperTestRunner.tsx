@@ -11,14 +11,24 @@ function createBlobUrl(html: string): string {
 }
 
 interface SuperTestQuestion {
+  _id?: string;
+  type?: "ui" | "cbt";
+  // UI fields
   targetHtml: string;
   targetCss: string;
   targetImageUrl?: string;
+  // CBT fields
+  questionText?: string;
+  options?: { label: string; text: string }[];
+  correctOption?: string;
 }
 
 interface SuperTestRunnerProps {
   testId: string;
-  studentId?: string; // Needed for checking existing results
+  studentId?: string;
+  fullName: string;
+  classNameProp: string;
+  schoolName: string;
   questions: SuperTestQuestion[];
   durationMinutes: number;
   onBack: () => void;
@@ -47,6 +57,9 @@ ${html}
 const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
   testId,
   studentId,
+  fullName,
+  classNameProp,
+  schoolName,
   questions,
   durationMinutes,
   onBack,
@@ -57,9 +70,10 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
   const [isCompleted, setIsCompleted] = useState(false);
   const [checkLoading, setCheckLoading] = useState(true);
 
-  // Storage Keys
-  const draftKey = `supertest_draft_${testId}_${studentId || 'guest'}`;
-  const endTimerKey = `supertest_endtimer_${testId}_${studentId || 'guest'}`;
+  // Unique identifier for local storage draft and timer based on name and class
+  const userSlug = `${fullName.trim().toLowerCase().replace(/[^a-z0-9]/g, "_")}_${classNameProp.trim().toLowerCase().replace(/[^a-z0-9]/g, "_")}`;
+  const draftKey = `supertest_draft_${testId}_${userSlug}`;
+  const endTimerKey = `supertest_endtimer_${testId}_${userSlug}`;
 
   // Initialize responses from LocalStorage or Default
   const [responses, setResponses] = useState(() => {
@@ -69,7 +83,12 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
     } catch (e) {
       console.error("Failed to parse saved drafts");
     }
-    return questions.map(() => ({ html: '<div class="w-32 h-32 bg-blue-500"></div>', css: "/* Custom CSS here */\nbody { margin: 0; }", score: 0 }));
+    return questions.map((q) => {
+      if (q.type === "cbt") {
+        return { type: "cbt", selectedOption: "", score: 0 };
+      }
+      return { type: "ui", html: '<div class="w-32 h-32 bg-blue-500"></div>', css: "/* Custom CSS here */\nbody { margin: 0; }", score: 0 };
+    });
   });
 
   const currentResponse = responses[currentQIndex];
@@ -88,17 +107,26 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
   const targetCanvasRef = useRef<HTMLCanvasElement>(null);
   const outputCanvasRef = useRef<HTMLCanvasElement>(null);
 
-  // Check if already taken
+  // Check if already taken based on details
   useEffect(() => {
     const checkTaken = async () => {
-      if (!studentId) {
+      if (!fullName || !classNameProp) {
         setCheckLoading(false);
         return;
       }
       try {
-        const res = await fetch(`${API_BASE_URL}/api/super-test/check/${testId}/${studentId}`);
+        const res = await fetch(`${API_BASE_URL}/api/super-test/check-details`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            testId,
+            fullName,
+            className: classNameProp,
+            schoolName,
+          }),
+        });
         const data = await res.json();
-        if (data.success && data.completed) {
+        if (data.success && data.exists) {
           setIsCompleted(true);
         }
       } catch (err) {
@@ -108,7 +136,7 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
       }
     };
     checkTaken();
-  }, [testId, studentId]);
+  }, [testId, fullName, classNameProp, schoolName]);
 
   // Timer Initialization & Logic
   useEffect(() => {
@@ -170,7 +198,15 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
     setResponses((prev: any) => {
       const newResp = [...prev];
       newResp[currentQIndex] = { ...newResp[currentQIndex], [field]: value };
-      // Save to persistence
+      localStorage.setItem(draftKey, JSON.stringify(newResp));
+      return newResp;
+    });
+  };
+
+  const updateCbtResponse = (selectedOption: string) => {
+    setResponses((prev: any) => {
+      const newResp = [...prev];
+      newResp[currentQIndex] = { ...newResp[currentQIndex], selectedOption };
       localStorage.setItem(draftKey, JSON.stringify(newResp));
       return newResp;
     });
@@ -232,16 +268,24 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
   };
 
   const handleFinalSubmit = () => {
-    // Clear persistence
     localStorage.removeItem(draftKey);
     localStorage.removeItem(endTimerKey);
 
-    const formattedResponses = responses.map((r: any, i: number) => ({
-      questionIndex: i,
-      submittedHtml: r.html,
-      submittedCss: r.css,
-      score: r.score,
-    }));
+    const formattedResponses = responses.map((r: any, i: number) => {
+      const q = questions[i];
+      const isCbt = q?.type === "cbt";
+      const cbtScore = isCbt
+        ? (r.selectedOption && r.selectedOption === q.correctOption ? 100 : 0)
+        : r.score;
+      return {
+        questionIndex: i,
+        questionType: isCbt ? "cbt" : "ui",
+        submittedHtml: r.html || "",
+        submittedCss: r.css || "",
+        selectedOption: r.selectedOption || "",
+        score: cbtScore,
+      };
+    });
     onSubmit(formattedResponses);
   };
 
@@ -309,33 +353,49 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
           <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Time Remaining</span>
         </div>
 
-        {/* Score bar for current question */}
-        <div className="flex flex-col items-center gap-1">
-          <span className={`text-sm font-black ${scoreColor}`}>
-            Q{currentQIndex + 1} Match: {currentResponse?.score || 0}%
-          </span>
-          <div className="w-32 h-1.5 bg-slate-700 rounded-full overflow-hidden">
-            <div
-              className={`h-full rounded-full transition-all duration-700 ${
-                currentResponse?.score >= 80
-                  ? "bg-emerald-400"
-                  : currentResponse?.score >= 50
-                  ? "bg-amber-400"
-                  : "bg-rose-400"
-              }`}
-              style={{ width: `${currentResponse?.score || 0}%` }}
-            />
+        {/* Score / Status bar for current question */}
+        {currentQuestion?.type === "cbt" ? (
+          <div className="flex flex-col items-center gap-1">
+            <span className={`text-sm font-black ${currentResponse?.selectedOption ? "text-emerald-400" : "text-slate-400"}`}>
+              Q{currentQIndex + 1}: {currentResponse?.selectedOption ? `Option ${currentResponse.selectedOption} Selected ✓` : "No option selected"}
+            </span>
+            <div className="w-32 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-700 ${currentResponse?.selectedOption ? "bg-emerald-400" : "bg-slate-600"}`}
+                style={{ width: currentResponse?.selectedOption ? "100%" : "0%" }}
+              />
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="flex flex-col items-center gap-1">
+            <span className={`text-sm font-black ${scoreColor}`}>
+              Q{currentQIndex + 1} Match: {currentResponse?.score || 0}%
+            </span>
+            <div className="w-32 h-1.5 bg-slate-700 rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-700 ${
+                  currentResponse?.score >= 80
+                    ? "bg-emerald-400"
+                    : currentResponse?.score >= 50
+                    ? "bg-amber-400"
+                    : "bg-rose-400"
+                }`}
+                style={{ width: `${currentResponse?.score || 0}%` }}
+              />
+            </div>
+          </div>
+        )}
 
         <div className="flex gap-2">
-          <button
-            onClick={calculateScore}
-            disabled={isChecking}
-            className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-lg font-bold text-sm transition"
-          >
-            {isChecking ? "Checking…" : "⚡ Check Q"}
-          </button>
+          {currentQuestion?.type !== "cbt" && (
+            <button
+              onClick={calculateScore}
+              disabled={isChecking}
+              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-lg font-bold text-sm transition"
+            >
+              {isChecking ? "Checking…" : "⚡ Check Q"}
+            </button>
+          )}
           <button
             onClick={handleFinalSubmit}
             className="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 rounded-lg font-bold text-sm transition"
@@ -347,149 +407,211 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
 
       {/* Question Navigation */}
       {questions.length > 1 && (
-        <div className="flex bg-[#0b101a] border-b border-slate-800 shrink-0 p-2 gap-2 justify-center">
-          {questions.map((_, idx) => (
+        <div className="flex bg-[#0b101a] border-b border-slate-800 shrink-0 p-2 gap-2 justify-center flex-wrap">
+          {questions.map((q, idx) => (
             <button
               key={idx}
               onClick={() => setCurrentQIndex(idx)}
-              className={`px-4 py-1.5 rounded text-sm font-bold transition ${
+              className={`px-4 py-1.5 rounded text-sm font-bold transition flex items-center gap-1.5 ${
                 currentQIndex === idx
                   ? "bg-indigo-600 text-white"
                   : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white"
               }`}
             >
-              Question {idx + 1}
+              {q.type === "cbt" ? "📝" : "🎨"} Q{idx + 1}
             </button>
           ))}
         </div>
       )}
 
-      <div className="flex flex-1 overflow-hidden">
-        {/* ── Editor Pane ── */}
-        <div className="w-1/2 flex flex-col border-r border-slate-800">
-          {/* Tabs */}
-          <div className="flex bg-[#0d1424] border-b border-slate-800 shrink-0">
-            {(["html", "css"] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => setActiveTab(tab)}
-                className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest transition relative ${
-                  activeTab === tab
-                    ? "bg-[#090e1a] text-white"
-                    : "text-slate-500 hover:text-slate-300"
-                }`}
-              >
-                {activeTab === tab && (
-                  <span className="absolute top-0 inset-x-0 h-0.5 bg-indigo-500 rounded-b" />
-                )}
-                {tab === "html" ? "🟧 HTML" : "🟦 CSS"}
-              </button>
-            ))}
-          </div>
-          {/* Monaco */}
-          <div className="flex-1 overflow-hidden">
-            <Editor
-              height="100%"
-              language={activeTab}
-              value={activeTab === "html" ? currentResponse?.html : currentResponse?.css}
-              onChange={(val) => updateResponse(activeTab, val || "")}
-              theme="vs-dark"
-              options={{
-                minimap: { enabled: false },
-                fontSize: 14,
-                fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
-                fontLigatures: true,
-                scrollBeyondLastLine: false,
-                wordWrap: "on",
-                padding: { top: 12, bottom: 12 },
-              }}
-            />
-          </div>
-        </div>
-
-        {/* ── Preview Pane ── */}
-        <div className="w-1/2 flex flex-col bg-slate-900 overflow-y-auto">
-          {/* Target */}
-          <div className="p-4 border-b border-slate-800 flex justify-center items-center flex-col">
-            <div className="flex w-full items-center gap-2 mb-3 max-w-[400px]">
-              <span className="w-2 h-2 rounded-full bg-indigo-400" />
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
-                Target UI (Q{currentQIndex + 1})
-              </h3>
-              <span className="ml-auto text-[10px] text-slate-600 font-mono">
-                Match this exactly
-              </span>
-            </div>
-            <div className="w-[400px] h-[300px] shrink-0 rounded-lg border border-slate-700 overflow-hidden shadow-lg bg-white">
-              <iframe
-                ref={targetIframeRef}
-                src={targetPreviewUrl}
-                title="Target UI"
-                className="w-full h-full border-none"
-                sandbox="allow-scripts allow-same-origin"
-              />
-            </div>
-          </div>
-
-          {/* Student output */}
-          <div className="p-4 flex justify-center items-center flex-col">
-            <div className="flex w-full items-center gap-2 mb-3 max-w-[400px]">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
-                Your Live Output
-              </h3>
-            </div>
-            <div className="w-[400px] h-[300px] shrink-0 rounded-lg border border-slate-700 overflow-hidden shadow-lg bg-white relative">
-              <iframe
-                ref={studentIframeRef}
-                src={studentPreviewUrl}
-                title="Live Preview"
-                className="w-full h-full border-none pointer-events-none"
-                sandbox="allow-scripts allow-same-origin"
-              />
-            </div>
-          </div>
-
-          {/* Hidden canvases for pixelmatch diff */}
-          <canvas ref={targetCanvasRef} style={{ display: "none" }} width={400} height={300} />
-          <canvas ref={outputCanvasRef} style={{ display: "none" }} width={400} height={300} />
-
-          {/* Reference Image URL */}
-          <div className="p-4 border-t border-slate-800">
-            <div className="flex items-center gap-2 mb-2 max-w-[400px] mx-auto">
-              <span className="w-2 h-2 rounded-full bg-slate-500" />
-              <h3 className="text-xs font-black uppercase tracking-widest text-slate-500">
-                Reference Image
-              </h3>
-            </div>
-            <div className="max-w-[400px] mx-auto w-full">
-            {currentQuestion?.targetImageUrl ? (
-              <div className="space-y-2">
-                <img
-                  src={currentQuestion.targetImageUrl}
-                  alt="Reference"
-                  className="w-full rounded-lg border border-slate-700 shadow"
-                />
-                <div className="flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-2 border border-slate-700">
-                  <svg className="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                  </svg>
-                  <span className="text-xs text-slate-400 font-mono truncate flex-1">{currentQuestion.targetImageUrl}</span>
-                  <button
-                    onClick={() => navigator.clipboard.writeText(currentQuestion.targetImageUrl!)}
-                    className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold shrink-0 transition"
-                  >
-                    Copy
-                  </button>
-                </div>
+      {currentQuestion?.type === "cbt" ? (
+        /* ── CBT Multiple Choice Card ── */
+        <div className="flex-1 overflow-y-auto flex items-start justify-center p-8 bg-[#090e1a]">
+          <div className="w-full max-w-2xl space-y-6">
+            {/* Question Text */}
+            <div className="bg-[#0d1424] border border-slate-700 rounded-2xl p-6 shadow-xl">
+              <div className="flex items-start gap-4">
+                <span className="flex-shrink-0 w-8 h-8 rounded-full bg-indigo-600 text-white text-sm font-black flex items-center justify-center">
+                  {currentQIndex + 1}
+                </span>
+                <p className="text-lg font-semibold text-slate-100 leading-relaxed flex-1">
+                  {currentQuestion.questionText || "No question text provided."}
+                </p>
               </div>
-            ) : (
-              <p className="text-xs text-slate-600 italic">No reference image provided for this challenge.</p>
-            )}
+            </div>
+
+            {/* Options */}
+            <div className="space-y-3">
+              {(currentQuestion.options || []).map((opt) => {
+                const isSelected = currentResponse?.selectedOption === opt.label;
+                return (
+                  <button
+                    key={opt.label}
+                    onClick={() => updateCbtResponse(opt.label)}
+                    className={`w-full text-left flex items-center gap-4 px-5 py-4 rounded-xl border-2 transition-all duration-200 group ${
+                      isSelected
+                        ? "bg-indigo-600/20 border-indigo-500 shadow-lg shadow-indigo-500/10"
+                        : "bg-[#0d1424] border-slate-700 hover:border-slate-500 hover:bg-slate-800/40"
+                    }`}
+                  >
+                    <span
+                      className={`flex-shrink-0 w-8 h-8 rounded-full border-2 font-black text-sm flex items-center justify-center transition-colors ${
+                        isSelected
+                          ? "bg-indigo-500 border-indigo-400 text-white"
+                          : "border-slate-600 text-slate-400 group-hover:border-slate-400"
+                      }`}
+                    >
+                      {opt.label}
+                    </span>
+                    <span className={`text-base font-medium leading-snug ${isSelected ? "text-white" : "text-slate-300"}`}>
+                      {opt.text}
+                    </span>
+                    {isSelected && (
+                      <span className="ml-auto text-indigo-400 font-black text-lg">✓</span>
+                    )}
+                  </button>
+                );
+              })}
+              {(!currentQuestion.options || currentQuestion.options.length === 0) && (
+                <p className="text-center text-slate-500 py-8 italic">No options configured for this question.</p>
+              )}
+            </div>
+
+            {/* Hint */}
+            <p className="text-center text-xs text-slate-600 italic">
+              Select one option. Your choice is auto-saved. Navigate between questions using the tabs above.
+            </p>
+          </div>
+        </div>
+      ) : (
+        /* ── UI Detective Coding Pane ── */
+        <div className="flex flex-1 overflow-hidden">
+          {/* ── Editor Pane ── */}
+          <div className="w-1/2 flex flex-col border-r border-slate-800">
+            {/* Tabs */}
+            <div className="flex bg-[#0d1424] border-b border-slate-800 shrink-0">
+              {(["html", "css"] as const).map((tab) => (
+                <button
+                  key={tab}
+                  onClick={() => setActiveTab(tab)}
+                  className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest transition relative ${
+                    activeTab === tab
+                      ? "bg-[#090e1a] text-white"
+                      : "text-slate-500 hover:text-slate-300"
+                  }`}
+                >
+                  {activeTab === tab && (
+                    <span className="absolute top-0 inset-x-0 h-0.5 bg-indigo-500 rounded-b" />
+                  )}
+                  {tab === "html" ? "🟧 HTML" : "🟦 CSS"}
+                </button>
+              ))}
+            </div>
+            {/* Monaco */}
+            <div className="flex-1 overflow-hidden">
+              <Editor
+                height="100%"
+                language={activeTab}
+                value={activeTab === "html" ? currentResponse?.html : currentResponse?.css}
+                onChange={(val) => updateResponse(activeTab, val || "")}
+                theme="vs-dark"
+                options={{
+                  minimap: { enabled: false },
+                  fontSize: 14,
+                  fontFamily: "'Fira Code', 'JetBrains Mono', monospace",
+                  fontLigatures: true,
+                  scrollBeyondLastLine: false,
+                  wordWrap: "on",
+                  padding: { top: 12, bottom: 12 },
+                }}
+              />
+            </div>
+          </div>
+
+          {/* ── Preview Pane ── */}
+          <div className="w-1/2 flex flex-col bg-slate-900 overflow-y-auto">
+            {/* Target */}
+            <div className="p-4 border-b border-slate-800 flex justify-center items-center flex-col">
+              <div className="flex w-full items-center gap-2 mb-3 max-w-[400px]">
+                <span className="w-2 h-2 rounded-full bg-indigo-400" />
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
+                  Target UI (Q{currentQIndex + 1})
+                </h3>
+                <span className="ml-auto text-[10px] text-slate-600 font-mono">
+                  Match this exactly
+                </span>
+              </div>
+              <div className="w-[400px] h-[300px] shrink-0 rounded-lg border border-slate-700 overflow-hidden shadow-lg bg-white">
+                <iframe
+                  ref={targetIframeRef}
+                  src={targetPreviewUrl}
+                  title="Target UI"
+                  className="w-full h-full border-none"
+                  sandbox="allow-scripts allow-same-origin"
+                />
+              </div>
+            </div>
+
+            {/* Student output */}
+            <div className="p-4 flex justify-center items-center flex-col">
+              <div className="flex w-full items-center gap-2 mb-3 max-w-[400px]">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">
+                  Your Live Output
+                </h3>
+              </div>
+              <div className="w-[400px] h-[300px] shrink-0 rounded-lg border border-slate-700 overflow-hidden shadow-lg bg-white relative">
+                <iframe
+                  ref={studentIframeRef}
+                  src={studentPreviewUrl}
+                  title="Live Preview"
+                  className="w-full h-full border-none pointer-events-none"
+                  sandbox="allow-scripts allow-same-origin"
+                />
+              </div>
+            </div>
+
+            {/* Hidden canvases for pixelmatch diff */}
+            <canvas ref={targetCanvasRef} style={{ display: "none" }} width={400} height={300} />
+            <canvas ref={outputCanvasRef} style={{ display: "none" }} width={400} height={300} />
+
+            {/* Reference Image URL */}
+            <div className="p-4 border-t border-slate-800">
+              <div className="flex items-center gap-2 mb-2 max-w-[400px] mx-auto">
+                <span className="w-2 h-2 rounded-full bg-slate-500" />
+                <h3 className="text-xs font-black uppercase tracking-widest text-slate-500">
+                  Reference Image
+                </h3>
+              </div>
+              <div className="max-w-[400px] mx-auto w-full">
+              {currentQuestion?.targetImageUrl ? (
+                <div className="space-y-2">
+                  <img
+                    src={currentQuestion.targetImageUrl}
+                    alt="Reference"
+                    className="w-full rounded-lg border border-slate-700 shadow"
+                  />
+                  <div className="flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-2 border border-slate-700">
+                    <svg className="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                    <span className="text-xs text-slate-400 font-mono truncate flex-1">{currentQuestion.targetImageUrl}</span>
+                    <button
+                      onClick={() => navigator.clipboard.writeText(currentQuestion.targetImageUrl!)}
+                      className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold shrink-0 transition"
+                    >
+                      Copy
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <p className="text-xs text-slate-600 italic">No reference image provided for this challenge.</p>
+              )}
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
