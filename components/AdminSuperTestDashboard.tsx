@@ -152,13 +152,14 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTestId, setEditingTestId] = useState<string | null>(null);
   const [filterName, setFilterName] = useState("");
   const [filterClass, setFilterClass] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newTestTitle, setNewTestTitle] = useState("");
   const [newTestDuration, setNewTestDuration] = useState(10);
   const [newTestQuestions, setNewTestQuestions] = useState<any[]>([
-    { type: "ui", targetHtml: "", targetCss: "", targetImageUrl: "" },
+    { type: "ui", targetHtml: "", targetCss: "", targetImageUrl: "", tailwindClue: "" },
   ]);
 
   const fetchDashboardData = async () => {
@@ -238,7 +239,7 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
     } else {
       setNewTestQuestions([
         ...newTestQuestions,
-        { type: "ui", targetHtml: "", targetCss: "", targetImageUrl: "" },
+        { type: "ui", targetHtml: "", targetCss: "", targetImageUrl: "", tailwindClue: "" },
       ]);
     }
   };
@@ -246,6 +247,17 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
   const handleRemoveQuestion = (index: number) => {
     if (newTestQuestions.length <= 1) return;
     setNewTestQuestions(newTestQuestions.filter((_, i) => i !== index));
+  };
+
+  const handleDuplicateQuestion = (index: number) => {
+    if (newTestQuestions.length >= 10) {
+      alert("Maximum of 10 questions allowed.");
+      return;
+    }
+    const duplicatedQuestion = JSON.parse(JSON.stringify(newTestQuestions[index]));
+    const updated = [...newTestQuestions];
+    updated.splice(index + 1, 0, duplicatedQuestion);
+    setNewTestQuestions(updated);
   };
 
   const updateQuestion = (index: number, field: string, value: string) => {
@@ -258,8 +270,13 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/api/super-test`, {
-        method: "POST",
+      const url = editingTestId
+        ? `${API_BASE_URL}/api/super-test/${editingTestId}`
+        : `${API_BASE_URL}/api/super-test`;
+      const method = editingTestId ? "PUT" : "POST";
+
+      const res = await fetch(url, {
+        method: method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           title: newTestTitle,
@@ -270,21 +287,26 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
       });
       const data = await res.json();
       if (data.success) {
-        alert("Test created successfully! Students can now access it.");
+        alert(
+          editingTestId
+            ? "Test updated successfully!"
+            : "Test created successfully! Students can now access it."
+        );
         setIsModalOpen(false);
+        setEditingTestId(null);
         fetchDashboardData();
         // Reset form
         setNewTestTitle("");
         setNewTestDuration(10);
         setNewTestQuestions([
-          { type: "ui", targetHtml: "", targetCss: "", targetImageUrl: "" },
+          { type: "ui", targetHtml: "", targetCss: "", targetImageUrl: "", tailwindClue: "" },
         ]);
       } else {
         alert(data.message);
       }
     } catch (err) {
       console.error(err);
-      alert("Failed to create test");
+      alert(editingTestId ? "Failed to update test" : "Failed to create test");
     } finally {
       setIsSubmitting(false);
     }
@@ -304,7 +326,15 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
         </div>
         <div className="flex gap-4 print:hidden">
           <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+              setEditingTestId(null);
+              setNewTestTitle("");
+              setNewTestDuration(10);
+              setNewTestQuestions([
+                { type: "ui", targetHtml: "", targetCss: "", targetImageUrl: "", tailwindClue: "" },
+              ]);
+              setIsModalOpen(true);
+            }}
             className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg font-medium shadow transition-colors flex items-center gap-2"
           >
             <svg
@@ -406,7 +436,64 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-500">
                           {new Date(t.createdAt).toLocaleString()}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium print:hidden">
+                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium print:hidden flex justify-end gap-2">
+                          <button
+                            onClick={() => {
+                              setEditingTestId(t._id);
+                              setNewTestTitle(t.title);
+                              setNewTestDuration(t.durationMinutes);
+                              setNewTestQuestions(
+                                (t.questions || []).map((q: any) => ({
+                                  type: q.type || "ui",
+                                  targetHtml: q.targetHtml || "",
+                                  targetCss: q.targetCss || "",
+                                  targetImageUrl: q.targetImageUrl || "",
+                                  tailwindClue: q.tailwindClue || "",
+                                  questionText: q.questionText || "",
+                                  options: q.options || [
+                                    { label: "A", text: "" },
+                                    { label: "B", text: "" },
+                                    { label: "C", text: "" },
+                                    { label: "D", text: "" },
+                                  ],
+                                  correctOption: q.correctOption || "A",
+                                }))
+                              );
+                              setIsModalOpen(true);
+                            }}
+                            className="text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded transition-colors"
+                          >
+                            Edit Test
+                          </button>
+                          <button
+                            onClick={() => {
+                              // Duplicate: open create modal pre-filled, no editingTestId
+                              setEditingTestId(null);
+                              setNewTestTitle(`${t.title} (Copy)`);
+                              setNewTestDuration(t.durationMinutes);
+                              setNewTestQuestions(
+                                (t.questions || []).map((q: any) => ({
+                                  type: q.type || "ui",
+                                  targetHtml: q.targetHtml || "",
+                                  targetCss: q.targetCss || "",
+                                  targetImageUrl: q.targetImageUrl || "",
+                                  tailwindClue: q.tailwindClue || "",
+                                  questionText: q.questionText || "",
+                                  options: q.options || [
+                                    { label: "A", text: "" },
+                                    { label: "B", text: "" },
+                                    { label: "C", text: "" },
+                                    { label: "D", text: "" },
+                                  ],
+                                  correctOption: q.correctOption || "A",
+                                }))
+                              );
+                              setIsModalOpen(true);
+                            }}
+                            className="text-amber-600 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 px-3 py-1.5 rounded transition-colors"
+                          >
+                            ⎘ Duplicate
+                          </button>
                           <button
                             onClick={async () => {
                               if (
@@ -629,10 +716,13 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
             <div className="bg-[#090e1a] border border-slate-700 rounded-xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col my-auto">
               <div className="p-6 border-b border-slate-700 flex justify-between items-center shrink-0 bg-[#0d1424]">
                 <h2 className="text-xl font-bold text-white">
-                  Create New Super Test
+                  {editingTestId ? "Edit Super Test" : "Create New Super Test"}
                 </h2>
                 <button
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setEditingTestId(null);
+                  }}
                   className="text-slate-400 hover:text-slate-600"
                 >
                   <svg
@@ -715,23 +805,34 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                   {newTestQuestions.map((q, i) => (
                     <div
                       key={i}
-                      className="p-4 bg-[#0d1424] border border-slate-700 rounded-xl space-y-4 relative shadow-xl"
+                      className="p-4 bg-[#0d1424] border border-slate-700 rounded-xl space-y-4 shadow-xl"
                     >
-                      {newTestQuestions.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveQuestion(i)}
-                          className="absolute top-3 right-3 text-xs font-bold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 px-2 py-1 rounded transition"
-                        >
-                          ✕ Remove
-                        </button>
-                      )}
-                      <h4 className="font-bold text-slate-200 flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center">
-                          {i + 1}
-                        </span>
-                        {q.type === "cbt" ? "📝 CBT Question" : "🎨 UI Detective Question"} {i + 1}
-                      </h4>
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="font-bold text-slate-200 flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-full bg-indigo-600 text-white text-xs flex items-center justify-center shrink-0">
+                            {i + 1}
+                          </span>
+                          {q.type === "cbt" ? "📝 CBT Question" : "🎨 UI Detective Question"} {i + 1}
+                        </h4>
+                        <div className="flex gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleDuplicateQuestion(i)}
+                            className="text-xs font-bold text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 px-2 py-1 rounded transition"
+                          >
+                            ⎘ Duplicate
+                          </button>
+                          {newTestQuestions.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveQuestion(i)}
+                              className="text-xs font-bold text-rose-400 hover:text-rose-300 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/30 px-2 py-1 rounded transition"
+                            >
+                              ✕ Remove
+                            </button>
+                          )}
+                        </div>
+                      </div>
 
                       {q.type === "cbt" ? (
                         /* CBT Question Form */
@@ -842,19 +943,35 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                               </div>
                             </div>
                           </div>
-                          <div>
-                            <label className="block text-xs font-medium text-slate-500 mb-1 bg-[#0D1423]">
-                              Reference Image URL (Optional)
-                            </label>
-                            <input
-                              type="url"
-                              value={q.targetImageUrl}
-                              onChange={(e) =>
-                                updateQuestion(i, "targetImageUrl", e.target.value)
-                              }
-                              className="w-full border border-slate-300 rounded px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
-                              placeholder="https://example.com/reference.png"
-                            />
+                          <div className="grid grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs font-medium text-slate-500 mb-1 bg-[#0D1423]">
+                                Reference Image URL (Optional)
+                              </label>
+                              <input
+                                type="url"
+                                value={q.targetImageUrl}
+                                onChange={(e) =>
+                                  updateQuestion(i, "targetImageUrl", e.target.value)
+                                }
+                                className="w-full border border-slate-300 rounded px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                                placeholder="https://example.com/reference.png"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-medium text-slate-500 mb-1 bg-[#0D1423]">
+                                Tailwind CSS Clue (Optional)
+                              </label>
+                              <input
+                                type="text"
+                                value={q.tailwindClue || ""}
+                                onChange={(e) =>
+                                  updateQuestion(i, "tailwindClue", e.target.value)
+                                }
+                                className="w-full border border-slate-300 rounded px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-slate-800 bg-white"
+                                placeholder="e.g., flex items-center justify-between text-indigo-500"
+                              />
+                            </div>
                           </div>
 
                           {/* Live Preview */}
@@ -881,7 +998,10 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
               <div className="p-6 border-t border-slate-700 flex justify-end gap-3 shrink-0 bg-[#0d1424] rounded-b-xl">
                 <button
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
+                  onClick={() => {
+                    setIsModalOpen(false);
+                    setEditingTestId(null);
+                  }}
                   className="px-4 py-2 font-medium text-slate-400 hover:text-white transition"
                 >
                   Cancel
@@ -892,7 +1012,7 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                   disabled={isSubmitting}
                   className="bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 text-white px-6 py-2 rounded-lg font-bold shadow-lg shadow-indigo-500/20 transition-all"
                 >
-                  {isSubmitting ? "Saving..." : "Save & Publish Test"}
+                  {isSubmitting ? "Saving..." : editingTestId ? "Save Changes" : "Save & Publish Test"}
                 </button>
               </div>
             </div>

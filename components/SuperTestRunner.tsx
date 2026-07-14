@@ -17,6 +17,7 @@ interface SuperTestQuestion {
   targetHtml: string;
   targetCss: string;
   targetImageUrl?: string;
+  tailwindClue?: string;
   // CBT fields
   questionText?: string;
   options?: { label: string; text: string }[];
@@ -609,6 +610,25 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
               )}
               </div>
             </div>
+
+            {/* Tailwind CSS Clue */}
+            {currentQuestion?.tailwindClue && (
+              <div className="p-4 border-t border-slate-800">
+                <div className="flex items-center gap-2 mb-2 max-w-[400px] mx-auto">
+                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-[10px] border border-indigo-500/30">
+                    💡
+                  </span>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-indigo-400 animate-pulse">
+                    Tailwind CSS Clue
+                  </h3>
+                </div>
+                <div className="max-w-[400px] mx-auto w-full">
+                  <div className="bg-slate-800/60 rounded-lg px-4 py-3 border border-slate-700 font-mono text-xs text-slate-200 select-all leading-relaxed whitespace-pre-wrap">
+                    {currentQuestion.tailwindClue}
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
