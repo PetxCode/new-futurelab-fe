@@ -88,7 +88,7 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
       if (q.type === "cbt") {
         return { type: "cbt", selectedOption: "", score: 0 };
       }
-      return { type: "ui", html: '<div class="w-32 h-32 bg-blue-500"></div>', css: "/* Custom CSS here */\nbody { margin: 0; }", score: 0 };
+      return { type: "ui", html: "<div></div>", css: "/* Custom CSS here */\nbody { margin: 0; }", score: 0 };
     });
   });
 
@@ -164,7 +164,7 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
     return () => clearInterval(timer);
   }, [isCompleted, checkLoading, durationMinutes]);
 
-  // Target preview URL
+  // Target preview URL — rebuild whenever the question content or tailwind script changes
   useEffect(() => {
     if (!currentQuestion) return;
     const htmlContent = buildHtmlDoc(currentQuestion.targetHtml, currentQuestion.targetCss, tailwindScriptTag);
@@ -172,7 +172,7 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
     if (targetUrlRef.current) URL.revokeObjectURL(targetUrlRef.current);
     targetUrlRef.current = newUrl;
     setTargetPreviewUrl(newUrl);
-  }, [currentQuestion]);
+  }, [currentQuestion?.targetHtml, currentQuestion?.targetCss, tailwindScriptTag]);
 
   // Debounce student preview
   useEffect(() => {
@@ -326,8 +326,8 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
     currentResponse?.score >= 80
       ? "text-emerald-400"
       : currentResponse?.score >= 50
-      ? "text-amber-400"
-      : "text-rose-400";
+        ? "text-amber-400"
+        : "text-rose-400";
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -374,13 +374,12 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
             </span>
             <div className="w-32 h-1.5 bg-slate-700 rounded-full overflow-hidden">
               <div
-                className={`h-full rounded-full transition-all duration-700 ${
-                  currentResponse?.score >= 80
+                className={`h-full rounded-full transition-all duration-700 ${currentResponse?.score >= 80
                     ? "bg-emerald-400"
                     : currentResponse?.score >= 50
-                    ? "bg-amber-400"
-                    : "bg-rose-400"
-                }`}
+                      ? "bg-amber-400"
+                      : "bg-rose-400"
+                  }`}
                 style={{ width: `${currentResponse?.score || 0}%` }}
               />
             </div>
@@ -413,11 +412,10 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
             <button
               key={idx}
               onClick={() => setCurrentQIndex(idx)}
-              className={`px-4 py-1.5 rounded text-sm font-bold transition flex items-center gap-1.5 ${
-                currentQIndex === idx
+              className={`px-4 py-1.5 rounded text-sm font-bold transition flex items-center gap-1.5 ${currentQIndex === idx
                   ? "bg-indigo-600 text-white"
                   : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white"
-              }`}
+                }`}
             >
               {q.type === "cbt" ? "📝" : "🎨"} Q{idx + 1}
             </button>
@@ -449,18 +447,16 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
                   <button
                     key={opt.label}
                     onClick={() => updateCbtResponse(opt.label)}
-                    className={`w-full text-left flex items-center gap-4 px-5 py-4 rounded-xl border-2 transition-all duration-200 group ${
-                      isSelected
+                    className={`w-full text-left flex items-center gap-4 px-5 py-4 rounded-xl border-2 transition-all duration-200 group ${isSelected
                         ? "bg-indigo-600/20 border-indigo-500 shadow-lg shadow-indigo-500/10"
                         : "bg-[#0d1424] border-slate-700 hover:border-slate-500 hover:bg-slate-800/40"
-                    }`}
+                      }`}
                   >
                     <span
-                      className={`flex-shrink-0 w-8 h-8 rounded-full border-2 font-black text-sm flex items-center justify-center transition-colors ${
-                        isSelected
+                      className={`flex-shrink-0 w-8 h-8 rounded-full border-2 font-black text-sm flex items-center justify-center transition-colors ${isSelected
                           ? "bg-indigo-500 border-indigo-400 text-white"
                           : "border-slate-600 text-slate-400 group-hover:border-slate-400"
-                      }`}
+                        }`}
                     >
                       {opt.label}
                     </span>
@@ -495,11 +491,10 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest transition relative ${
-                    activeTab === tab
+                  className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest transition relative ${activeTab === tab
                       ? "bg-[#090e1a] text-white"
                       : "text-slate-500 hover:text-slate-300"
-                  }`}
+                    }`}
                 >
                   {activeTab === tab && (
                     <span className="absolute top-0 inset-x-0 h-0.5 bg-indigo-500 rounded-b" />
@@ -585,29 +580,29 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
                 </h3>
               </div>
               <div className="max-w-[400px] mx-auto w-full">
-              {currentQuestion?.targetImageUrl ? (
-                <div className="space-y-2">
-                  <img
-                    src={currentQuestion.targetImageUrl}
-                    alt="Reference"
-                    className="w-full rounded-lg border border-slate-700 shadow"
-                  />
-                  <div className="flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-2 border border-slate-700">
-                    <svg className="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                    </svg>
-                    <span className="text-xs text-slate-400 font-mono truncate flex-1">{currentQuestion.targetImageUrl}</span>
-                    <button
-                      onClick={() => navigator.clipboard.writeText(currentQuestion.targetImageUrl!)}
-                      className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold shrink-0 transition"
-                    >
-                      Copy
-                    </button>
+                {currentQuestion?.targetImageUrl ? (
+                  <div className="space-y-2">
+                    <img
+                      src={currentQuestion.targetImageUrl}
+                      alt="Reference"
+                      className="w-full rounded-lg border border-slate-700 shadow"
+                    />
+                    <div className="flex items-center gap-2 bg-slate-800 rounded-lg px-3 py-2 border border-slate-700">
+                      <svg className="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                      </svg>
+                      <span className="text-xs text-slate-400 font-mono truncate flex-1">{currentQuestion.targetImageUrl}</span>
+                      <button
+                        onClick={() => navigator.clipboard.writeText(currentQuestion.targetImageUrl!)}
+                        className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold shrink-0 transition"
+                      >
+                        Copy
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                <p className="text-xs text-slate-600 italic">No reference image provided for this challenge.</p>
-              )}
+                ) : (
+                  <p className="text-xs text-slate-600 italic">No reference image provided for this challenge.</p>
+                )}
               </div>
             </div>
 
