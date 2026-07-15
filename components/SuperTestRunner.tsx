@@ -88,7 +88,7 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
       if (q.type === "cbt") {
         return { type: "cbt", selectedOption: "", score: 0 };
       }
-      return { type: "ui", html: "<div></div>", css: "/* Custom CSS here */\nbody { margin: 0; }", score: 0 };
+      return { type: "ui", html: "<div class=\"m-4\"></div>", css: "/* Custom CSS here */\nbody { margin: 0; }", score: 0 };
     });
   });
 
@@ -410,10 +410,10 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
             <div className="w-32 h-1.5 bg-slate-700 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all duration-700 ${currentResponse?.score >= 80
-                    ? "bg-emerald-400"
-                    : currentResponse?.score >= 50
-                      ? "bg-amber-400"
-                      : "bg-rose-400"
+                  ? "bg-emerald-400"
+                  : currentResponse?.score >= 50
+                    ? "bg-amber-400"
+                    : "bg-rose-400"
                   }`}
                 style={{ width: `${currentResponse?.score || 0}%` }}
               />
@@ -444,8 +444,8 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
               key={idx}
               onClick={() => setCurrentQIndex(idx)}
               className={`px-4 py-1.5 rounded text-sm font-bold transition flex items-center gap-1.5 ${currentQIndex === idx
-                  ? "bg-indigo-600 text-white"
-                  : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white"
+                ? "bg-indigo-600 text-white"
+                : "bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-white"
                 }`}
             >
               {q.type === "cbt" ? "📝" : "🎨"} Q{idx + 1}
@@ -479,14 +479,14 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
                     key={opt.label}
                     onClick={() => updateCbtResponse(opt.label)}
                     className={`w-full text-left flex items-center gap-4 px-5 py-4 rounded-xl border-2 transition-all duration-200 group ${isSelected
-                        ? "bg-indigo-600/20 border-indigo-500 shadow-lg shadow-indigo-500/10"
-                        : "bg-[#0d1424] border-slate-700 hover:border-slate-500 hover:bg-slate-800/40"
+                      ? "bg-indigo-600/20 border-indigo-500 shadow-lg shadow-indigo-500/10"
+                      : "bg-[#0d1424] border-slate-700 hover:border-slate-500 hover:bg-slate-800/40"
                       }`}
                   >
                     <span
                       className={`flex-shrink-0 w-8 h-8 rounded-full border-2 font-black text-sm flex items-center justify-center transition-colors ${isSelected
-                          ? "bg-indigo-500 border-indigo-400 text-white"
-                          : "border-slate-600 text-slate-400 group-hover:border-slate-400"
+                        ? "bg-indigo-500 border-indigo-400 text-white"
+                        : "border-slate-600 text-slate-400 group-hover:border-slate-400"
                         }`}
                     >
                       {opt.label}
@@ -523,8 +523,8 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
                   key={tab}
                   onClick={() => setActiveTab(tab)}
                   className={`px-5 py-2.5 text-xs font-black uppercase tracking-widest transition relative ${activeTab === tab
-                      ? "bg-[#090e1a] text-white"
-                      : "text-slate-500 hover:text-slate-300"
+                    ? "bg-[#090e1a] text-white"
+                    : "text-slate-500 hover:text-slate-300"
                     }`}
                 >
                   {activeTab === tab && (
