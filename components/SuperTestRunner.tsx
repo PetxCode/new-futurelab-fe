@@ -176,7 +176,7 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
 
   // Debounce student preview
   useEffect(() => {
-    if (!currentResponse) return;
+    if (currentResponse?.html === undefined || currentResponse?.css === undefined) return;
     const timer = setTimeout(() => {
       const htmlContent = buildHtmlDoc(currentResponse.html, currentResponse.css, tailwindScriptTag);
       const newUrl = createBlobUrl(htmlContent);
@@ -185,7 +185,7 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
       setStudentPreviewUrl(newUrl);
     }, 500);
     return () => clearTimeout(timer);
-  }, [currentResponse, tailwindScriptTag]);
+  }, [currentResponse?.html, currentResponse?.css, tailwindScriptTag]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -213,7 +213,7 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
     });
   };
 
-  const calculateScore = async () => {
+  const calculateScore = useCallback(async () => {
     if (
       !targetIframeRef.current ||
       !studentIframeRef.current ||
@@ -241,6 +241,26 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
       const studentData = studentCtx.getImageData(0, 0, 400, 300);
       const outputData = outputCtx.createImageData(400, 300);
 
+      // Create an empty (white) canvas data to measure baseline diff
+      const emptyData = outputCtx.createImageData(400, 300);
+      for (let i = 0; i < emptyData.data.length; i += 4) {
+        emptyData.data[i] = 255;     // R
+        emptyData.data[i + 1] = 255; // G
+        emptyData.data[i + 2] = 255; // B
+        emptyData.data[i + 3] = 255; // A
+      }
+
+      // How many pixels in the target differ from a blank white canvas? (The 'content')
+      const diffEmpty = pixelmatch(
+        emptyData.data,
+        targetData.data,
+        null,
+        400,
+        300,
+        { threshold: 0.15 }
+      );
+
+      // How many pixels differ between student and target?
       const numDiffPixels = pixelmatch(
         studentData.data,
         targetData.data,
@@ -250,9 +270,15 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
         { threshold: 0.15 }
       );
 
-      const totalPixels = 400 * 300;
-      const matchPercentage = ((totalPixels - numDiffPixels) / totalPixels) * 100;
-      const roundedScore = Math.round(matchPercentage);
+      let roundedScore = 0;
+      if (diffEmpty === 0) {
+        // Edge case: Target is completely blank white
+        roundedScore = numDiffPixels === 0 ? 100 : 0;
+      } else {
+        // Scale so that: Diff == diffEmpty -> 0%, Diff == 0 -> 100%
+        const matchRatio = Math.max(0, 1 - (numDiffPixels / diffEmpty));
+        roundedScore = Math.round(matchRatio * 100);
+      }
 
       setResponses((prev: any) => {
         const newResp = [...prev];
@@ -266,7 +292,16 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
     } finally {
       setIsChecking(false);
     }
-  };
+  }, [currentQIndex, draftKey]);
+
+  // Auto-check score after iframe load + delay to let Tailwind run
+  useEffect(() => {
+    if (!studentPreviewUrl || !targetPreviewUrl) return;
+    const timer = setTimeout(() => {
+      calculateScore();
+    }, 1500);
+    return () => clearTimeout(timer);
+  }, [studentPreviewUrl, targetPreviewUrl, calculateScore]);
 
   const handleFinalSubmit = () => {
     localStorage.removeItem(draftKey);
@@ -387,14 +422,10 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
         )}
 
         <div className="flex gap-2">
-          {currentQuestion?.type !== "cbt" && (
-            <button
-              onClick={calculateScore}
-              disabled={isChecking}
-              className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 disabled:opacity-50 rounded-lg font-bold text-sm transition"
-            >
-              {isChecking ? "Checking…" : "⚡ Check Q"}
-            </button>
+          {isChecking && currentQuestion?.type !== "cbt" && (
+            <div className="px-4 py-2 bg-indigo-600/50 rounded-lg font-bold text-sm text-indigo-200 animate-pulse flex items-center">
+              Evaluating...
+            </div>
           )}
           <button
             onClick={handleFinalSubmit}
@@ -593,8 +624,29 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
                       </svg>
                       <span className="text-xs text-slate-400 font-mono truncate flex-1">{currentQuestion.targetImageUrl}</span>
                       <button
-                        onClick={() => navigator.clipboard.writeText(currentQuestion.targetImageUrl!)}
-                        className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold shrink-0 transition"
+                        onClick={() => {
+                          const url = currentQuestion.targetImageUrl!;
+                          const btn = document.getElementById("copy-img-url-btn");
+                          const copyFn = () => {
+                            if (btn) { btn.textContent = "✓ Copied!"; setTimeout(() => { if (btn) btn.textContent = "Copy"; }, 2000); }
+                          };
+                          if (navigator.clipboard && window.isSecureContext) {
+                            navigator.clipboard.writeText(url).then(copyFn).catch(() => {
+                              // fallback
+                              const ta = document.createElement("textarea");
+                              ta.value = url; ta.style.position = "fixed"; ta.style.opacity = "0";
+                              document.body.appendChild(ta); ta.focus(); ta.select();
+                              document.execCommand("copy"); document.body.removeChild(ta); copyFn();
+                            });
+                          } else {
+                            const ta = document.createElement("textarea");
+                            ta.value = url; ta.style.position = "fixed"; ta.style.opacity = "0";
+                            document.body.appendChild(ta); ta.focus(); ta.select();
+                            document.execCommand("copy"); document.body.removeChild(ta); copyFn();
+                          }
+                        }}
+                        id="copy-img-url-btn"
+                        className="text-[10px] text-indigo-400 hover:text-indigo-300 font-bold shrink-0 transition whitespace-nowrap"
                       >
                         Copy
                       </button>
