@@ -37,11 +37,11 @@ import PoweredByNext from "./components/PoweredByNext";
 
 export const API_BASE_URL =
   window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1"
+    window.location.hostname === "127.0.0.1"
     ? "http://localhost:5000"
-    : // ? 'https://futurelab-main-be.onrender.com'
-      "https://futurelab-main-be.onrender.com";
-// : 'https://futurelab-main-be.onrender.com';
+    : // ? 'https://futurelab-main-be-1.onrender.com'
+    "https://futurelab-main-be-1.onrender.com";
+// : 'https://futurelab-main-be-1.onrender.com';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -129,7 +129,7 @@ const App: React.FC = () => {
         setPendingUserData(parsed);
         setShowPayment(true);
         setAuthMode(null);
-      } catch (e) {}
+      } catch (e) { }
     }
 
     checkAuth();
@@ -614,11 +614,10 @@ const App: React.FC = () => {
             {/* Scroll to Top Button */}
             <button
               onClick={scrollToTop}
-              className={`fixed bottom-8 right-8 p-4 bg-indigo-600 text-white rounded-2xl shadow-2xl shadow-indigo-600/40 border border-indigo-500 transition-all duration-500 z-50 hover:scale-110 active:scale-95 group ${
-                showScrollTop
+              className={`fixed bottom-8 right-8 p-4 bg-indigo-600 text-white rounded-2xl shadow-2xl shadow-indigo-600/40 border border-indigo-500 transition-all duration-500 z-50 hover:scale-110 active:scale-95 group ${showScrollTop
                   ? "opacity-100 translate-y-0"
                   : "opacity-0 translate-y-12 pointer-events-none"
-              }`}
+                }`}
               aria-label="Scroll to top"
             >
               <svg

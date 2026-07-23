@@ -29,6 +29,7 @@
     "react-hot-toast": "^2.6.0",
     "react-is": "^19.2.4",
     "react-quill-new": "^3.8.3",
+    "react-snap": "^1.23.0",
     "recharts": "^3.7.0",
     "socket.io-client": "^4.8.3"
   },
