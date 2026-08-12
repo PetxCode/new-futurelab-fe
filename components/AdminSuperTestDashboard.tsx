@@ -887,6 +887,37 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                               ))}
                             </select>
                           </div>
+
+                          {/* CBT Level Clue / Hint */}
+                          <div className="pt-3 border-t border-slate-800 space-y-2">
+                            <label className="block text-xs font-bold text-indigo-400 uppercase tracking-widest">
+                              💡 Level Clue & Hint — Mission Intel (Optional)
+                            </label>
+                            <input
+                              type="text"
+                              value={q.tailwindClue || ""}
+                              onChange={(e) => updateQuestion(i, "tailwindClue", e.target.value)}
+                              placeholder="e.g., Think about array index positions or flex layout rules..."
+                              className="w-full bg-[#090e1a] border border-slate-700 rounded-lg px-3 py-2 text-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 placeholder:text-slate-600 text-sm font-mono"
+                            />
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              {[
+                                "💡 Think about index #",
+                                "💡 Pay attention to syntax",
+                                "💡 Consider array length",
+                                "💡 Recall HTML tag attributes"
+                              ].map((preset) => (
+                                <button
+                                  type="button"
+                                  key={preset}
+                                  onClick={() => updateQuestion(i, "tailwindClue", preset)}
+                                  className="text-[10px] font-semibold bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/30 px-2 py-0.5 rounded transition"
+                                >
+                                  + {preset}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
                         </div>
                       ) : (
                         /* UI Detective Question Form */
@@ -943,9 +974,10 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                               </div>
                             </div>
                           </div>
-                          <div className="grid grid-cols-2 gap-4">
+
+                          <div className="grid grid-cols-1 gap-4">
                             <div>
-                              <label className="block text-xs font-medium text-slate-500 mb-1 bg-[#0D1423]">
+                              <label className="block text-xs font-medium text-slate-400 mb-1">
                                 Reference Image URL (Optional)
                               </label>
                               <input
@@ -954,23 +986,55 @@ const AdminSuperTestDashboard: React.FC<AdminSuperTestDashboardProps> = ({
                                 onChange={(e) =>
                                   updateQuestion(i, "targetImageUrl", e.target.value)
                                 }
-                                className="w-full border border-slate-300 rounded px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500"
+                                className="w-full bg-[#090e1a] border border-slate-700 rounded px-3 py-2 text-sm text-white outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 placeholder:text-slate-600"
                                 placeholder="https://example.com/reference.png"
                               />
                             </div>
-                            <div>
-                              <label className="block text-xs font-medium text-slate-500 mb-1 bg-[#0D1423]">
-                                Tailwind CSS Clue (Optional)
-                              </label>
-                              <input
-                                type="text"
+
+                            {/* UI Detective Level Hint & Clue (Mission Intel) */}
+                            <div className="bg-[#090e1a] p-3 rounded-lg border border-slate-800 space-y-2">
+                              <div className="flex items-center justify-between">
+                                <label className="block text-xs font-bold text-indigo-400 uppercase tracking-widest">
+                                  💡 Level Clue & Hint — Mission Intel
+                                </label>
+                                <span className="text-[10px] text-slate-500 italic">Visible to students during test</span>
+                              </div>
+                              <textarea
+                                rows={2}
                                 value={q.tailwindClue || ""}
                                 onChange={(e) =>
                                   updateQuestion(i, "tailwindClue", e.target.value)
                                 }
-                                className="w-full border border-slate-300 rounded px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-slate-800 bg-white"
-                                placeholder="e.g., flex items-center justify-between text-indigo-500"
+                                className="w-full bg-[#0d1424] border border-slate-700 rounded-lg px-3 py-2 text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-slate-200 placeholder:text-slate-600 resize-none font-mono"
+                                placeholder="e.g., Use repeat loop, or flex items-center justify-between text-indigo-500"
                               />
+                              <div className="flex flex-wrap gap-1.5 pt-1">
+                                {[
+                                  "flex items-center justify-between",
+                                  "grid grid-cols-3 gap-4",
+                                  "bg-slate-900 border text-white p-4 rounded-xl",
+                                  "hover:scale-105 transition-all shadow-lg",
+                                  "Use repeat loop to save space"
+                                ].map((preset) => (
+                                  <button
+                                    type="button"
+                                    key={preset}
+                                    onClick={() => updateQuestion(i, "tailwindClue", (q.tailwindClue ? q.tailwindClue + " " : "") + preset)}
+                                    className="text-[10px] font-mono bg-indigo-500/10 text-indigo-400 hover:bg-indigo-500/20 border border-indigo-500/30 px-2 py-0.5 rounded transition"
+                                  >
+                                    + {preset}
+                                  </button>
+                                ))}
+                              </div>
+
+                              {q.tailwindClue && (
+                                <div className="mt-2 p-2.5 bg-slate-950/80 rounded-xl border border-indigo-500/30 flex items-center space-x-2">
+                                  <span className="text-indigo-400 text-[9px] font-black uppercase tracking-widest bg-indigo-500/20 px-2 py-0.5 rounded border border-indigo-500/30 shrink-0">
+                                    STUDENT INTEL
+                                  </span>
+                                  <span className="text-slate-300 text-xs font-mono truncate">{q.tailwindClue}</span>
+                                </div>
+                              )}
                             </div>
                           </div>
 

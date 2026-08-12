@@ -1,11 +1,42 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { NANO_LEVELS, NanoLevel } from './nanoQuestData';
 import toast from 'react-hot-toast';
 import { API_BASE_URL } from '../../App';
 
 const NanoQuest: React.FC = () => {
-  const [currentLevelIdx, setCurrentLevelIdx] = useState(0);
+  const [currentLevelIdx, setCurrentLevelIdx] = useState<number>(() => {
+    const saved = localStorage.getItem('nano-quest-current-level');
+    if (saved) {
+      const parsed = parseInt(saved, 10);
+      if (!isNaN(parsed) && parsed >= 0 && parsed < NANO_LEVELS.length) {
+        return parsed;
+      }
+    }
+    return 0;
+  });
+
+  const [unlockedLevels, setUnlockedLevels] = useState<Set<number>>(() => {
+    const saved = localStorage.getItem('nano-quest-unlocked-levels');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) return new Set(parsed);
+      } catch (e) {}
+    }
+    return new Set([0]);
+  });
+
+  const [levelStars, setLevelStars] = useState<Record<number, number>>(() => {
+    const saved = localStorage.getItem('nano-quest-level-stars');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return {};
+  });
+
+  const [showLevelModal, setShowLevelModal] = useState(false);
   const [code, setCode] = useState('');
   const [output, setOutput] = useState<{ success: boolean; message: string } | null>(null);
   const [isExecuting, setIsExecuting] = useState(false);
@@ -15,12 +46,55 @@ const NanoQuest: React.FC = () => {
   const [stars, setStars] = useState(0);
   const [hoverPos, setHoverPos] = useState<[number, number] | null>(null);
   const [visitedTargets, setVisitedTargets] = useState<number[]>([]);
+  const [customIntels, setCustomIntels] = useState<Record<number, string>>(() => {
+    const saved = localStorage.getItem('nano-quest-custom-intels');
+    if (saved) {
+      try { return JSON.parse(saved); } catch (e) {}
+    }
+    return {};
+  });
+  const [isEditingIntel, setIsEditingIntel] = useState(false);
+  const [intelInput, setIntelInput] = useState('');
+
+  const saveCustomIntel = () => {
+    const updated = { ...customIntels, [currentLevel.id]: intelInput };
+    setCustomIntels(updated);
+    localStorage.setItem('nano-quest-custom-intels', JSON.stringify(updated));
+    setIsEditingIntel(false);
+    toast.success('Hint saved for Level ' + currentLevel.id);
+  };
+
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const stepTargetRef = useRef<number>(0);
 
   const currentLevel = NANO_LEVELS[currentLevelIdx];
 
+  const isAdmin = (() => {
+    try {
+      const saved = localStorage.getItem("userData");
+      if (!saved) return false;
+      const data = JSON.parse(saved);
+      return data?.isAdmin === true;
+    } catch {
+      return false;
+    }
+  })();
+
   useEffect(() => {
+    localStorage.setItem('nano-quest-current-level', currentLevelIdx.toString());
     resetLevel();
   }, [currentLevelIdx]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      'nano-quest-unlocked-levels',
+      JSON.stringify(Array.from(unlockedLevels))
+    );
+  }, [unlockedLevels]);
+
+  useEffect(() => {
+    localStorage.setItem('nano-quest-level-stars', JSON.stringify(levelStars));
+  }, [levelStars]);
 
   const resetLevel = () => {
     setBotPos(currentLevel.startPos);
@@ -29,8 +103,9 @@ const NanoQuest: React.FC = () => {
     setOutput(null);
     setIsExecuting(false);
     setActiveLine(null);
-    setStars(0);
+    setStars(levelStars[currentLevelIdx] || 0);
     setVisitedTargets([]);
+    stepTargetRef.current = 0;
   };
 
   // --- SENSORS ---
@@ -47,135 +122,239 @@ const NanoQuest: React.FC = () => {
     return currentLevel.obstacles.some(o => o[0] === nextPos[0] && o[1] === nextPos[1]);
   };
 
+  const getBlockLines = (linesToExec: string[], startIndex: number) => {
+    let blockLines: string[] = [];
+    let skip = 0;
+    let openBraces = 0;
+
+    for (let j = startIndex; j < linesToExec.length; j++) {
+      let l = linesToExec[j];
+      if (j === startIndex) {
+        const openIdx = l.indexOf('{');
+        if (openIdx !== -1) {
+          openBraces++;
+          const afterOpen = l.slice(openIdx + 1);
+          const closeIdx = afterOpen.indexOf('}');
+          if (closeIdx !== -1) {
+            const inner = afterOpen.slice(0, closeIdx).trim();
+            if (inner) blockLines.push(inner);
+            return { blockLines, skip: 0 };
+          } else if (afterOpen.trim()) {
+            blockLines.push(afterOpen.trim());
+          }
+        }
+        continue;
+      }
+
+      const openCount = (l.match(/\{/g) || []).length;
+      const closeCount = (l.match(/\}/g) || []).length;
+      openBraces += openCount;
+
+      if (closeCount > 0 && openBraces - closeCount <= 0) {
+        const closeIdx = l.indexOf('}');
+        const contentBeforeClose = l.slice(0, closeIdx).trim();
+        if (contentBeforeClose && contentBeforeClose !== '{') {
+          blockLines.push(contentBeforeClose);
+        }
+        skip = j - startIndex;
+        break;
+      } else {
+        openBraces -= closeCount;
+        if (l.trim()) {
+          blockLines.push(l.trim());
+        }
+      }
+    }
+    return { blockLines, skip };
+  };
+
   const runCode = async (isStepMode = false) => {
     if (isExecuting) return;
     setIsExecuting(true);
-    
-    let currentPos = isStepMode ? [...botPos] as [number, number] : [...currentLevel.startPos] as [number, number];
-    let currentDir = isStepMode ? botDir : currentLevel.startDir;
-    let localVisited = isStepMode ? [...visitedTargets] : [];
-    
-    if (!isStepMode) {
-        setBotPos(currentPos);
-        setBotDir(currentDir);
-        setVisitedTargets([]);
-        setActiveLine(null);
-        setOutput(null);
-        await new Promise(r => setTimeout(r, 300));
+
+    if (isStepMode) {
+      stepTargetRef.current += 1;
+    } else {
+      stepTargetRef.current = 0;
     }
 
-    const lines = code.trim().split('\n');
+    let currentPos = [...currentLevel.startPos] as [number, number];
+    let currentDir = currentLevel.startDir;
+    let localVisited: number[] = [];
+
+    setBotPos([...currentPos]);
+    setBotDir(currentDir);
+    setVisitedTargets([]);
+    setActiveLine(null);
+    setOutput(null);
+
+    const lines = code.split('\n');
     let halted = false;
+    let actionCounter = 0;
+    let reachedStepLimit = false;
 
-    const executeBlocks = async (linesToExec: string[], startAtLineOffset: number = 0) => {
-        for (let i = 0; i < linesToExec.length; i++) {
-            if (halted) return;
-            const globalLineIdx = startAtLineOffset + i;
-            if (isStepMode && activeLine !== null && globalLineIdx <= activeLine) continue;
-            
-            setActiveLine(globalLineIdx);
-            let line = linesToExec[i].trim().toLowerCase();
-            if (!line) continue;
+    const executeBlocks = async (linesToExec: string[], startAtLineOffset: number = 0): Promise<void> => {
+      for (let i = 0; i < linesToExec.length; i++) {
+        if (halted || reachedStepLimit) return;
+        const globalLineIdx = startAtLineOffset + i;
 
-            if (line.startsWith('repeat ')) {
-                const countMatch = line.match(/\d+/);
-                const count = countMatch ? parseInt(countMatch[0]) : 0;
-                let blockLines: string [];
-                let skip = 0;
-                let foundOpen = false, j = i;
-                if (line.includes('{')) { foundOpen = true; const afterBrace = line.split('{')[1].trim(); if (afterBrace) blockLines = [afterBrace]; else blockLines = []; } else { blockLines = []; }
-                let openBraces = foundOpen ? 1 : 0;
-                while (j + 1 < linesToExec.length) {
-                    j++;
-                    const nextLine = linesToExec[j].trim();
-                    if (nextLine.includes('{')) { openBraces += (nextLine.match(/{/g) || []).length; foundOpen = true; }
-                    if (nextLine.includes('}')) { openBraces -= (nextLine.match(/}/g) || []).length; if (openBraces <= 0) { skip = j - i; break; } }
-                    if (foundOpen && openBraces > 0) blockLines.push(nextLine);
-                }
-                for (let r = 0; r < count; r++) { await executeBlocks(blockLines, globalLineIdx + 1); if (halted) return; }
-                i += skip;
-                if (isStepMode) break;
-                continue;
-            }
+        setActiveLine(globalLineIdx);
+        let line = linesToExec[i].trim().toLowerCase();
+        if (!line || line === '}') continue;
 
-            if (line.startsWith('if ')) {
-                const condition = line.includes('wallahead') ? 'wall' : line.includes('isclear') ? 'clear' : '';
-                let conditionMet = false;
-                if (condition === 'wall') conditionMet = checkWallAhead(currentPos, currentDir);
-                if (condition === 'clear') conditionMet = !checkWallAhead(currentPos, currentDir);
-                let blockLines: string[] = [], skip = 0, foundOpen = false, j = i;
-                if (line.includes('{')) foundOpen = true;
-                let openBraces = foundOpen ? 1 : 0;
-                while (j + 1 < linesToExec.length) {
-                    j++;
-                    const nextLine = linesToExec[j].trim();
-                    if (nextLine.includes('{')) { openBraces++; foundOpen = true; }
-                    if (nextLine.includes('}')) { openBraces--; if (openBraces <= 0) { skip = j - i; break; } }
-                    if (foundOpen && openBraces > 0) blockLines.push(nextLine);
-                }
-                if (conditionMet) await executeBlocks(blockLines, globalLineIdx + 1);
-                i += skip;
-                if (isStepMode) break;
-                continue;
-            }
+        if (line.startsWith('repeat ')) {
+          const countMatch = line.match(/\d+/);
+          const count = countMatch ? parseInt(countMatch[0]) : 0;
+          const { blockLines, skip } = getBlockLines(linesToExec, i);
 
-            if (line.startsWith('move(')) {
-                const steps = parseInt(line.match(/\d+/)?.[0] || '1');
-                for(let s=0; s<steps; s++) {
-                    if (currentDir === 'right') currentPos[0]++;
-                    else if (currentDir === 'left') currentPos[0]--;
-                    else if (currentDir === 'up') currentPos[1]--;
-                    else if (currentDir === 'down') currentPos[1]++;
-                    setBotPos([...currentPos]);
-                    await new Promise(r => setTimeout(r, 400));
-                    if (currentLevel.obstacles.some(o => o[0] === currentPos[0] && o[1] === currentPos[1])) {
-                        setOutput({ success: false, message: "CRITICAL FAILURE: Collision detected!" });
-                        halted = true; return;
-                    }
-                    if (currentPos[0] < 0 || currentPos[0] >= currentLevel.gridSize[0] || currentPos[1] < 0 || currentPos[1] >= currentLevel.gridSize[1]) {
-                        setOutput({ success: false, message: "CRITICAL FAILURE: Out of bounds!" });
-                        halted = true; return;
-                    }
-                }
-                currentLevel.targetPos.forEach((t, idx) => { if (t[0] === currentPos[0] && t[1] === currentPos[1] && !localVisited.includes(idx)) { localVisited.push(idx); setVisitedTargets([...localVisited]); } });
-            } else if (line.includes('turnleft')) {
-                const dirs: any = { right: 'up', up: 'left', left: 'down', down: 'right' };
-                currentDir = dirs[currentDir]; setBotDir(currentDir);
-                await new Promise(r => setTimeout(r, 400));
-            } else if (line.includes('turnright')) {
-                const dirs: any = { right: 'down', down: 'left', left: 'up', up: 'right' };
-                currentDir = dirs[currentDir]; setBotDir(currentDir);
-                await new Promise(r => setTimeout(r, 400));
-            }
-            if (isStepMode) break;
+          for (let r = 0; r < count; r++) {
+            await executeBlocks(blockLines, globalLineIdx + 1);
+            if (halted || reachedStepLimit) return;
+          }
+          i += skip;
+          continue;
         }
+
+        if (line.startsWith('if ')) {
+          const condition = line.includes('wallahead') ? 'wall' : line.includes('isclear') ? 'clear' : '';
+          let conditionMet = false;
+          if (condition === 'wall') conditionMet = checkWallAhead(currentPos, currentDir);
+          if (condition === 'clear') conditionMet = !checkWallAhead(currentPos, currentDir);
+
+          const { blockLines, skip } = getBlockLines(linesToExec, i);
+          if (conditionMet) {
+            await executeBlocks(blockLines, globalLineIdx + 1);
+          }
+          i += skip;
+          continue;
+        }
+
+        if (line.startsWith('move(')) {
+          const steps = parseInt(line.match(/\d+/)?.[0] || '1');
+          for (let s = 0; s < steps; s++) {
+            if (currentDir === 'right') currentPos[0]++;
+            else if (currentDir === 'left') currentPos[0]--;
+            else if (currentDir === 'up') currentPos[1]--;
+            else if (currentDir === 'down') currentPos[1]++;
+            
+            setBotPos([...currentPos]);
+
+            if (currentLevel.obstacles.some(o => o[0] === currentPos[0] && o[1] === currentPos[1])) {
+              setOutput({ success: false, message: "CRITICAL FAILURE: Collision detected!" });
+              halted = true;
+              return;
+            }
+            if (currentPos[0] < 0 || currentPos[0] >= currentLevel.gridSize[0] || currentPos[1] < 0 || currentPos[1] >= currentLevel.gridSize[1]) {
+              setOutput({ success: false, message: "CRITICAL FAILURE: Out of bounds!" });
+              halted = true;
+              return;
+            }
+
+            currentLevel.targetPos.forEach((t, idx) => {
+              if (t[0] === currentPos[0] && t[1] === currentPos[1] && !localVisited.includes(idx)) {
+                localVisited.push(idx);
+                setVisitedTargets([...localVisited]);
+              }
+            });
+
+            actionCounter++;
+            if (!isStepMode) {
+              await new Promise(r => setTimeout(r, 300));
+            } else if (actionCounter >= stepTargetRef.current) {
+              reachedStepLimit = true;
+              return;
+            }
+          }
+        } else if (line.includes('turnleft')) {
+          const dirs: any = { right: 'up', up: 'left', left: 'down', down: 'right' };
+          currentDir = dirs[currentDir];
+          setBotDir(currentDir);
+
+          actionCounter++;
+          if (!isStepMode) {
+            await new Promise(r => setTimeout(r, 300));
+          } else if (actionCounter >= stepTargetRef.current) {
+            reachedStepLimit = true;
+            return;
+          }
+        } else if (line.includes('turnright')) {
+          const dirs: any = { right: 'down', down: 'left', left: 'up', up: 'right' };
+          currentDir = dirs[currentDir];
+          setBotDir(currentDir);
+
+          actionCounter++;
+          if (!isStepMode) {
+            await new Promise(r => setTimeout(r, 300));
+          } else if (actionCounter >= stepTargetRef.current) {
+            reachedStepLimit = true;
+            return;
+          }
+        }
+      }
     };
 
     await executeBlocks(lines);
 
-    const isDone = !isStepMode || (activeLine !== null && activeLine >= lines.length - 1);
-    if (!halted && isDone) {
-        const finalOnTarget = currentLevel.targetPos.some(t => t[0] === currentPos[0] && t[1] === currentPos[1]);
-        const allCollected = localVisited.length === currentLevel.targetPos.length;
-        if (allCollected && finalOnTarget) {
-            const lineCount = lines.filter(l => l.trim()).length;
-            let earnedStars = 1;
-            if (lineCount <= currentLevel.maxLines) earnedStars = 3;
-            else if (lineCount <= currentLevel.maxLines + 2) earnedStars = 2;
-            setStars(earnedStars);
-            setOutput({ success: true, message: "MISSION_STABLE_UL" });
-            try {
-                await fetch(`${API_BASE_URL}/api/analytics/log`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('token') || '' },
-                    body: JSON.stringify({ type: 'game', title: `Nano Quest: ${currentLevel.title}`, points: 1, score: earnedStars * 33 })
-                });
-            } catch(e) {}
-        } else if (!isStepMode || activeLine >= lines.length - 1) {
-            setOutput({ success: false, message: !allCollected ? "Targets remaining." : "Must end on a station." });
+    const isDone = !isStepMode || (!reachedStepLimit && actionCounter < stepTargetRef.current);
+    if (!halted && (isDone || !isStepMode)) {
+      const finalOnTarget = currentLevel.targetPos.some(t => t[0] === currentPos[0] && t[1] === currentPos[1]);
+      const allCollected = localVisited.length === currentLevel.targetPos.length;
+      if (allCollected && finalOnTarget) {
+        const lineCount = lines.filter(l => {
+          const trimmed = l.trim();
+          return trimmed !== '' && trimmed !== '}';
+        }).length;
+        let earnedStars = 1;
+        if (lineCount <= currentLevel.maxLines) earnedStars = 3;
+        else if (lineCount <= currentLevel.maxLines + 2) earnedStars = 2;
+        
+        setStars(earnedStars);
+        setLevelStars(prev => ({ ...prev, [currentLevelIdx]: Math.max(prev[currentLevelIdx] || 0, earnedStars) }));
+        
+        const nextIdx = currentLevelIdx + 1;
+        if (nextIdx < NANO_LEVELS.length) {
+          setUnlockedLevels(prev => new Set([...Array.from(prev), nextIdx]));
         }
+
+        setOutput({ success: true, message: "MISSION_STABLE_UL" });
+        try {
+          await fetch(`${API_BASE_URL}/api/analytics/log`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'x-auth-token': localStorage.getItem('token') || '' },
+            body: JSON.stringify({ type: 'game', title: `Nano Quest: ${currentLevel.title}`, points: 1, score: earnedStars * 33 })
+          });
+        } catch (e) {}
+      } else if (!isStepMode) {
+        setOutput({ success: false, message: !allCollected ? "Targets remaining." : "Must end on a station." });
+      }
     }
     setIsExecuting(false);
+  };
+
+  const insertToken = (cmd: string) => {
+    const textarea = textareaRef.current;
+    if (!textarea) {
+      setCode(c => c + (c ? '\n' : '') + cmd);
+      return;
+    }
+    const start = textarea.selectionStart;
+    const end = textarea.selectionEnd;
+    const before = code.substring(0, start);
+    const after = code.substring(end);
+
+    const newText = before + cmd + after;
+    setCode(newText);
+
+    setTimeout(() => {
+      if (textarea) {
+        textarea.focus();
+        let newCursor = start + cmd.length;
+        if (cmd.includes('\n  \n')) {
+          newCursor = start + cmd.indexOf('\n  \n') + 3;
+        }
+        textarea.setSelectionRange(newCursor, newCursor);
+      }
+    }, 0);
   };
 
   const getRotation = () => {
@@ -187,15 +366,98 @@ const NanoQuest: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row h-[750px] w-full bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 shadow-2xl">
+    <div className="flex flex-col lg:flex-row h-[750px] w-full bg-slate-950 rounded-3xl overflow-hidden border border-slate-800 shadow-2xl relative">
       
+      {/* Level Selection Modal */}
+      {showLevelModal && (
+        <div className="absolute inset-0 bg-slate-950/90 backdrop-blur-xl z-[200] flex flex-col p-8 overflow-hidden">
+          <div className="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+            <div>
+              <h3 className="text-2xl font-black text-white uppercase italic tracking-tighter">Mission Control — Select Level</h3>
+              <p className="text-slate-400 text-xs mt-1">Pick up where you left off or replay completed missions.</p>
+            </div>
+            <button 
+              onClick={() => setShowLevelModal(false)}
+              className="px-4 py-2 bg-slate-800 text-slate-300 hover:text-white rounded-xl text-xs font-bold border border-white/10"
+            >
+              ✕ Close
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto pr-2 grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+            {NANO_LEVELS.map((level, idx) => {
+              const isUnlocked = isAdmin || unlockedLevels.has(idx);
+              const isCurrent = idx === currentLevelIdx;
+              const earnedStars = levelStars[idx] || 0;
+
+              return (
+                <button
+                  key={level.id}
+                  disabled={!isUnlocked}
+                  onClick={() => {
+                    setCurrentLevelIdx(idx);
+                    setShowLevelModal(false);
+                  }}
+                  className={`
+                    p-3 rounded-2xl border text-left flex flex-col justify-between transition-all relative overflow-hidden h-24
+                    ${isCurrent ? 'bg-indigo-600/30 border-indigo-500 shadow-lg shadow-indigo-500/20' : ''}
+                    ${!isCurrent && isUnlocked ? 'bg-slate-900/80 border-slate-800 hover:border-indigo-500/50 hover:bg-slate-800/60' : ''}
+                    ${!isUnlocked ? 'bg-slate-950/50 border-slate-900 opacity-40 cursor-not-allowed' : ''}
+                  `}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-[10px] font-mono font-black text-slate-400">LVL {level.id}</span>
+                    {isUnlocked ? (
+                      <div className="flex space-x-0.5 text-[10px]">
+                        {[1, 2, 3].map(s => (
+                          <span key={s} className={earnedStars >= s ? 'text-amber-400' : 'text-slate-700'}>★</span>
+                        ))}
+                      </div>
+                    ) : (
+                      <span className="text-slate-600 text-xs">🔒</span>
+                    )}
+                  </div>
+                  <div>
+                    <h4 className="text-white text-xs font-bold truncate leading-tight mt-1">{level.title}</h4>
+                    <span className="text-[9px] text-indigo-400 font-mono block mt-0.5">{level.concept}</span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* Visual Stage */}
       <div className="flex-1 p-8 bg-slate-900/50 relative group overflow-hidden">
         <div className="absolute top-6 left-8 z-10 flex flex-col">
             <h2 className="text-2xl font-black text-white tracking-tighter uppercase italic leading-tight tracking-wider">{currentLevel.title}</h2>
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center space-x-2 mt-1">
                 <span className="px-2 py-0.5 bg-indigo-500/20 text-indigo-400 text-[10px] font-black rounded border border-indigo-500/30 uppercase">{currentLevel.concept}</span>
-                <span className="text-slate-500 text-[10px] font-bold">LEVEL {currentLevelIdx + 1}/{NANO_LEVELS.length}</span>
+                
+                {/* Level Navigation & Modal Trigger */}
+                <div className="flex items-center space-x-1 bg-slate-950/60 px-2 py-0.5 rounded-lg border border-white/10">
+                    <button 
+                      onClick={() => setCurrentLevelIdx(prev => Math.max(0, prev - 1))}
+                      disabled={currentLevelIdx === 0}
+                      className="text-slate-400 hover:text-white disabled:opacity-30 text-xs font-bold px-1"
+                    >
+                      ◄
+                    </button>
+                    <button 
+                      onClick={() => setShowLevelModal(true)}
+                      className="text-slate-300 hover:text-indigo-400 text-[10px] font-black tracking-widest uppercase transition-colors"
+                    >
+                      LEVEL {currentLevelIdx + 1}/{NANO_LEVELS.length} ▾
+                    </button>
+                    <button 
+                      onClick={() => setCurrentLevelIdx(prev => Math.min(NANO_LEVELS.length - 1, prev + 1))}
+                      disabled={currentLevelIdx === NANO_LEVELS.length - 1 || (!isAdmin && !unlockedLevels.has(currentLevelIdx + 1))}
+                      className="text-slate-400 hover:text-white disabled:opacity-30 text-xs font-bold px-1"
+                    >
+                      ►
+                    </button>
+                </div>
             </div>
         </div>
 
@@ -205,13 +467,16 @@ const NanoQuest: React.FC = () => {
             ))}
         </div>
 
-        <div className="w-full h-full flex items-center justify-center relative mt-8">
+        <div className="w-full h-full flex items-center justify-center relative my-auto p-2">
             <div 
-                className="grid gap-1 bg-slate-950/50 p-1 rounded-xl border border-white/5 relative shadow-inner"
+                className={`grid bg-slate-950/50 p-1.5 rounded-xl border border-white/5 relative shadow-inner ${currentLevel.gridSize[0] > 15 ? 'gap-0.5' : 'gap-1'}`}
                 style={{ 
-                    gridTemplateColumns: `repeat(${currentLevel.gridSize[0]}, 1fr)`,
-                    maxHeight: '85%',
-                    aspectRatio: `${currentLevel.gridSize[0]}/${currentLevel.gridSize[1]}`,
+                    display: 'grid',
+                    gridTemplateColumns: `repeat(${currentLevel.gridSize[0]}, minmax(0, 1fr))`,
+                    gridTemplateRows: `repeat(${currentLevel.gridSize[1]}, minmax(0, 1fr))`,
+                    maxHeight: '82%',
+                    maxWidth: '100%',
+                    aspectRatio: `${currentLevel.gridSize[0]} / ${currentLevel.gridSize[1]}`,
                     width: 'auto',
                     height: 'auto'
                 }}
@@ -228,13 +493,13 @@ const NanoQuest: React.FC = () => {
                             key={i} 
                             onMouseEnter={() => setHoverPos([x, y])}
                             className={`
-                                aspect-square rounded-lg flex items-center justify-center relative
+                                w-full h-full rounded flex items-center justify-center relative overflow-hidden
                                 ${isObstacle ? 'bg-rose-500/20 shadow-inner' : 'bg-slate-800/20 hover:bg-white/5 cursor-crosshair'}
                             `}
                         >
                             {isTarget && !visitedTargets.includes(targetIdx) && (
-                                <div className="w-8 h-8 relative group lg:w-10 lg:h-10">
-                                    <svg viewBox="0 0 40 40" className="w-full h-full drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]">
+                                <div className="w-full h-full p-0.5 flex items-center justify-center relative group">
+                                    <svg viewBox="0 0 40 40" className="w-full h-full max-w-[36px] max-h-[36px] drop-shadow-[0_0_8px_rgba(34,211,238,0.4)]">
                                         <path d="M10 2 L30 2 L38 10 L38 30 L30 38 L10 38 L2 30 L2 10 Z" fill="#1e293b" stroke="#334155" strokeWidth="1" />
                                         <rect x="8" y="8" width="24" height="24" rx="2" fill="#334155" />
                                         <rect x="12" y="12" width="16" height="16" rx="1" fill="#475569" />
@@ -243,8 +508,8 @@ const NanoQuest: React.FC = () => {
                                 </div>
                             )}
                             {isTarget && visitedTargets.includes(targetIdx) && (
-                                <div className="w-8 h-8 opacity-30 brightness-50 grayscale lg:w-10 lg:h-10">
-                                    <svg viewBox="0 0 40 40" className="w-full h-full">
+                                <div className="w-full h-full p-0.5 flex items-center justify-center opacity-30 brightness-50 grayscale">
+                                    <svg viewBox="0 0 40 40" className="w-full h-full max-w-[36px] max-h-[36px]">
                                         <path d="M10 2 L30 2 L38 10 L38 30 L30 38 L10 38 L2 30 L2 10 Z" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
                                         <rect x="8" y="8" width="24" height="24" rx="2" fill="#1e293b" />
                                         <circle cx="20" cy="20" r="4" fill="#334155" />
@@ -252,8 +517,8 @@ const NanoQuest: React.FC = () => {
                                 </div>
                             )}
                             {isObstacle && (
-                                <div className="w-full h-full relative p-0.5">
-                                    <svg viewBox="0 0 40 40" className="w-full h-full opacity-80">
+                                <div className="w-full h-full relative p-0.5 flex items-center justify-center">
+                                    <svg viewBox="0 0 40 40" className="w-full h-full max-w-[36px] max-h-[36px] opacity-80">
                                         <rect x="2" y="2" width="36" height="36" rx="4" fill="#450a0a" stroke="#991b1b" strokeWidth="1" />
                                         <path d="M10 10 L30 30 M30 10 L10 30" stroke="#ef4444" strokeWidth="2" strokeLinecap="round" />
                                         <rect x="8" y="8" width="24" height="24" rx="2" fill="none" stroke="#ef4444" strokeWidth="1" opacity="0.3">
@@ -263,8 +528,8 @@ const NanoQuest: React.FC = () => {
                                 </div>
                             )}
                             {botPos[0] === x && botPos[1] === y && (
-                                <div className={`w-8 h-8 lg:w-10 lg:h-10 z-10 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)] ${getRotation()}`}>
-                                    <svg viewBox="0 0 40 40" className="w-full h-full">
+                                <div className={`w-full h-full p-0.5 flex items-center justify-center z-10 drop-shadow-[0_0_15px_rgba(99,102,241,0.5)] ${getRotation()}`}>
+                                    <svg viewBox="0 0 40 40" className="w-full h-full max-w-[36px] max-h-[36px]">
                                         <rect x="2" y="6" width="36" height="8" rx="2" fill="#1e293b" />
                                         <rect x="2" y="26" width="36" height="8" rx="2" fill="#1e293b" />
                                         <rect x="8" y="10" width="24" height="20" rx="4" fill="#6366f1" />
@@ -277,17 +542,60 @@ const NanoQuest: React.FC = () => {
                         </div>
                     );
                 })}
-                {hoverPos && (
-                    <div className="absolute top-2 left-2 bg-indigo-600/90 text-white text-[10px] font-black px-2 py-1 rounded backdrop-blur-md pointer-events-none shadow-xl border border-white/20 z-20">
-                        COORDS: {hoverPos[0]},{hoverPos[1]}
-                    </div>
-                )}
             </div>
         </div>
-
-        <div className="absolute bottom-8 left-8 p-4 bg-slate-950/80 rounded-2xl border border-white/5 max-w-sm backdrop-blur-xl">
-            <h4 className="text-white text-sm font-black mb-1 uppercase tracking-tighter italic">Mission Intel</h4>
-            <p className="text-slate-400 text-[11px] font-medium leading-relaxed">{currentLevel.description}</p>
+        {/* Bottom Intel Status Bar */}
+        <div className="absolute bottom-4 left-6 right-6 p-2.5 bg-slate-950/90 rounded-xl border border-white/10 backdrop-blur-xl z-20 flex items-center justify-between pointer-events-auto">
+            <div className="flex items-center space-x-3 truncate flex-1 mr-2">
+                <span className="text-indigo-400 text-[10px] font-black uppercase tracking-widest bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20 shrink-0">INTEL</span>
+                {isEditingIntel ? (
+                  <div className="flex items-center gap-2 w-full">
+                    <input
+                      type="text"
+                      value={intelInput}
+                      onChange={(e) => setIntelInput(e.target.value)}
+                      placeholder="Enter clue/hint for this level..."
+                      className="bg-slate-900 text-slate-200 text-xs px-2.5 py-1 rounded border border-indigo-500/50 focus:outline-none w-full font-mono"
+                      autoFocus
+                    />
+                    <button
+                      onClick={saveCustomIntel}
+                      className="px-2.5 py-1 bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-bold rounded tracking-wide shrink-0 transition"
+                    >
+                      Save
+                    </button>
+                    <button
+                      onClick={() => setIsEditingIntel(false)}
+                      className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold rounded tracking-wide shrink-0 transition"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 truncate">
+                    <p className="text-slate-300 text-[11px] font-medium truncate">
+                      {customIntels[currentLevel.id] || currentLevel.description}
+                    </p>
+                    {isAdmin && (
+                      <button
+                        onClick={() => {
+                          setIntelInput(customIntels[currentLevel.id] || currentLevel.description || '');
+                          setIsEditingIntel(true);
+                        }}
+                        className="text-[10px] text-indigo-400 hover:text-indigo-300 bg-indigo-500/10 hover:bg-indigo-500/20 border border-indigo-500/30 px-1.5 py-0.5 rounded transition shrink-0 ml-1"
+                        title="Edit Hint / Intel"
+                      >
+                        ✏️ Edit Hint
+                      </button>
+                    )}
+                  </div>
+                )}
+            </div>
+            {hoverPos && !isEditingIntel && (
+                <div className="text-indigo-400 text-[10px] font-black font-mono bg-indigo-600/20 px-2 py-0.5 rounded border border-indigo-500/30 shrink-0 ml-2">
+                    COORDS: {hoverPos[0]},{hoverPos[1]}
+                </div>
+            )}
         </div>
       </div>
 
@@ -346,6 +654,7 @@ const NanoQuest: React.FC = () => {
                 ))}
             </div>
             <textarea 
+                ref={textareaRef}
                 value={code}
                 onChange={(e) => setCode(e.target.value)}
                 placeholder="// Start coding fundamentals..."
@@ -373,7 +682,7 @@ const NanoQuest: React.FC = () => {
                 ].map(token => (
                     <button 
                         key={token.cmd}
-                        onClick={() => setCode(c => c + (c ? '\n' : '') + token.cmd)}
+                        onClick={() => insertToken(token.cmd)}
                         className={`
                             px-2 py-1.5 border rounded-lg text-[13px] font-black active:bg-slate-700
                             ${token.type === 'action' ? 'bg-slate-800 border-white/5 text-slate-400 hover:text-white' : ''}

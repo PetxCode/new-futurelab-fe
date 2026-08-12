@@ -17,7 +17,7 @@ export const NANO_LEVELS: NanoLevel[] = [
   {
     id: 1,
     title: "The First Step",
-    description: "Initialize movement. Use `move()` to reach the logic core.",
+    description: "Code Clue: Write `move(3)` to move 3 steps forward to the target.",
     gridSize: [8, 8],
     startPos: [1, 1],
     startDir: 'right',
@@ -29,7 +29,7 @@ export const NANO_LEVELS: NanoLevel[] = [
   {
     id: 2,
     title: "Right Angle Turn",
-    description: "The path pivots. `turnRight()` to follow the signal.",
+    description: "Code Clue: Write `move(3)`, `turnRight()`, then `move(3)` to reach the target.",
     gridSize: [8, 8],
     startPos: [1, 1],
     startDir: 'right',
@@ -41,7 +41,7 @@ export const NANO_LEVELS: NanoLevel[] = [
   {
     id: 3,
     title: "Double Pivot",
-    description: "Navigate the data corridors. Precise turning required.",
+    description: "Code Clue: `move(4)`, `turnRight()`, `move(3)`, `turnLeft()`, `move(1)`.",
     gridSize: [8, 8],
     startPos: [1, 1],
     startDir: 'right',
@@ -53,7 +53,7 @@ export const NANO_LEVELS: NanoLevel[] = [
   {
     id: 4,
     title: "Corridors",
-    description: "Reach the target at the end of the maintenance shaft.",
+    description: "Code Clue: `move(5)`, `turnRight()`, `move(5)` to reach (6,6).",
     gridSize: [8, 8],
     startPos: [1, 1],
     startDir: 'right',
@@ -139,13 +139,13 @@ export const NANO_LEVELS: NanoLevel[] = [
   {
     id: 11,
     title: "Linear Loop",
-    description: "The data packets are far. Use `repeat n { ... }` to save space!",
+    description: "Code Clue: Write `repeat 9 {\n  move(1)\n}` to reach the target across 9 steps.",
     gridSize: [12, 12],
     startPos: [1, 1],
     startDir: 'right',
     targetPos: [[10, 1]],
     obstacles: [],
-    maxLines: 2,
+    maxLines: 3,
     concept: "Loops"
   },
   {
@@ -205,7 +205,7 @@ export const NANO_LEVELS: NanoLevel[] = [
     startDir: 'right',
     targetPos: [[2,1],[3,1],[4,1],[5,1],[6,1],[7,1]],
     obstacles: [],
-    maxLines: 2,
+    maxLines: 3,
     concept: "Efficiency"
   },
   {
@@ -253,7 +253,7 @@ export const NANO_LEVELS: NanoLevel[] = [
     startDir: 'right',
     targetPos: [[4,1],[7,1],[10,1],[13,1],[16,1]],
     obstacles: [],
-    maxLines: 2,
+    maxLines: 3,
     concept: "Step Loops"
   },
 

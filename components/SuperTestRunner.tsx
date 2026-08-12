@@ -505,11 +505,24 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
               )}
             </div>
 
-            {/* Hint */}
-            <p className="text-center text-xs text-slate-600 italic">
-              Select one option. Your choice is auto-saved. Navigate between questions using the tabs above.
-            </p>
+
+            {/* Mission Intel Hint */}
+            {currentQuestion?.tailwindClue ? (
+              <div className="flex items-center gap-3 bg-slate-900/80 border border-indigo-500/30 rounded-xl px-4 py-3 shadow-lg shadow-indigo-500/5">
+                <span className="flex-shrink-0 text-[10px] font-black uppercase tracking-widest text-indigo-400 bg-indigo-500/15 border border-indigo-500/30 px-2.5 py-1 rounded-lg">
+                  💡 INTEL
+                </span>
+                <p className="text-sm text-slate-300 font-mono leading-relaxed">
+                  {currentQuestion.tailwindClue}
+                </p>
+              </div>
+            ) : (
+              <p className="text-center text-xs text-slate-600 italic">
+                Select one option. Your choice is auto-saved. Navigate between questions using the tabs above.
+              </p>
+            )}
           </div>
+
         </div>
       ) : (
         /* ── UI Detective Coding Pane ── */
@@ -557,6 +570,19 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
 
           {/* ── Preview Pane ── */}
           <div className="w-1/2 flex flex-col bg-slate-900 overflow-y-auto">
+
+            {/* Mission Intel Hint Bar */}
+            {currentQuestion?.tailwindClue && (
+              <div className="flex items-center gap-3 px-4 py-2.5 bg-slate-950/80 border-b border-indigo-500/30 shrink-0">
+                <span className="flex-shrink-0 text-[9px] font-black uppercase tracking-widest text-indigo-400 bg-indigo-500/15 border border-indigo-500/30 px-2 py-0.5 rounded-md">
+                  💡 INTEL
+                </span>
+                <p className="text-xs text-slate-300 font-mono leading-relaxed truncate">
+                  {currentQuestion.tailwindClue}
+                </p>
+              </div>
+            )}
+
             {/* Target */}
             <div className="p-4 border-b border-slate-800 flex justify-center items-center flex-col">
               <div className="flex w-full items-center gap-2 mb-3 max-w-[400px]">
@@ -658,24 +684,6 @@ const SuperTestRunner: React.FC<SuperTestRunnerProps> = ({
               </div>
             </div>
 
-            {/* Tailwind CSS Clue */}
-            {currentQuestion?.tailwindClue && (
-              <div className="p-4 border-t border-slate-800">
-                <div className="flex items-center gap-2 mb-2 max-w-[400px] mx-auto">
-                  <span className="w-2.5 h-2.5 rounded-full bg-indigo-500/20 text-indigo-400 flex items-center justify-center text-[10px] border border-indigo-500/30">
-                    💡
-                  </span>
-                  <h3 className="text-xs font-black uppercase tracking-widest text-indigo-400 animate-pulse">
-                    Tailwind CSS Clue
-                  </h3>
-                </div>
-                <div className="max-w-[400px] mx-auto w-full">
-                  <div className="bg-slate-800/60 rounded-lg px-4 py-3 border border-slate-700 font-mono text-xs text-slate-200 select-all leading-relaxed whitespace-pre-wrap">
-                    {currentQuestion.tailwindClue}
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}

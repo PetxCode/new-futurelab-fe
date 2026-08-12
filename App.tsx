@@ -35,12 +35,7 @@ import { NavigationItem, User } from "./types";
 import toast, { Toaster } from "react-hot-toast";
 import PoweredByNext from "./components/PoweredByNext";
 
-export const API_BASE_URL =
-  window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1"
-    ? "http://localhost:5000"
-    : // ? 'https://futurelab-main-be-1.onrender.com'
-    "https://futurelab-main-be-1.onrender.com";
+export const API_BASE_URL = "https://futurelab-main-be-1.onrender.com";
 // : 'https://futurelab-main-be-1.onrender.com';
 
 const App: React.FC = () => {
