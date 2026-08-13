@@ -216,10 +216,17 @@ const NanoQuest: React.FC = () => {
         }
 
         if (line.startsWith('if ')) {
-          const condition = line.includes('wallahead') ? 'wall' : line.includes('isclear') ? 'clear' : '';
+          const lower = line.toLowerCase();
+          const condition = lower.includes('wallahead') ? 'wall' 
+            : lower.includes('isclear') ? 'clear'
+            : (lower.includes('coin') || lower.includes('beacon') || lower.includes('target')) ? 'coin'
+            : lower.includes('home') ? 'home'
+            : '';
           let conditionMet = false;
           if (condition === 'wall') conditionMet = checkWallAhead(currentPos, currentDir);
           if (condition === 'clear') conditionMet = !checkWallAhead(currentPos, currentDir);
+          if (condition === 'coin') conditionMet = currentLevel.targetPos.some(t => t[0] === currentPos[0] && t[1] === currentPos[1]);
+          if (condition === 'home') conditionMet = (currentLevel.startPos[0] === currentPos[0] && currentLevel.startPos[1] === currentPos[1]);
 
           const { blockLines, skip } = getBlockLines(linesToExec, i);
           if (conditionMet) {

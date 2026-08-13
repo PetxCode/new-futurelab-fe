@@ -118,7 +118,7 @@ export const NANO_LEVELS: NanoLevel[] = [
     startPos: [5, 5],
     startDir: 'right',
     targetPos: [[8, 2]],
-    obstacles: [[7,3], [8,3], [9,3], [6,2], [6,1], [7,1], [8,1], [9,1]],
+    obstacles: [[7,3], [8,3], [9,3], [6,1], [7,1], [8,1], [9,1]],
     maxLines: 6,
     concept: "Coordinates"
   },
