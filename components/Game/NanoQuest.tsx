@@ -217,16 +217,30 @@ const NanoQuest: React.FC = () => {
 
         if (line.startsWith('if ')) {
           const lower = line.toLowerCase();
-          const condition = lower.includes('wallahead') ? 'wall' 
-            : lower.includes('isclear') ? 'clear'
-            : (lower.includes('coin') || lower.includes('beacon') || lower.includes('target')) ? 'coin'
-            : lower.includes('home') ? 'home'
-            : '';
+          const isWall = lower.includes('wallahead');
+          const isClear = lower.includes('isclear');
+          const isObstacle = lower.includes('obstacle') || lower.includes('block');
+          const isCoinAhead = lower.includes('coinahead') || lower.includes('beaconahead') || lower.includes('targetahead');
+          const isCoin = lower.includes('coin') || lower.includes('beacon') || lower.includes('target');
+          const isHome = lower.includes('home');
+
           let conditionMet = false;
-          if (condition === 'wall') conditionMet = checkWallAhead(currentPos, currentDir);
-          if (condition === 'clear') conditionMet = !checkWallAhead(currentPos, currentDir);
-          if (condition === 'coin') conditionMet = currentLevel.targetPos.some(t => t[0] === currentPos[0] && t[1] === currentPos[1]);
-          if (condition === 'home') conditionMet = (currentLevel.startPos[0] === currentPos[0] && currentLevel.startPos[1] === currentPos[1]);
+          if (isWall || isObstacle) {
+            conditionMet = checkWallAhead(currentPos, currentDir);
+          } else if (isClear) {
+            conditionMet = !checkWallAhead(currentPos, currentDir);
+          } else if (isCoinAhead) {
+            let nextPos = [...currentPos] as [number, number];
+            if (currentDir === 'right') nextPos[0]++;
+            else if (currentDir === 'left') nextPos[0]--;
+            else if (currentDir === 'up') nextPos[1]--;
+            else if (currentDir === 'down') nextPos[1]++;
+            conditionMet = currentLevel.targetPos.some(t => t[0] === nextPos[0] && t[1] === nextPos[1]);
+          } else if (isCoin) {
+            conditionMet = currentLevel.targetPos.some(t => t[0] === currentPos[0] && t[1] === currentPos[1]);
+          } else if (isHome) {
+            conditionMet = (currentLevel.startPos[0] === currentPos[0] && currentLevel.startPos[1] === currentPos[1]);
+          }
 
           const { blockLines, skip } = getBlockLines(linesToExec, i);
           if (conditionMet) {
@@ -304,9 +318,8 @@ const NanoQuest: React.FC = () => {
 
     const isDone = !isStepMode || (!reachedStepLimit && actionCounter < stepTargetRef.current);
     if (!halted && (isDone || !isStepMode)) {
-      const finalOnTarget = currentLevel.targetPos.some(t => t[0] === currentPos[0] && t[1] === currentPos[1]);
       const allCollected = localVisited.length === currentLevel.targetPos.length;
-      if (allCollected && finalOnTarget) {
+      if (allCollected) {
         const lineCount = lines.filter(l => {
           const trimmed = l.trim();
           return trimmed !== '' && trimmed !== '}';
@@ -685,7 +698,9 @@ const NanoQuest: React.FC = () => {
                     { cmd: 'turnLeft()', type: 'action' },
                     { cmd: 'turnRight()', type: 'action' },
                     { cmd: 'repeat 2 {\n  \n}', type: 'loop' },
-                    { cmd: 'if wallAhead() {\n  \n}', type: 'logic' }
+                    { cmd: 'if wallAhead() {\n  \n}', type: 'logic' },
+                    { cmd: 'if obstacleAhead() {\n  \n}', type: 'logic' },
+                    { cmd: 'if coin() {\n  \n}', type: 'logic' }
                 ].map(token => (
                     <button 
                         key={token.cmd}
