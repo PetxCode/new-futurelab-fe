@@ -35,8 +35,8 @@ import { NavigationItem, User } from "./types";
 import toast, { Toaster } from "react-hot-toast";
 import PoweredByNext from "./components/PoweredByNext";
 
-export const API_BASE_URL = "https://futurelab-main-be-1.onrender.com";
-// : 'https://futurelab-main-be-1.onrender.com';
+export const API_BASE_URL = "https://futurelab-main-be-y6hd.onrender.com";
+// : 'https://futurelab-main-be-y6hd.onrender.com';
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(

@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../App';
 
 interface AddModuleModalProps {
   courseId: string;
@@ -26,7 +27,7 @@ const AddModuleModal: React.FC<AddModuleModalProps> = ({ courseId, onClose, onSu
 
     setIsLoading(true);
     try {
-      const response = await fetch(`https://futurelab-main-be.vercel.app/api/courses/${courseId}/modules`, {
+      const response = await fetch(`${API_BASE_URL}/api/courses/${courseId}/modules`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',

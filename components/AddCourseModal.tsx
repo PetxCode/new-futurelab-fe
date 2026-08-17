@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import { API_BASE_URL } from '../App';
 
 interface AddCourseModalProps {
   onClose: () => void;
@@ -29,7 +30,7 @@ const AddCourseModal: React.FC<AddCourseModalProps> = ({ onClose, onSuccess }) =
 
     setIsLoading(true);
     try {
-      const response = await fetch('https://futurelab-main-be.vercel.app/api/courses', {
+      const response = await fetch(`${API_BASE_URL}/api/courses`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
