@@ -47,8 +47,23 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
     }
   }, [isSchoolContext, userData]);
 
-  const fetchUsers = async (currentPage = page) => {
-    setLoading(true);
+  const getUserOnlineStatus = (user: User) => {
+    const lastActive = user.lastSeen || user.lastActivityAt;
+    if (!lastActive) return { isOnline: false, label: 'Offline', subText: 'Never active' };
+    const diffInMs = new Date().getTime() - new Date(lastActive).getTime();
+    const isOnline = diffInMs < 3 * 60 * 1000;
+    if (isOnline) {
+      return { isOnline: true, label: 'Online', subText: 'Active now' };
+    }
+    return { 
+      isOnline: false, 
+      label: 'Offline', 
+      subText: moment(lastActive).fromNow()
+    };
+  };
+
+  const fetchUsers = async (currentPage = page, silent = false) => {
+    if (!silent) setLoading(true);
     try {
       const query = new URLSearchParams({
         name: searchTerm,
@@ -69,14 +84,18 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
         setTotalUsers(data.total || 0);
       } else {
         const errBody = await response.json().catch(() => ({}));
-        console.error('[AdminUsers] Fetch failed:', response.status, errBody);
-        toast.error(`Failed to fetch users (${response.status}: ${errBody.message || 'Unknown error'})`);
+        if (!silent) {
+          console.error('[AdminUsers] Fetch failed:', response.status, errBody);
+          toast.error(`Failed to fetch users (${response.status}: ${errBody.message || 'Unknown error'})`);
+        }
       }
     } catch (err) {
-      console.error('[AdminUsers] Network error:', err);
-      toast.error('Network error connecting to server');
+      if (!silent) {
+        console.error('[AdminUsers] Network error:', err);
+        toast.error('Network error connecting to server');
+      }
     } finally {
-      setLoading(false);
+      if (!silent) setLoading(false);
     }
   };
 
@@ -306,6 +325,14 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
   useEffect(() => {
     fetchUsers(page);
   }, [page]);
+
+  // Periodic silent refresh to keep online status badges up-to-date
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchUsers(page, true);
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [page, searchTerm, schoolFilter, gradeFilter]);
 
   if (selectedUser) {
     return (
@@ -752,30 +779,60 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
                   </td>
                 </tr>
               ) : (
-                users.map((user) => (
-                  <tr key={user._id} className="group hover:bg-slate-700/20 transition-colors">
-                    <td className="px-10 py-6">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-slate-700 bg-slate-900 flex-shrink-0">
-                          {user.avatarUrl ? (
-                            <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <div className="w-full h-full flex items-center justify-center text-indigo-500 font-black text-xl">
-                              {(user.fullName || (user as any).FullName || '?').charAt(0)}
+                users.map((user) => {
+                  const statusInfo = getUserOnlineStatus(user);
+                  return (
+                    <tr key={user._id} className="group hover:bg-slate-700/20 transition-colors">
+                      <td className="px-10 py-6">
+                        <div className="flex items-center space-x-4">
+                          <div className="relative flex-shrink-0">
+                            <div className="w-12 h-12 rounded-2xl overflow-hidden border-2 border-slate-700 bg-slate-900">
+                              {user.avatarUrl ? (
+                                <img src={user.avatarUrl} alt="" className="w-full h-full object-cover" />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-indigo-500 font-black text-xl">
+                                  {(user.fullName || (user as any).FullName || '?').charAt(0)}
+                                </div>
+                              )}
                             </div>
-                          )}
-                        </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                             <p className="text-white font-bold group-hover:text-indigo-400 transition-colors">{user.fullName || (user as any).FullName || 'Unknown User'}</p>
-                             {user.isInstructorPending && !user.isInstructor && (
-                               <span className="px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase rounded border border-amber-500/20 animate-pulse">Pending</span>
-                             )}
+                            {/* Online / Offline status badge on avatar */}
+                            <span 
+                              className={`absolute -bottom-1 -right-1 w-4 h-4 rounded-full border-2 border-slate-900 flex items-center justify-center ${
+                                statusInfo.isOnline 
+                                  ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' 
+                                  : 'bg-slate-600'
+                              }`}
+                              title={statusInfo.isOnline ? 'Online' : statusInfo.subText}
+                            >
+                              {statusInfo.isOnline && <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping opacity-75" />}
+                            </span>
                           </div>
-                          <p className="text-slate-500 text-xs font-medium">{user.email}</p>
+                          <div>
+                            <div className="flex items-center space-x-2">
+                              <p className="text-white font-bold group-hover:text-indigo-400 transition-colors">{user.fullName || (user as any).FullName || 'Unknown User'}</p>
+                              <span 
+                                className={`px-2 py-0.5 text-[8px] font-black uppercase tracking-wider rounded-full border flex items-center gap-1.5 ${
+                                  statusInfo.isOnline 
+                                    ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]' 
+                                    : 'bg-slate-800/80 text-slate-400 border-slate-700/60'
+                                }`}
+                              >
+                                <span className={`w-1.5 h-1.5 rounded-full ${statusInfo.isOnline ? 'bg-emerald-400 animate-pulse shadow-[0_0_6px_rgba(52,211,153,0.8)]' : 'bg-slate-500'}`} />
+                                {statusInfo.isOnline ? 'Online' : 'Offline'}
+                              </span>
+                              {user.isInstructorPending && !user.isInstructor && (
+                                <span className="px-2 py-0.5 bg-amber-500/10 text-amber-500 text-[8px] font-black uppercase rounded border border-amber-500/20 animate-pulse">Pending</span>
+                              )}
+                            </div>
+                            <p className="text-slate-500 text-xs font-medium">{user.email}</p>
+                            {!statusInfo.isOnline && (
+                              <p className="text-[10px] text-slate-500 font-semibold mt-0.5">
+                                Last active: <span className="text-slate-400">{statusInfo.subText}</span>
+                              </p>
+                            )}
+                          </div>
                         </div>
-                      </div>
-                    </td>
+                      </td>
                     <td className="px-10 py-6">
                       <p className="text-slate-300 font-semibold">{user.schoolName || 'Independent'}</p>
                     </td>
@@ -942,8 +999,9 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
                       </div>
                     </td>
                   </tr>
-                ))
-              )}
+                );
+              })
+            )}
             </tbody>
           </table>
         </div>
@@ -963,14 +1021,18 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
             >
               ← Prev
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1)
-              .filter(p => p === 1 || p === totalPages || Math.abs(p - page) <= 1)
-              .reduce((acc: (number | string)[], p, idx, arr) => {
-                if (idx > 0 && (p as number) - (arr[idx - 1] as number) > 1) acc.push('...');
-                acc.push(p);
-                return acc;
-              }, [])
-              .map((p, i) =>
+            {(() => {
+              const pages: (number | string)[] = [];
+              for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || Math.abs(i - page) <= 1) {
+                  const last = pages[pages.length - 1];
+                  if (typeof last === 'number' && i - last > 1) {
+                    pages.push('...');
+                  }
+                  pages.push(i);
+                }
+              }
+              return pages.map((p, i) =>
                 p === '...' ? (
                   <span key={`ellipsis-${i}`} className="text-slate-600 px-1">…</span>
                 ) : (
@@ -986,7 +1048,8 @@ const AdminUsers: React.FC<AdminUsersProps> = ({ userData, isSchoolContext }) =>
                     {p}
                   </button>
                 )
-              )}
+              );
+            })()}
             <button
               onClick={() => setPage(p => Math.min(totalPages, p + 1))}
               disabled={page === totalPages}

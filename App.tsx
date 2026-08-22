@@ -35,8 +35,12 @@ import { NavigationItem, User } from "./types";
 import toast, { Toaster } from "react-hot-toast";
 import PoweredByNext from "./components/PoweredByNext";
 
-export const API_BASE_URL = "https://futurelab-main-be-y6hd.onrender.com";
-// : 'https://futurelab-main-be-y6hd.onrender.com';
+export const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  (typeof window !== "undefined" &&
+  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+    ? "http://localhost:5000"
+    : "https://futurelab-main-be-y6hd.onrender.com");
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(
@@ -129,6 +133,28 @@ const App: React.FC = () => {
 
     checkAuth();
   }, []);
+
+  // Periodic Heartbeat to maintain online status
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const sendHeartbeat = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) return;
+      try {
+        await fetch(`${API_BASE_URL}/api/user/heartbeat`, {
+          method: "POST",
+          headers: { "x-auth-token": token },
+        });
+      } catch (e) {
+        // Silent catch for background heartbeat
+      }
+    };
+
+    sendHeartbeat();
+    const interval = setInterval(sendHeartbeat, 30000);
+    return () => clearInterval(interval);
+  }, [isAuthenticated]);
 
   // Handle Paystack redirect back after payment
   useEffect(() => {

@@ -132,6 +132,7 @@ export interface User {
   totalMissions?: number;
   averageScore?: number;
   lastActivityAt?: string | null;
+  lastSeen?: string | null;
   lastPoints?: number;
   lastActivityTitle?: string;
   instructorProfile?: {
