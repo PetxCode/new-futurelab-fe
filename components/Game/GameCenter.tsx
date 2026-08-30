@@ -14,6 +14,7 @@ import HtmlTagMaster from './HtmlTagMaster';
 import TailwindBattle from './TailwindBattle';
 import TailwindInvaders from './TailwindInvaders';
 import UiDetective from './UiDetective';
+import CyberGrid from './CyberGrid';
 
 interface GameConfig {
   id: string;
@@ -25,6 +26,14 @@ interface GameConfig {
 }
 
 const GAMES: GameConfig[] = [
+  {
+    id: 'cybergrid',
+    title: 'CyberGrid Matrix: Logic Engine',
+    description: 'Build critical thinking stamina! Solve futuristic Sudoku & matrix constraints using process-of-elimination.',
+    icon: '🧩',
+    color: 'from-emerald-400 via-teal-500 to-indigo-600',
+    isNew: true
+  },
   {
     id: 'pyquest',
     title: 'PyQuest: Robot Chronicles',
@@ -142,6 +151,10 @@ const GAMES: GameConfig[] = [
 
 const GameCenter: React.FC = () => {
   const [activeGame, setActiveGame] = useState<string | null>(null);
+
+  if (activeGame === 'cybergrid') {
+    return <CyberGrid onBack={() => setActiveGame(null)} />;
+  }
 
   if (activeGame === 'pyquest') {
     return (
