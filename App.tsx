@@ -37,10 +37,7 @@ import PoweredByNext from "./components/PoweredByNext";
 
 export const API_BASE_URL =
   import.meta.env.VITE_API_BASE_URL ||
-  (typeof window !== "undefined" &&
-  (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
-    ? "http://localhost:5000"
-    : "https://futurelab-main-be-y6hd.onrender.com");
+  "https://futurelab-main-be-y6hd.onrender.com";
 
 const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(
