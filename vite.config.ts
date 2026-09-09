@@ -17,10 +17,10 @@ export default defineConfig(({ mode }) => {
       react(),
       VitePWA({
         registerType: "autoUpdate",
-        includeAssets: ["favIcon.png", "logo.svg", "robots.txt", "tailwindcss.js"],
+        includeAssets: ["favIcon.png", "logo.svg", "robots.txt", "sitemap.xml", "tailwindcss.js"],
         workbox: {
           globPatterns: [
-            "**/*.{js,css,html,ico,png,svg,webp,woff,woff2,ttf,eot}",
+            "**/*.{js,css,html,ico,png,svg,webp,woff,woff2,ttf,eot,xml,txt}",
           ],
           globIgnores: ["**/node_modules/**/*", "**/dist/**/*"],
           maximumFileSizeToCacheInBytes: 10 * 1024 * 1024,
