@@ -421,6 +421,442 @@ const LEVELS = [
                 ]}
             ]}
         ]
+    },
+    {
+        id: 16,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 1, dir: 1 },
+        goal: { x: 4, y: 5 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 6,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'move forward' },
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]}
+            ]}
+        ]
+    },
+    {
+        id: 17,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 1, 1],
+            [1, 1, 1, 0, 1, 1, 1, 0, 1, 1],
+            [1, 1, 0, 0, 1, 1, 1, 0, 1, 1],
+            [1, 1, 0, 1, 1, 1, 0, 0, 1, 1],
+            [1, 0, 0, 1, 1, 1, 0, 1, 1, 1],
+            [1, 0, 1, 1, 1, 0, 0, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 7, dir: 1 },
+        goal: { x: 7, y: 1 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 8,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'move forward' },
+                { type: 'if path to the left ↺', children: [
+                    { type: 'turn left ↺' }
+                ]},
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]}
+            ]}
+        ]
+    },
+    {
+        id: 18,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 1, dir: 1 },
+        goal: { x: 1, y: 7 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 7,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'move forward' },
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]},
+                { type: 'if path to the left ↺', children: [
+                    { type: 'turn left ↺' }
+                ]}
+            ]}
+        ]
+    },
+    {
+        id: 19,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 1, dir: 1 },
+        goal: { x: 1, y: 7 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 8,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'move forward' },
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]},
+                { type: 'if path to the left ↺', children: [
+                    { type: 'turn left ↺' }
+                ]}
+            ]}
+        ]
+    },
+    {
+        id: 20,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 1, 0, 0, 1],
+            [1, 0, 1, 1, 1, 0, 1, 0, 1, 1],
+            [1, 0, 1, 0, 0, 0, 0, 0, 1, 1],
+            [1, 0, 1, 0, 1, 1, 1, 0, 1, 1],
+            [1, 0, 0, 0, 1, 0, 0, 0, 1, 1],
+            [1, 1, 1, 0, 1, 0, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 1, dir: 1 },
+        goal: { x: 8, y: 7 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 8,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'move forward' },
+                { type: 'if path to the left ↺', children: [
+                    { type: 'turn left ↺' }
+                ]},
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]}
+            ]}
+        ]
+    },
+    {
+        id: 21,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 1, dir: 1 },
+        goal: { x: 4, y: 5 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 6,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'move forward' },
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]}
+            ]}
+        ]
+    },
+    {
+        id: 22,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+            [1, 0, 1, 0, 1, 0, 1, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 1, 0, 0, 1],
+            [1, 0, 0, 0, 1, 1, 1, 0, 1, 1],
+            [1, 1, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 1, 1, 1, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 0, 0, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 1, dir: 1 },
+        goal: { x: 8, y: 7 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 8,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'move forward' },
+                { type: 'if path to the left ↺', children: [
+                    { type: 'turn left ↺' }
+                ]},
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]}
+            ]}
+        ]
+    },
+    {
+        id: 23,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 1, 0, 1, 0, 1, 0, 0, 1],
+            [1, 0, 1, 0, 1, 0, 1, 0, 1, 1],
+            [1, 0, 1, 0, 1, 0, 1, 0, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 0, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 1, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 1, dir: 2 },
+        goal: { x: 8, y: 8 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 7,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'if path ahead', children: [
+                    { type: 'move forward' }
+                ]},
+                { type: 'if path to the left ↺', children: [
+                    { type: 'turn left ↺' }
+                ]},
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]}
+            ]}
+        ]
+    },
+    {
+        id: 24,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 1, dir: 1 },
+        goal: { x: 8, y: 8 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 7,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'move forward' },
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]},
+                { type: 'if path to the left ↺', children: [
+                    { type: 'turn left ↺' }
+                ]}
+            ]}
+        ]
+    },
+    {
+        id: 25,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 1, dir: 1 },
+        goal: { x: 4, y: 5 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 6,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'move forward' },
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]}
+            ]}
+        ]
+    },
+    {
+        id: 26,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 1, 0, 0, 0, 0, 0, 1],
+            [1, 1, 0, 1, 0, 1, 1, 1, 0, 1],
+            [1, 1, 0, 0, 0, 1, 0, 0, 0, 1],
+            [1, 1, 1, 1, 0, 1, 0, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 1, 1, 1],
+            [1, 0, 1, 1, 1, 1, 0, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 1, dir: 1 },
+        goal: { x: 8, y: 8 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 8,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'move forward' },
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]},
+                { type: 'if path to the left ↺', children: [
+                    { type: 'turn left ↺' }
+                ]}
+            ]}
+        ]
+    },
+    {
+        id: 27,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 0, 1, 0, 0, 1, 0, 1],
+            [1, 0, 1, 0, 1, 1, 1, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 1, dir: 1 },
+        goal: { x: 5, y: 4 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 7,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]},
+                { type: 'if path ahead', children: [
+                    { type: 'move forward' }
+                ]}
+            ]}
+        ]
+    },
+    {
+        id: 28,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 1, dir: 1 },
+        goal: { x: 4, y: 5 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 6,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'move forward' },
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]}
+            ]}
+        ]
+    },
+    {
+        id: 29,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 1, dir: 1 },
+        goal: { x: 1, y: 7 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 8,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'move forward' },
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]},
+                { type: 'if path to the left ↺', children: [
+                    { type: 'turn left ↺' }
+                ]}
+            ]}
+        ]
+    },
+    {
+        id: 30,
+        map: [
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 1, 0, 1, 0, 1],
+            [1, 0, 1, 0, 0, 0, 0, 1, 0, 1],
+            [1, 0, 1, 1, 1, 1, 1, 1, 0, 1],
+            [1, 0, 0, 0, 0, 0, 0, 0, 0, 1],
+            [1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        ],
+        start: { x: 1, y: 1, dir: 1 },
+        goal: { x: 4, y: 5 },
+        blocks: ['maze_moveForward', 'maze_turn', 'maze_repeatUntil', 'maze_ifPath'],
+        maxBlocks: 6,
+        solution: [
+            { type: 'repeat until 🏁', children: [
+                { type: 'move forward' },
+                { type: 'if path to the right ↻', children: [
+                    { type: 'turn right ↻' }
+                ]}
+            ]}
+        ]
     }
 ];
 
@@ -716,12 +1152,12 @@ const BlockCodingEngine: React.FC<{
                   console.error('Error logging maze activity:', err);
                 }
 
-                if (currentLevelId < 15) {
+                if (currentLevelId < 30) {
                     setMaxSolvedLevel(prev => Math.max(prev, currentLevelId + 1));
                     onLevelChange?.(currentLevelId);
                     setTimeout(() => setCurrentLevelId(id => id + 1), 1500);
-                } else if (currentLevelId === 15) {
-                    onLevelChange?.(15);
+                } else if (currentLevelId === 30) {
+                    onLevelChange?.(30);
                 }
             }
             return;
@@ -857,47 +1293,154 @@ const BlockCodingEngine: React.FC<{
         render();
     }, [currentLevelId]);
 
+    const currentUserData = userData || (() => {
+        try {
+            const stored = localStorage.getItem('userData');
+            return stored ? JSON.parse(stored) : null;
+        } catch (e) {
+            return null;
+        }
+    })();
+
+    const isAdminUser = Boolean(
+        currentUserData?.isAdmin ||
+        currentUserData?.isSchoolAdmin ||
+        currentUserData?.isInstructor ||
+        currentUserData?.role === 'admin' ||
+        currentUserData?.role === 'superadmin' ||
+        localStorage.getItem('isAdmin') === 'true'
+    );
+
+    const stages = [
+        { number: 1, title: 'Stage 1', levels: [1, 2, 3, 4, 5] },
+        { number: 2, title: 'Stage 2', levels: [6, 7, 8, 9, 10] },
+        { number: 3, title: 'Stage 3', levels: [11, 12, 13, 14, 15] },
+        { number: 4, title: 'Stage 4', levels: [16, 17, 18, 19, 20] },
+        { number: 5, title: 'Stage 5', levels: [21, 22, 23, 24, 25] },
+        { number: 6, title: 'Stage 6', levels: [26, 27, 28, 29, 30] },
+    ];
+
+    const [activeStage, setActiveStage] = useState<number>(() => Math.ceil(currentLevelId / 5));
+
+    useEffect(() => {
+        setActiveStage(Math.ceil(currentLevelId / 5));
+    }, [currentLevelId]);
+
     return (
         <div className="flex flex-col h-full w-full bg-slate-900 text-white font-inter overflow-hidden border-t border-slate-800">
             {/* Nav Header */}
-            <div className="flex flex-col md:flex-row bg-slate-900 min-h-[56px] items-center px-6 border-b border-slate-800 py-3 md:py-0">
-                <div className="flex items-center space-x-3 mb-2 md:mb-0">
-                    <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-                        <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 21l-8-4.5v-9L12 3l8 4.5v9z" /></svg>
+            <div className="flex flex-col bg-slate-900 border-b border-slate-800 px-4 py-3 space-y-3">
+                {/* Top Row: Title, Admin Badge, Stage Pills */}
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex items-center space-x-3">
+                        <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center shadow-lg shadow-indigo-600/30">
+                            <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M12 21l-8-4.5v-9L12 3l8 4.5v9z" /></svg>
+                        </div>
+                        <div>
+                            <span className="text-white font-black uppercase tracking-tighter italic text-base">Maze Navigator</span>
+                            <span className="text-[10px] text-slate-400 font-bold ml-2">30 Levels • 6 Stages</span>
+                        </div>
+                        {isAdminUser && (
+                            <span className="px-2.5 py-1 bg-amber-500/15 border border-amber-500/30 rounded-full text-amber-400 text-[10px] font-black uppercase tracking-wider flex items-center gap-1 shadow-sm">
+                                <span>🛡️</span> Admin Access
+                            </span>
+                        )}
                     </div>
-                    <span className="text-white font-black uppercase tracking-tighter italic">Maze Navigator</span>
-                </div>
-                
-                <div className="flex flex-wrap items-center justify-center gap-1.5 mx-2 md:mx-10">
-                    {Array.from({ length: 15 }, (_, i) => i + 1).map(id => {
-                        const isUnlocked = userData?.isAdmin || userData?.isSchoolAdmin || id <= maxSolvedLevel;
-                        return (
-                            <button 
-                                key={id} 
-                                onClick={() => {
-                                    if (isUnlocked) {
-                                        setCurrentLevelId(id);
-                                    }
-                                }}
-                                title={!isUnlocked ? 'Complete the current level to progress' : undefined}
-                                className={`w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black transition-all ${
-                                    currentLevelId === id 
-                                        ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.4)]' 
-                                        : isUnlocked
-                                            ? 'bg-slate-800 text-slate-400 hover:bg-slate-700 hover:text-slate-300 cursor-pointer'
-                                            : 'bg-slate-900 text-slate-700 cursor-not-allowed opacity-40'
-                                }`}
-                            >
-                                {id}
-                            </button>
-                        );
-                    })}
+
+                    {/* Stage Selector Tabs */}
+                    <div className="flex items-center gap-1 overflow-x-auto py-1 scrollbar-none">
+                        {stages.map(stage => {
+                            const isCurrentStage = activeStage === stage.number;
+                            const hasCurrentLevel = stage.levels.includes(currentLevelId);
+
+                            return (
+                                <button
+                                    key={stage.number}
+                                    onClick={() => setActiveStage(stage.number)}
+                                    className={`px-3 py-1.5 rounded-xl text-[11px] font-black uppercase tracking-tight transition-all flex items-center space-x-1.5 shrink-0 ${
+                                        isCurrentStage
+                                            ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 ring-1 ring-indigo-400'
+                                            : hasCurrentLevel
+                                                ? 'bg-slate-800 text-indigo-300 border border-indigo-500/30'
+                                                : 'bg-slate-950/60 text-slate-400 hover:bg-slate-800 hover:text-slate-200 border border-slate-800'
+                                    }`}
+                                >
+                                    <span>{stage.title}</span>
+                                    <span className="text-[9px] opacity-70 font-normal">({stage.levels[0]}-{stage.levels[4]})</span>
+                                </button>
+                            );
+                        })}
+                    </div>
                 </div>
 
-                <div className="flex-1 hidden md:block" />
-                <select className="bg-slate-800 text-[10px] font-black border border-slate-700 rounded-lg px-2 outline-none h-7 text-slate-300 uppercase tracking-widest">
-                    <option>English (US)</option>
-                </select>
+                {/* Level Selector Bar (5 Levels for Active Stage + quick jump) */}
+                <div className="flex items-center justify-between bg-slate-950/70 border border-slate-800/80 rounded-2xl px-4 py-2">
+                    <div className="flex items-center space-x-2">
+                        <span className="text-[10px] font-black uppercase text-indigo-400 tracking-widest mr-1">
+                            Stage {activeStage} Levels:
+                        </span>
+                        <div className="flex items-center space-x-2">
+                            {stages.find(s => s.number === activeStage)?.levels.map(id => {
+                                const isUnlocked = isAdminUser || id <= maxSolvedLevel;
+                                const isCurrent = currentLevelId === id;
+
+                                return (
+                                    <button
+                                        key={id}
+                                        onClick={() => {
+                                            if (isUnlocked) {
+                                                setCurrentLevelId(id);
+                                            }
+                                        }}
+                                        title={isAdminUser ? `Level ${id} (Admin Unlocked)` : !isUnlocked ? `Complete Level ${id - 1} to unlock` : `Level ${id}`}
+                                        className={`w-9 h-9 rounded-xl flex items-center justify-center text-xs font-black transition-all relative ${
+                                            isCurrent
+                                                ? 'bg-indigo-600 text-white shadow-[0_0_15px_rgba(79,70,229,0.5)] ring-2 ring-indigo-400 scale-105'
+                                                : isUnlocked
+                                                    ? 'bg-slate-800 text-slate-200 hover:bg-indigo-900/40 hover:text-indigo-200 hover:border-indigo-500/50 border border-slate-700 cursor-pointer'
+                                                    : 'bg-slate-900/60 text-slate-600 border border-slate-800/60 cursor-not-allowed'
+                                        }`}
+                                    >
+                                        <span>{id}</span>
+                                        {!isUnlocked && !isAdminUser && (
+                                            <span className="absolute -top-1 -right-1 text-[8px]">🔒</span>
+                                        )}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* Level Navigation Controls */}
+                    <div className="flex items-center space-x-2">
+                        <button
+                            onClick={() => {
+                                if (currentLevelId > 1) setCurrentLevelId(prev => prev - 1);
+                            }}
+                            disabled={currentLevelId <= 1}
+                            className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-slate-300 rounded-lg text-xs font-bold transition flex items-center space-x-1"
+                        >
+                            <span>←</span>
+                            <span className="hidden sm:inline">Prev</span>
+                        </button>
+                        <span className="text-xs font-black text-slate-400 px-1">
+                            {currentLevelId} / 30
+                        </span>
+                        <button
+                            onClick={() => {
+                                const nextId = currentLevelId + 1;
+                                if (nextId <= 30 && (isAdminUser || nextId <= maxSolvedLevel)) {
+                                    setCurrentLevelId(nextId);
+                                }
+                            }}
+                            disabled={currentLevelId >= 30 || (!isAdminUser && currentLevelId + 1 > maxSolvedLevel)}
+                            className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 disabled:opacity-30 disabled:cursor-not-allowed text-slate-300 rounded-lg text-xs font-bold transition flex items-center space-x-1"
+                        >
+                            <span className="hidden sm:inline">Next</span>
+                            <span>→</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden relative">
@@ -918,18 +1461,18 @@ const BlockCodingEngine: React.FC<{
                             </svg>
                             <span>Run Program</span>
                         </button>
-                        <div className={`grid gap-3 ${userData?.isAdmin ? 'grid-cols-2' : 'grid-cols-1'} `}>
+                        <div className={`grid gap-3 ${isAdminUser ? 'grid-cols-2' : 'grid-cols-1'}`}>
                             <button onClick={reset} className="py-3 bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-sm rounded-xl transition-colors flex items-center justify-center space-x-2">
                                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                                 <span>Reset</span>
                             </button>
-                            { (userData?.isAdmin || userData?.isSchoolAdmin) && (
+                            {isAdminUser && (
                                 <button 
                                     onClick={() => setShowHint(true)}
-                                    className={`py-3 bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 font-bold text-sm rounded-xl transition-all flex items-center justify-center space-x-2 shadow-[0_0_15px_rgba(245,158,11,0.1)]`}
+                                    className="py-3 bg-amber-600/20 hover:bg-amber-600/30 text-amber-400 border border-amber-500/30 font-bold text-sm rounded-xl transition-all flex items-center justify-center space-x-2 shadow-[0_0_15px_rgba(245,158,11,0.1)] cursor-pointer"
                                 >
                                     <span className="text-amber-500">💡</span>
-                                    <span>Hint</span>
+                                    <span>Hint Solution</span>
                                 </button>
                             )}
                         </div>
