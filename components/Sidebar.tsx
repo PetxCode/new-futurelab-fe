@@ -217,7 +217,7 @@ const Sidebar: React.FC<SidebarProps> = ({
       ),
     },
     {
-      id: "Python Engine",
+      id: "Coding Engine",
       icon: (
         <svg
           className="w-5 h-5"
@@ -624,8 +624,8 @@ const Sidebar: React.FC<SidebarProps> = ({
           <button
             onClick={() => setActiveTab("Term Plan")}
             className={`flex-1 py-3 px-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center space-x-2 active:scale-95 group ${activeTab === "Term Plan"
-                ? "bg-slate-700 text-white"
-                : "bg-emerald-600 text-white hover:bg-emerald-500 shadow-emerald-600/20"
+              ? "bg-slate-700 text-white"
+              : "bg-emerald-600 text-white hover:bg-emerald-500 shadow-emerald-600/20"
               }`}
           >
             <svg

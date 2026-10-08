@@ -55,12 +55,12 @@ const Dashboard: React.FC<{
     // If no missions are defined, navigate directly to the engine (backward compatibility)
     if (!currentRes.missions || currentRes.missions.length === 0) {
       if (
-        currentRes.title === "Python Engine" ||
+        currentRes.title === "Coding Engine" ||
         currentRes.title === "TensorFlow 2.0 Workshop" ||
         currentRes.category === "AI" ||
         currentRes.category === "Practice"
       ) {
-        onNavigate("Python Engine");
+        onNavigate("Coding Engine");
       } else {
         onNavigate("Engine Blocks");
       }
@@ -638,68 +638,68 @@ const Dashboard: React.FC<{
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {blogPosts.length > 0
             ? blogPosts.map((post) => (
-                <div
-                  key={post._id}
-                  onClick={() => onBlogClick?.(post.slug)}
-                  className="bg-slate-800/40 border border-slate-700/50 rounded-[2.5rem] overflow-hidden group hover:border-indigo-500/50 transition-all cursor-pointer flex flex-col"
-                >
-                  <div className="relative h-48 overflow-hidden">
-                    {post.coverImage ? (
+              <div
+                key={post._id}
+                onClick={() => onBlogClick?.(post.slug)}
+                className="bg-slate-800/40 border border-slate-700/50 rounded-[2.5rem] overflow-hidden group hover:border-indigo-500/50 transition-all cursor-pointer flex flex-col"
+              >
+                <div className="relative h-48 overflow-hidden">
+                  {post.coverImage ? (
+                    <img
+                      src={post.coverImage}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      alt=""
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-slate-700 flex items-center justify-center p-6">
                       <img
-                        src={post.coverImage}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        alt=""
+                        src="/logo.png"
+                        alt="FutureLab"
+                        className="h-8 w-auto object-contain opacity-30 mix-blend-overlay"
                       />
-                    ) : (
-                      <div className="w-full h-full bg-slate-700 flex items-center justify-center p-6">
-                        <img
-                          src="/logo.png"
-                          alt="FutureLab"
-                          className="h-8 w-auto object-contain opacity-30 mix-blend-overlay"
-                        />
-                      </div>
-                    )}
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60" />
-                    <div className="absolute top-4 right-6">
-                      <div className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-white bg-indigo-500 shadow-xl">
-                        {post.tags[0] || "BLOG"}
-                      </div>
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-60" />
+                  <div className="absolute top-4 right-6">
+                    <div className="px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest text-white bg-indigo-500 shadow-xl">
+                      {post.tags[0] || "BLOG"}
                     </div>
                   </div>
-                  <div className="p-8 pb-10 flex flex-col flex-1">
-                    <h4 className="text-xl font-black text-white group-hover:text-indigo-400 transition-colors line-clamp-2 leading-tight mb-4">
-                      {post.title}
-                    </h4>
-                    <div className="mt-auto flex items-center justify-between">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[10px] font-bold text-white uppercase border border-slate-600">
-                          {post.author?.fullName?.charAt(0) || "U"}
-                        </div>
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                          {post.author?.fullName || "Anonymous"}
-                        </span>
+                </div>
+                <div className="p-8 pb-10 flex flex-col flex-1">
+                  <h4 className="text-xl font-black text-white group-hover:text-indigo-400 transition-colors line-clamp-2 leading-tight mb-4">
+                    {post.title}
+                  </h4>
+                  <div className="mt-auto flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <div className="w-6 h-6 rounded-full bg-slate-700 flex items-center justify-center text-[10px] font-bold text-white uppercase border border-slate-600">
+                        {post.author?.fullName?.charAt(0) || "U"}
                       </div>
-                      <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-900/50 px-2 py-1 rounded-lg">
-                        {new Date(post.createdAt).toLocaleDateString(
-                          undefined,
-                          { month: "short", day: "numeric", year: "numeric" },
-                        )}
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                        {post.author?.fullName || "Anonymous"}
                       </span>
                     </div>
+                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest bg-slate-900/50 px-2 py-1 rounded-lg">
+                      {new Date(post.createdAt).toLocaleDateString(
+                        undefined,
+                        { month: "short", day: "numeric", year: "numeric" },
+                      )}
+                    </span>
                   </div>
                 </div>
-              ))
+              </div>
+            ))
             : // Fallback to subjects if no pins found (or while loading)
-              SUBJECTS.map((sub) => (
-                <div
-                  key={sub.id}
-                  className="opacity-40 bg-slate-800/40 border border-slate-700/50 rounded-[2.5rem] overflow-hidden"
-                >
-                  <div className="p-8 text-center text-slate-500 italic font-medium">
-                    loading blogs...
-                  </div>
+            SUBJECTS.map((sub) => (
+              <div
+                key={sub.id}
+                className="opacity-40 bg-slate-800/40 border border-slate-700/50 rounded-[2.5rem] overflow-hidden"
+              >
+                <div className="p-8 text-center text-slate-500 italic font-medium">
+                  loading blogs...
                 </div>
-              ))}
+              </div>
+            ))}
         </div>
       </div>
     </div>
