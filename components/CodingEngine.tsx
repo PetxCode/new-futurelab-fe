@@ -5,7 +5,7 @@ import Editor, { loader } from '@monaco-editor/react';
 // Configure Monaco to use local assets for 100% offline support
 loader.config({ paths: { vs: '/monaco/min/vs' } });
 
-export type SupportedLanguage = 'python' | 'javascript';
+export type SupportedLanguage = 'python' | 'javascript' | 'typescript';
 
 export interface CodeFile {
   id: string;
@@ -27,6 +27,12 @@ const DEFAULT_FILES: CodeFile[] = [
     language: 'javascript',
     content: 'console.log("Hello FutureLab! 👋");\n\n// Try writing some JavaScript code here\nfor (let i = 1; i <= 5; i++) {\n  console.log(`Iteration ${i}`);\n}',
   },
+  {
+    id: '3',
+    name: 'main.ts',
+    language: 'typescript',
+    content: '// TypeScript Engine 🔷\n\ninterface Student {\n  name: string;\n  grade: number;\n}\n\nconst student: Student = {\n  name: "FutureLab Learner",\n  grade: 95,\n};\n\nconst greet = (s: Student): string => {\n  return `Hello, ${s.name}! Your grade is ${s.grade}.`;\n};\n\nconsole.log(greet(student));',
+  },
 ];
 
 const CodingEngine: React.FC = () => {
@@ -35,11 +41,12 @@ const CodingEngine: React.FC = () => {
   const [output, setOutput] = useState<string[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [isPyodideLoaded, setIsPyodideLoaded] = useState(false);
+  const [isTSLoaded, setIsTSLoaded] = useState(false);
   const [viewMode, setViewMode] = useState<'Workspace' | 'Console only'>('Workspace');
   const [showNewFileModal, setShowNewFileModal] = useState(false);
   const [newFileName, setNewFileName] = useState('');
   const [newFileLang, setNewFileLang] = useState<SupportedLanguage>('javascript');
-  
+
   const pyodideRef = useRef<any>(null);
   const consoleEndRef = useRef<HTMLDivElement>(null);
 
@@ -50,9 +57,7 @@ const CodingEngine: React.FC = () => {
       if (window.loadPyodide) {
         if (!pyodideRef.current) {
           try {
-            pyodideRef.current = await window.loadPyodide({
-              indexURL: "/pyodide/"
-            });
+            pyodideRef.current = await window.loadPyodide({ indexURL: "/pyodide/" });
             setIsPyodideLoaded(true);
           } catch (err) {
             console.error("Pyodide loading failed", err);
@@ -60,14 +65,11 @@ const CodingEngine: React.FC = () => {
         }
         return;
       }
-
       const script = document.createElement('script');
       script.src = "/pyodide/pyodide.js";
       script.onload = async () => {
         try {
-          pyodideRef.current = await window.loadPyodide({
-            indexURL: "/pyodide/"
-          });
+          pyodideRef.current = await window.loadPyodide({ indexURL: "/pyodide/" });
           setIsPyodideLoaded(true);
         } catch (err) {
           console.error("Pyodide loading failed", err);
@@ -76,7 +78,17 @@ const CodingEngine: React.FC = () => {
       document.body.appendChild(script);
     };
 
+    const loadTypeScript = () => {
+      if ((window as any).ts) { setIsTSLoaded(true); return; }
+      const script = document.createElement('script');
+      script.src = 'https://cdn.jsdelivr.net/npm/typescript@5.4.5/lib/typescript.js';
+      script.onload = () => setIsTSLoaded(true);
+      script.onerror = () => console.error('TypeScript compiler CDN load failed');
+      document.body.appendChild(script);
+    };
+
     loadPyodide();
+    loadTypeScript();
   }, []);
 
   useEffect(() => {
@@ -92,18 +104,21 @@ const CodingEngine: React.FC = () => {
       toast.error('File name cannot be empty');
       return;
     }
-    const ext = newFileLang === 'python' ? '.py' : '.js';
-    const finalName = newFileName.endsWith('.py') || newFileName.endsWith('.js') 
-      ? newFileName 
+    const ext = newFileLang === 'python' ? '.py' : newFileLang === 'typescript' ? '.ts' : '.js';
+    const finalName = newFileName.endsWith('.py') || newFileName.endsWith('.js') || newFileName.endsWith('.ts')
+      ? newFileName
       : `${newFileName}${ext}`;
 
+    const detectedLang: SupportedLanguage = finalName.endsWith('.py') ? 'python' : finalName.endsWith('.ts') ? 'typescript' : 'javascript';
     const newFile: CodeFile = {
       id: Date.now().toString(),
       name: finalName,
-      language: finalName.endsWith('.py') ? 'python' : 'javascript',
-      content: finalName.endsWith('.py') 
-        ? '# New Python Script\nprint("Running Python...")' 
-        : '// New JavaScript Script\nconsole.log("Running JavaScript...");',
+      language: detectedLang,
+      content: detectedLang === 'python'
+        ? '# New Python Script\nprint("Running Python...")'
+        : detectedLang === 'typescript'
+          ? '// New TypeScript File\nconst message: string = "Hello from TypeScript!";\nconsole.log(message);'
+          : '// New JavaScript Script\nconsole.log("Running JavaScript...");',
     };
 
     setFiles(prev => [...prev, newFile]);
@@ -127,48 +142,70 @@ const CodingEngine: React.FC = () => {
     toast.success("File removed");
   };
 
+  const buildCustomConsole = (lang: string) => ({
+    log: (...args: any[]) => {
+      const formatted = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ');
+      setOutput(prev => [...prev, formatted]);
+    },
+    error: (...args: any[]) => {
+      const formatted = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ');
+      setOutput(prev => [...prev, `❌ ${formatted}`]);
+    },
+    warn: (...args: any[]) => {
+      const formatted = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ');
+      setOutput(prev => [...prev, `⚠️ ${formatted}`]);
+    },
+    info: (...args: any[]) => {
+      const formatted = args.map(a => typeof a === 'object' ? JSON.stringify(a, null, 2) : String(a)).join(' ');
+      setOutput(prev => [...prev, formatted]);
+    },
+  });
+
   const runCode = async () => {
     if (isRunning) return;
     setIsRunning(true);
     setOutput([]);
 
+    // --- TYPESCRIPT ENGINE ---
+    if (activeFile.language === 'typescript') {
+      const tsCompiler = (window as any).ts;
+      if (!tsCompiler) {
+        toast.error('TypeScript compiler is still loading...');
+        setIsRunning(false);
+        return;
+      }
+      try {
+        const result = tsCompiler.transpileModule(activeFile.content, {
+          compilerOptions: {
+            module: tsCompiler.ModuleKind.None,
+            target: tsCompiler.ScriptTarget.ES2020,
+            strict: false,
+          },
+        });
+        const jsCode = result.outputText;
+        const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
+        const runner = new AsyncFunction('console', 'prompt', jsCode);
+        await runner(buildCustomConsole('typescript'), window.prompt);
+        toast.success('TypeScript compiled & executed!');
+      } catch (err: any) {
+        setOutput(prev => [...prev, `❌ TS Error: ${err.message}`]);
+        toast.error('TypeScript execution failed');
+      } finally {
+        setIsRunning(false);
+      }
+      return;
+    }
+
     // --- JAVASCRIPT ENGINE ---
     if (activeFile.language === 'javascript') {
       try {
-        const customConsole = {
-          log: (...args: any[]) => {
-            const formatted = args.map(arg => 
-              typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-            ).join(' ');
-            setOutput(prev => [...prev, formatted]);
-          },
-          error: (...args: any[]) => {
-            const formatted = args.map(arg => 
-              typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-            ).join(' ');
-            setOutput(prev => [...prev, `❌ ${formatted}`]);
-          },
-          warn: (...args: any[]) => {
-            const formatted = args.map(arg => 
-              typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-            ).join(' ');
-            setOutput(prev => [...prev, `⚠️ ${formatted}`]);
-          },
-          info: (...args: any[]) => {
-            const formatted = args.map(arg => 
-              typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
-            ).join(' ');
-            setOutput(prev => [...prev, formatted]);
-          }
-        };
-
-        const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+        const AsyncFunction = Object.getPrototypeOf(async function () { }).constructor;
         const runner = new AsyncFunction('console', 'prompt', activeFile.content);
-        await runner(customConsole, window.prompt);
-        toast.success("JavaScript executed successfully!");
+        await runner(buildCustomConsole('javascript'), window.prompt);
+        toast.success('JavaScript executed successfully!');
       } catch (err: any) {
         setOutput(prev => [...prev, `❌ Runtime Error: ${err.message}`]);
-        toast.error("Execution failed");
+        toast.error('Execution failed');
       } finally {
         setIsRunning(false);
       }
@@ -177,7 +214,7 @@ const CodingEngine: React.FC = () => {
 
     // --- PYTHON ENGINE ---
     if (!pyodideRef.current) {
-      toast.error("Python engine is still loading...");
+      toast.error("Coding engine is still loading...");
       setIsRunning(false);
       return;
     }
@@ -228,13 +265,13 @@ const CodingEngine: React.FC = () => {
       <div className="h-14 bg-slate-900 border-b border-slate-800 flex items-center justify-between px-6">
         <div className="flex items-center space-x-4">
           <div className="flex items-center bg-slate-800 rounded-xl p-1 border border-slate-700">
-            <button 
+            <button
               onClick={() => setViewMode('Workspace')}
               className={`px-4 py-1.5 text-xs font-black rounded-lg transition-all ${viewMode === 'Workspace' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
             >
               Workspace
             </button>
-            <button 
+            <button
               onClick={() => setViewMode('Console only')}
               className={`px-4 py-1.5 text-xs font-black rounded-lg transition-all ${viewMode === 'Console only' ? 'bg-indigo-600 text-white' : 'text-slate-400 hover:text-white'}`}
             >
@@ -242,12 +279,16 @@ const CodingEngine: React.FC = () => {
             </button>
           </div>
           <div className="h-4 w-[1px] bg-slate-800 mx-2" />
-          
+
           {/* Active Engine Badge */}
           <div className="flex items-center space-x-2 bg-slate-800/80 px-3 py-1 rounded-lg border border-slate-700">
-            <span className="text-sm">{activeFile.language === 'python' ? '🐍' : '⚡'}</span>
-            <span className="text-xs font-black text-indigo-300 uppercase tracking-wider">
-              {activeFile.language === 'python' ? 'Python Engine' : 'JavaScript Engine'}
+            <span className="text-sm">
+              {activeFile.language === 'python' ? '🐍' : activeFile.language === 'typescript' ? '🔷' : '⚡'}
+            </span>
+            <span className={`text-xs font-black uppercase tracking-wider ${activeFile.language === 'python' ? 'text-indigo-300' :
+                activeFile.language === 'typescript' ? 'text-blue-300' : 'text-amber-300'
+              }`}>
+              {activeFile.language === 'python' ? 'Python Engine' : activeFile.language === 'typescript' ? 'TypeScript Engine' : 'JavaScript Engine'}
             </span>
           </div>
         </div>
@@ -256,17 +297,22 @@ const CodingEngine: React.FC = () => {
           {activeFile.language === 'python' && !isPyodideLoaded && (
             <div className="flex items-center space-x-2 text-[10px] font-black text-amber-500 uppercase">
               <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse" />
-              <span>Loading Pyodide...</span>
+              <span>Loading Python...</span>
             </div>
           )}
-          <button 
+          {activeFile.language === 'typescript' && !isTSLoaded && (
+            <div className="flex items-center space-x-2 text-[10px] font-black text-blue-400 uppercase">
+              <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse" />
+              <span>Loading TS Compiler...</span>
+            </div>
+          )}
+          <button
             onClick={runCode}
-            disabled={isRunning || (activeFile.language === 'python' && !isPyodideLoaded)}
-            className={`px-6 py-2 rounded-xl font-black text-xs flex items-center space-x-2 transition-all active:scale-95 ${
-              isRunning || (activeFile.language === 'python' && !isPyodideLoaded)
-                ? 'bg-slate-800 text-slate-500 cursor-not-allowed' 
+            disabled={isRunning || (activeFile.language === 'python' && !isPyodideLoaded) || (activeFile.language === 'typescript' && !isTSLoaded)}
+            className={`px-6 py-2 rounded-xl font-black text-xs flex items-center space-x-2 transition-all active:scale-95 ${isRunning || (activeFile.language === 'python' && !isPyodideLoaded) || (activeFile.language === 'typescript' && !isTSLoaded)
+                ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
                 : 'bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20'
-            }`}
+              }`}
           >
             {isRunning ? (
               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -283,7 +329,7 @@ const CodingEngine: React.FC = () => {
         <div className="w-64 bg-slate-900/50 border-r border-slate-800 flex flex-col">
           <div className="p-4 border-b border-slate-800 flex items-center justify-between">
             <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">FILES</span>
-            <button 
+            <button
               onClick={() => setShowNewFileModal(true)}
               className="p-1 hover:bg-slate-800 rounded text-slate-400 hover:text-white transition-colors"
               title="Create New File"
@@ -294,21 +340,20 @@ const CodingEngine: React.FC = () => {
 
           <div className="p-2 space-y-1 overflow-y-auto flex-1">
             {files.map(file => (
-              <div 
+              <div
                 key={file.id}
                 onClick={() => setActiveFileId(file.id)}
-                className={`flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-all ${
-                  activeFileId === file.id
+                className={`flex items-center justify-between px-3 py-2 rounded-xl cursor-pointer transition-all ${activeFileId === file.id
                     ? 'bg-indigo-500/10 border border-indigo-500/30 text-indigo-400 font-bold'
                     : 'text-slate-400 hover:bg-slate-800/50 hover:text-slate-200'
-                }`}
+                  }`}
               >
                 <div className="flex items-center space-x-2.5 truncate">
-                  <span className="text-base">{file.language === 'python' ? '🐍' : '⚡'}</span>
+                  <span className="text-base">{file.language === 'python' ? '🐍' : file.language === 'typescript' ? '🔷' : '⚡'}</span>
                   <span className="text-xs truncate">{file.name}</span>
                 </div>
                 {files.length > 1 && (
-                  <button 
+                  <button
                     onClick={(e) => deleteFile(file.id, e)}
                     className="opacity-0 group-hover:opacity-100 hover:text-rose-400 text-slate-600 p-1"
                     title="Delete File"
@@ -327,7 +372,7 @@ const CodingEngine: React.FC = () => {
             <div className="flex-1 flex overflow-hidden">
               <Editor
                 height="100%"
-                language={activeFile.language}
+                language={activeFile.language === 'typescript' ? 'typescript' : activeFile.language}
                 value={activeFile.content}
                 theme="vs-dark"
                 onChange={(value) => updateActiveFileContent(value || '')}
@@ -390,29 +435,38 @@ const CodingEngine: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Language Engine</label>
-                <div className="grid grid-cols-2 gap-3">
+                <div className="grid grid-cols-3 gap-3">
                   <button
                     type="button"
                     onClick={() => setNewFileLang('javascript')}
-                    className={`p-3 rounded-xl border flex items-center justify-center space-x-2 font-bold text-xs ${
-                      newFileLang === 'javascript'
+                    className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 font-bold text-xs ${newFileLang === 'javascript'
                         ? 'bg-amber-500/10 border-amber-500 text-amber-400'
                         : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
-                    }`}
+                      }`}
                   >
-                    <span>⚡</span>
+                    <span className="text-lg">⚡</span>
                     <span>JavaScript</span>
                   </button>
                   <button
                     type="button"
+                    onClick={() => setNewFileLang('typescript')}
+                    className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 font-bold text-xs ${newFileLang === 'typescript'
+                        ? 'bg-blue-500/10 border-blue-500 text-blue-400'
+                        : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
+                      }`}
+                  >
+                    <span className="text-lg">🔷</span>
+                    <span>TypeScript</span>
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setNewFileLang('python')}
-                    className={`p-3 rounded-xl border flex items-center justify-center space-x-2 font-bold text-xs ${
-                      newFileLang === 'python'
+                    className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-1 font-bold text-xs ${newFileLang === 'python'
                         ? 'bg-indigo-500/10 border-indigo-500 text-indigo-400'
                         : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white'
-                    }`}
+                      }`}
                   >
-                    <span>🐍</span>
+                    <span className="text-lg">🐍</span>
                     <span>Python</span>
                   </button>
                 </div>

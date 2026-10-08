@@ -65,15 +65,15 @@ export interface Mission {
   }[];
   bannerImage?: string;
   difficulty:
-    | "Elementary"
-    | "Junior"
-    | "Explorer"
-    | "Beginner"
-    | "Easy"
-    | "Medium"
-    | "Hard"
-    | "Intermediate"
-    | "Advanced";
+  | "Elementary"
+  | "Junior"
+  | "Explorer"
+  | "Beginner"
+  | "Easy"
+  | "Medium"
+  | "Hard"
+  | "Intermediate"
+  | "Advanced";
   isLocked: boolean;
   isCompleted: boolean;
   reward: string;
@@ -222,7 +222,7 @@ export type NavigationItem =
   | "Settings"
   | "Admin Users"
   | "School Registry"
-  | "Python Engine"
+  | "Coding Engine"
   | "Engine Blocks"
   | "Junior Code"
   | "ML4Kids"
@@ -235,4 +235,5 @@ export type NavigationItem =
   | "Blog"
   | "Write Blog"
   | "Trainers"
+  | "Term Plan"
   | "Super Test";

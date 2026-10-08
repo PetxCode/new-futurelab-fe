@@ -32,6 +32,33 @@ const DEFAULT_QUIZ = "Full 10-question module quiz";
 
 export const CURRICULUM_DATA: GradeLevel[] = [
   {
+    id: "pry4",
+    name: "Primary 4",
+    icon: "🔵",
+    color: "blue",
+    terms: [
+      { id: "pry4-t1", name: "1st Term - Logic", lessons: [{ id: 1, title: "Intro to Logic", topics: ["Logic gates", "Boolean logic"], content: "", assignment: "Logic exercises", pocketProject: "Logic circuit", quiz: DEFAULT_QUIZ, questions: [] }] }
+    ]
+  },
+  {
+    id: "pry5",
+    name: "Primary 5",
+    icon: "🟡",
+    color: "yellow",
+    terms: [
+      { id: "pry5-t1", name: "1st Term - Boxification", lessons: [{ id: 1, title: "Intro to Boxification", topics: ["Box model", "Flexbox"], content: "", assignment: "CSS layout", pocketProject: "Responsive page", quiz: DEFAULT_QUIZ, questions: [] }] }
+    ]
+  },
+  {
+    id: "pry6",
+    name: "Primary 6",
+    icon: "🟠",
+    color: "orange",
+    terms: [
+      { id: "pry6-t1", name: "1st Term - UI/UX", lessons: [{ id: 1, title: "Intro to UI/UX", topics: ["User testing", "Wireframing"], content: "", assignment: "Figma design", pocketProject: "App prototype", quiz: DEFAULT_QUIZ, questions: [] }] }
+    ]
+  },
+  {
     id: "jss1",
     name: "JSS 1",
     icon: "🟢",
@@ -2449,6 +2476,51 @@ export const CURRICULUM_DATA: GradeLevel[] = [
           },
         ]
       }
+    ]
+  },
+  {
+    id: "jss2",
+    name: "JSS 2",
+    icon: "🔷",
+    color: "cyan",
+    terms: [
+      { id: "jss2-t1", name: "1st Term - Server", lessons: [{ id: 1, title: "Intro to Server", topics: ["Node.js", "Express"], content: "", assignment: "Server setup", pocketProject: "API", quiz: DEFAULT_QUIZ, questions: [] }] }
+    ]
+  },
+  {
+    id: "jss3",
+    name: "JSS 3",
+    icon: "🟣",
+    color: "purple",
+    terms: [
+      { id: "jss3-t1", name: "1st Term - Backend", lessons: [{ id: 1, title: "Intro to Backend", topics: ["Databases", "Auth"], content: "", assignment: "Database schema", pocketProject: "User login", quiz: DEFAULT_QUIZ, questions: [] }] }
+    ]
+  },
+  {
+    id: "sss1",
+    name: "SSS 1",
+    icon: "⭐",
+    color: "amber",
+    terms: [
+      { id: "sss1-t1", name: "1st Term - Advanced Path", lessons: [{ id: 1, title: "Intro to Advanced", topics: ["System Design", "Cloud"], content: "", assignment: "Architecture design", pocketProject: "Deployment", quiz: DEFAULT_QUIZ, questions: [] }] }
+    ]
+  },
+  {
+    id: "sss2",
+    name: "SSS 2",
+    icon: "🔴",
+    color: "rose",
+    terms: [
+      { id: "sss2-t1", name: "1st Term - Machine Learning", lessons: [{ id: 1, title: "Intro to ML", topics: ["Python", "Pandas"], content: "", assignment: "Data cleaning", pocketProject: "Predictive model", quiz: DEFAULT_QUIZ, questions: [] }] }
+    ]
+  },
+  {
+    id: "sss3",
+    name: "SSS 3",
+    icon: "🏆",
+    color: "slate",
+    terms: [
+      { id: "sss3-t1", name: "1st Term - Final Project", lessons: [{ id: 1, title: "Capstone", topics: ["Project management", "Presentation"], content: "", assignment: "Final app", pocketProject: "Showcase", quiz: DEFAULT_QUIZ, questions: [] }] }
     ]
   }
 ];

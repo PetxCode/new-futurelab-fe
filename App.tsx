@@ -24,6 +24,8 @@ import BlogList from "./components/Blog/BlogList";
 import BlogPost from "./components/Blog/BlogPost";
 import BlogDashboard from "./components/Blog/BlogDashboard";
 import LearningPath from "./components/LearningPath";
+import TermsFocus from "./components/TermsFocus";
+import TermPlan from "./components/TermPlan";
 import InstructorReportForm from "./components/InstructorReportForm";
 import AdminReportDashboard from "./components/AdminReportDashboard";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -401,7 +403,7 @@ const App: React.FC = () => {
             onBack={() => setActiveTab("Hub")}
           />
         );
-      case "Python Engine":
+      case "Coding Engine":
         return <CodingEngine />;
       case "Engine Blocks":
         return <EngineBlocks />;
@@ -430,6 +432,8 @@ const App: React.FC = () => {
         return <BlogDashboard userData={userData} />;
       case "Learning Path":
         return <LearningPath user={userData} />;
+      case "Term Plan":
+        return <TermPlan user={userData} />;
       case "Trainers":
         return (
           <AllTrainers
@@ -583,7 +587,7 @@ const App: React.FC = () => {
 
           <main
             ref={scrollContainerRef}
-            className={`flex-1 ${activeTab === "Engine Blocks" || activeTab === "Python Engine" || activeTab === "Junior Code" ? "overflow-hidden" : "overflow-y-auto"} h-full relative pt-16 md:pt-0`}
+            className={`flex-1 ${activeTab === "Engine Blocks" || activeTab === "Coding Engine" || activeTab === "Junior Code" ? "overflow-hidden" : "overflow-y-auto"} h-full relative pt-16 md:pt-0`}
           >
             <header className="fixed top-0 left-0 right-0 h-16 bg-slate-900/80 backdrop-blur-xl flex items-center px-6 z-30 border-b border-slate-800 md:hidden">
               <button
@@ -622,7 +626,7 @@ const App: React.FC = () => {
             </header>
 
             <div
-              className={`${activeTab === "Engine Blocks" || activeTab === "Python Engine" || activeTab === "Junior Code" ? "h-full w-full" : "max-w-7xl mx-auto p-6 md:p-12"}`}
+              className={`${activeTab === "Engine Blocks" || activeTab === "Coding Engine" || activeTab === "Junior Code" ? "h-full w-full" : "max-w-7xl mx-auto p-6 md:p-12"}`}
             >
               <ErrorBoundary key={`${activeTab}-${tabResetKey}`}>
                 {renderContent()}
@@ -633,8 +637,8 @@ const App: React.FC = () => {
             <button
               onClick={scrollToTop}
               className={`fixed bottom-8 right-8 p-4 bg-indigo-600 text-white rounded-2xl shadow-2xl shadow-indigo-600/40 border border-indigo-500 transition-all duration-500 z-50 hover:scale-110 active:scale-95 group ${showScrollTop
-                  ? "opacity-100 translate-y-0"
-                  : "opacity-0 translate-y-12 pointer-events-none"
+                ? "opacity-100 translate-y-0"
+                : "opacity-0 translate-y-12 pointer-events-none"
                 }`}
               aria-label="Scroll to top"
             >

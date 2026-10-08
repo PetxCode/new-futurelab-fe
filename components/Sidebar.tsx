@@ -3,6 +3,7 @@ import { MOCK_STUDENT } from "../constants";
 import { NavigationItem, User } from "../types";
 import LogoutConfirmationModal from "./LogoutConfirmationModal";
 import PoweredByNext from "./PoweredByNext";
+import TermPlanModal from "./TermPlanModal";
 
 interface SidebarProps {
   activeTab: NavigationItem;
@@ -576,11 +577,10 @@ const Sidebar: React.FC<SidebarProps> = ({
         <div className="w-full mt-4 md:mt-6 flex gap-2">
           <button
             onClick={() => setActiveTab("Trainers")}
-            className={`flex-1 py-3 px-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center space-x-2 active:scale-95 group ${
-              activeTab === "Trainers"
-                ? "bg-slate-700 text-white"
-                : "bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-600/20"
-            }`}
+            className={`flex-1 py-3 px-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center space-x-2 active:scale-95 group ${activeTab === "Trainers"
+              ? "bg-slate-700 text-white"
+              : "bg-indigo-600 text-white hover:bg-indigo-500 shadow-indigo-600/20"
+              }`}
           >
             <svg
               className="w-4 h-4 group-hover:rotate-12 transition-transform"
@@ -598,13 +598,12 @@ const Sidebar: React.FC<SidebarProps> = ({
             <span>Trainers</span>
           </button>
 
-          <button
+          {/* <button
             onClick={() => setActiveTab("Learning Path")}
-            className={`flex-1 py-3 px-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center space-x-2 active:scale-95 group ${
-              activeTab === "Learning Path"
+            className={`flex-1 py-3 px-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center space-x-2 active:scale-95 group ${activeTab === "Learning Path"
                 ? "bg-slate-700 text-white"
                 : "bg-cyan-600 text-white hover:bg-cyan-500 shadow-cyan-600/20"
-            }`}
+              }`}
           >
             <svg
               className="w-4 h-4 group-hover:scale-110 transition-transform"
@@ -620,6 +619,29 @@ const Sidebar: React.FC<SidebarProps> = ({
               />
             </svg>
             <span>Path</span>
+          </button> */}
+
+          <button
+            onClick={() => setActiveTab("Term Plan")}
+            className={`flex-1 py-3 px-2 text-[10px] font-black uppercase tracking-widest rounded-xl transition-all shadow-lg flex items-center justify-center space-x-2 active:scale-95 group ${activeTab === "Term Plan"
+                ? "bg-slate-700 text-white"
+                : "bg-emerald-600 text-white hover:bg-emerald-500 shadow-emerald-600/20"
+              }`}
+          >
+            <svg
+              className="w-4 h-4 group-hover:scale-110 transition-transform"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2.5"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
+            <span>Term Plan</span>
           </button>
         </div>
       </div>
@@ -629,11 +651,10 @@ const Sidebar: React.FC<SidebarProps> = ({
           <button
             key={item.id}
             onClick={() => setActiveTab(item.id)}
-            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${
-              activeTab === item.id
-                ? "bg-slate-700/50 text-indigo-400 shadow-inner"
-                : "text-slate-500 hover:bg-slate-700/30 hover:text-slate-300"
-            }`}
+            className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all ${activeTab === item.id
+              ? "bg-slate-700/50 text-indigo-400 shadow-inner"
+              : "text-slate-500 hover:bg-slate-700/30 hover:text-slate-300"
+              }`}
           >
             <div
               className={`${activeTab === item.id ? "text-indigo-400" : "text-slate-600"}`}

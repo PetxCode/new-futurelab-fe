@@ -1,0 +1,2 @@
+with open('components/termPlanData.ts', 'w', encoding='utf-8') as f:
+    f.write('''export interface TermLesson { week: string; topic: string; subTopics: string[]; tasks: string[]; assessment: string; }\nexport interface TermData { id: string; name: string; lessons: TermLesson[]; }\nexport interface GradeTermPlan { id: string; name: string; icon: string; terms: TermData[]; }\nexport const TERM_PLAN_DATA: GradeTermPlan[] = [\n''')
