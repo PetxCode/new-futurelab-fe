@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import toast from 'react-hot-toast';
-import Editor, { loader, BeforeMount } from '@monaco-editor/react';
+import Editor, { loader, BeforeMount, OnMount } from '@monaco-editor/react';
 
 // Configure Monaco to use local assets for 100% offline support
 loader.config({ paths: { vs: '/monaco/min/vs' } });
@@ -33,16 +33,23 @@ const setupMonaco: BeforeMount = (monaco) => {
     'ts:futurelab-globals.d.ts'
   );
 
-  // Suppress noisy JS/TS diagnostics for the sandbox environment
+  // Enable full TypeScript syntax + semantic error detection (squiggly lines)
   monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
-    noSemanticValidation: false,
-    noSyntaxValidation: false,
+    noSemanticValidation: false,      // show type errors
+    noSyntaxValidation: false,        // show syntax errors
+    noSuggestionDiagnostics: false,   // show suggestions
     diagnosticCodesToIgnore: [
       1375, // 'await' expressions are only allowed at the top level of a file when…
       1378, // Top-level 'await' expressions are only allowed when the 'module' option is set to…
-      2304, // Cannot find name 'prompt'
-      2339, // Property does not exist
+      2304, // Cannot find name 'prompt' (we declare it ourselves above)
     ],
+  });
+
+  // Also enable diagnostics on the JavaScript worker (for .js files)
+  monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+    noSemanticValidation: false,
+    noSyntaxValidation: false,
+    noSuggestionDiagnostics: false,
   });
 };
 
@@ -452,6 +459,111 @@ const CodingEngine: React.FC = () => {
                 theme="vs-dark"
                 beforeMount={setupMonaco}
                 onChange={(value) => updateActiveFileContent(value || '')}
+                onMount={((editor, monaco) => {
+                  // ── TypeScript Diagnostic Engine ──────────────────────────────
+                  // Evaluates diagnostics dynamically so it works when switching tabs.
+                  const runDiagnostics = () => {
+                    const model = editor.getModel();
+                    if (!model || model.getLanguageId() !== 'typescript') {
+                      if (model) monaco.editor.setModelMarkers(model, 'futurelab-ts', []);
+                      return;
+                    }
+
+                    const tsLib = (window as any).ts;
+                    if (!tsLib) return;
+
+                    const code = model.getValue();
+                    const fileName = 'main.ts';
+                    const libName = 'lib.d.ts';
+
+                    const MINIMAL_LIB = `
+                      interface Console { log(...data: any[]): void; error(...data: any[]): void; warn(...data: any[]): void; info(...data: any[]): void; clear(): void; }
+                      declare var console: Console;
+                      declare function prompt(message?: string): Promise<string>;
+                      declare function alert(message?: any): void;
+                      declare function setTimeout(handler: any, timeout?: number, ...args: any[]): number;
+                      declare function setInterval(handler: any, timeout?: number, ...args: any[]): number;
+                      interface Promise<T> { then(onfulfilled?: any, onrejected?: any): Promise<any>; catch(onrejected?: any): Promise<any>; finally(onfinally?: any): Promise<T>; }
+                      declare var Promise: any;
+                      interface Array<T> { length: number; [n: number]: T; push(...items: T[]): number; pop(): T | undefined; join(s?: string): string; map(cb: any): any[]; filter(cb: any): any[]; forEach(cb: any): void; }
+                      interface String { length: number; [index: number]: string; substring(s: number, e?: number): string; split(s: any): string[]; replace(s: any, r: any): string; toLowerCase(): string; toUpperCase(): string; includes(s: string): boolean; }
+                      interface Number { toFixed(f?: number): string; toString(r?: number): string; }
+                      interface Boolean {}
+                      interface Object {}
+                      interface Math { PI: number; abs(x: number): number; ceil(x: number): number; floor(x: number): number; max(...values: number[]): number; min(...values: number[]): number; pow(x: number, y: number): number; random(): number; round(x: number): number; sqrt(x: number): number; }
+                      declare var Math: Math;
+                      interface JSON { parse(text: string): any; stringify(value: any): string; }
+                      declare var JSON: JSON;
+                    `;
+
+                    const sourceFile = tsLib.createSourceFile(fileName, code, tsLib.ScriptTarget.ESNext, true);
+                    const libFile = tsLib.createSourceFile(libName, MINIMAL_LIB, tsLib.ScriptTarget.ESNext, true);
+
+                    const host = {
+                      getSourceFile: (name: string) => name === fileName ? sourceFile : name === libName ? libFile : undefined,
+                      writeFile: () => {},
+                      getDefaultLibFileName: () => libName,
+                      useCaseSensitiveFileNames: () => false,
+                      getCanonicalFileName: (f: string) => f,
+                      getCurrentDirectory: () => '',
+                      getNewLine: () => '\n',
+                      fileExists: (name: string) => name === fileName || name === libName,
+                      readFile: (name: string) => name === fileName ? code : name === libName ? MINIMAL_LIB : undefined,
+                      directoryExists: () => false,
+                      getDirectories: () => [],
+                    };
+
+                    const program = tsLib.createProgram([libName, fileName], {
+                      target: tsLib.ScriptTarget.ESNext,
+                      module: tsLib.ModuleKind.CommonJS,
+                      strict: false,
+                      noImplicitAny: false,
+                      noLib: true,
+                      skipLibCheck: true,
+                      allowJs: true,
+                    }, host);
+
+                    const diags = [
+                      ...program.getSyntacticDiagnostics(sourceFile),
+                      ...program.getSemanticDiagnostics(sourceFile),
+                    ];
+
+                    const markers: any[] = diags.map((d: any) => {
+                      const start = d.file ? d.file.getLineAndCharacterOfPosition(d.start ?? 0) : { line: 0, character: 0 };
+                      const end = d.file ? d.file.getLineAndCharacterOfPosition((d.start ?? 0) + (d.length ?? 1)) : { line: 0, character: 1 };
+                      return {
+                        severity: d.category === 1 ? monaco.MarkerSeverity.Error : monaco.MarkerSeverity.Warning,
+                        message: tsLib.flattenDiagnosticMessageText(d.messageText, '\n'),
+                        startLineNumber: start.line + 1,
+                        startColumn: start.character + 1,
+                        endLineNumber: end.line + 1,
+                        endColumn: end.character + 1,
+                        source: 'TypeScript',
+                      };
+                    });
+
+                    monaco.editor.setModelMarkers(model, 'futurelab-ts', markers);
+                  };
+
+                  runDiagnostics();
+                  const sub1 = editor.onDidChangeModelContent(runDiagnostics);
+                  const sub2 = editor.onDidChangeModelLanguage(runDiagnostics);
+                  const sub3 = editor.onDidChangeModel(runDiagnostics);
+
+                  editor.onDidDispose(() => {
+                    sub1.dispose();
+                    sub2.dispose();
+                    sub3.dispose();
+                  });
+
+                  // Also kick the Monaco built-in worker as a bonus (may or may not work)
+                  monaco.languages.typescript
+                    .getTypeScriptWorker()
+                    .then((getWorker: any) => getWorker(model.uri))
+                    .then((worker: any) => worker.getSemanticDiagnostics(model.uri.toString()))
+                    .catch(() => { /* worker unavailable — using window.ts fallback above */ });
+
+                }) as OnMount}
                 options={{
                   minimap: { enabled: false },
                   fontSize: 18,
