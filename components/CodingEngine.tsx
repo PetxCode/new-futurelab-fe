@@ -72,7 +72,7 @@ const DEFAULT_FILES: CodeFile[] = [
     id: '3',
     name: 'main.ts',
     language: 'typescript',
-    content: '// TypeScript with interactive input 🔷\nconst name: string = await prompt("What is your name? ");\nconst age: string = await prompt("How old are you? ");\nconsole.log(`Hello ${name}! You are ${age} years old.`);',
+    content: 'console.log("This is FutureLab");',
   },
 ];
 

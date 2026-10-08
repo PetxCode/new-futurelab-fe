@@ -44,7 +44,7 @@ const DEFAULT_CSS = `/* ── Global Reset ── */
 body {
   min-height: 100vh;
   font-family: 'Inter', 'Segoe UI', sans-serif;
-  padding: 2rem;
+  /* padding: 2rem; */
 }
 
 .card {
@@ -52,6 +52,7 @@ body {
   border: 1px solid #334155;
   border-radius: 1.5rem;
   padding: 2.5rem 3rem;
+  margin: 2.5rem 3rem;
   max-width: 480px;
   width: 100%;
   box-shadow: 0 0 60px rgba(99,102,241,0.15);
@@ -151,7 +152,7 @@ const defineMonacoTheme = (monaco: any) => {
 
 const buildHtml = (html: string, css: string, js: string, tailwindTag: string) => {
   const isFull = /<html/i.test(html);
-  
+
   // Encode JS as a data URL so it's not swallowed by unclosed tags in the body
   // and we use defer so it runs after the DOM is fully parsed
   const jsDataUrl = `data:text/javascript;charset=utf-8,${encodeURIComponent(js)}`;
@@ -290,9 +291,9 @@ const CodePlayground: React.FC<CodePlaygroundProps> = ({
 
   useEffect(() => {
     refresh();
-  // Cleanup blob URL on unmount
-  return () => { if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current); };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // Cleanup blob URL on unmount
+    return () => { if (prevUrlRef.current) URL.revokeObjectURL(prevUrlRef.current); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [html, css, js, refresh]);
 
   // Console message listener
@@ -427,11 +428,10 @@ const CodePlayground: React.FC<CodePlaygroundProps> = ({
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold border-r border-slate-800 transition relative ${
-                    activeTab === tab.id
-                      ? "bg-[#090e1a] text-white"
-                      : "bg-[#0d1424] text-slate-500 hover:text-slate-300 hover:bg-slate-800/40"
-                  }`}
+                  className={`flex items-center gap-1.5 px-4 py-2.5 text-xs font-bold border-r border-slate-800 transition relative ${activeTab === tab.id
+                    ? "bg-[#090e1a] text-white"
+                    : "bg-[#0d1424] text-slate-500 hover:text-slate-300 hover:bg-slate-800/40"
+                    }`}
                 >
                   {activeTab === tab.id && (
                     <span className="absolute top-0 inset-x-0 h-0.5 bg-indigo-500 rounded-b" />
