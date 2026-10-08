@@ -84,8 +84,33 @@ const DEFAULT_FILES: CodeFile[] = [
 ];
 
 const CodingEngine: React.FC = () => {
-  const [files, setFiles] = useState<CodeFile[]>(DEFAULT_FILES);
-  const [activeFileId, setActiveFileId] = useState<string>('1');
+  const [files, setFiles] = useState<CodeFile[]>(() => {
+    if (typeof window === 'undefined') return DEFAULT_FILES;
+    try {
+      const saved = localStorage.getItem('futurelab_coding_engine_files');
+      return saved ? JSON.parse(saved) : DEFAULT_FILES;
+    } catch {
+      return DEFAULT_FILES;
+    }
+  });
+  
+  const [activeFileId, setActiveFileId] = useState<string>(() => {
+    if (typeof window === 'undefined') return '1';
+    try {
+      const saved = localStorage.getItem('futurelab_coding_engine_activeFileId');
+      return saved || '1';
+    } catch {
+      return '1';
+    }
+  });
+
+  useEffect(() => {
+    localStorage.setItem('futurelab_coding_engine_files', JSON.stringify(files));
+  }, [files]);
+
+  useEffect(() => {
+    localStorage.setItem('futurelab_coding_engine_activeFileId', activeFileId);
+  }, [activeFileId]);
   const [output, setOutput] = useState<{ text: string; type: 'out' | 'err' | 'in' | 'prompt' }[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [isPyodideLoaded, setIsPyodideLoaded] = useState(false);
