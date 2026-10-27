@@ -74,7 +74,7 @@ const GAMES: GameConfig[] = [
   {
     id: 'typing',
     title: 'Froggy Jump',
-    description: 'Type fast to help the frog hop across the pond! Don\'t fall in!',
+    description: 'Type words & code symbols like ( ) { } < > $ to help the frog hop! 18 levels!',
     icon: '🐸',
     color: 'from-emerald-400 to-cyan-500'
   },

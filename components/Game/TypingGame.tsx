@@ -69,25 +69,7 @@ const TypingGame: React.FC = () => {
     };
   };
 
-  // Timer
-  useEffect(() => {
-    if (gameState === 'playing') {
-      gameTimerRef.current = window.setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 0.1) {
-             setGameState('lost');
-             return 0;
-          }
-          return prev - 0.1;
-        });
-      }, 100);
-    }
-    return () => clearInterval(gameTimerRef.current);
-  }, [gameState]);
-
-
-
-// ... inside component ...
+  // (Single timer - see below)
 
   // Win
   useEffect(() => {
@@ -118,20 +100,19 @@ const TypingGame: React.FC = () => {
     }
   }, [score]);
 
-  // Timer
+  // Timer — single timer, kid-friendly pace
+  // 0.033 per 100ms = ~0.33s per real second → 60 game-seconds ≈ 3 real minutes
   useEffect(() => {
     if (gameState === 'playing') {
       const id = window.setInterval(() => {
         setTimeLeft(prev => {
-          // If we hit 0, lose
           if (prev <= 0) {
              setGameState('lost');
              soundService.play('lose');
              soundService.stopMusic();
              return 0;
           }
-          // Slowed down: 0.05 per 100ms = 0.5s per real second. (2x duration feel)
-          return Math.max(0, prev - 0.05); 
+          return Math.max(0, prev - 0.033);
         });
       }, 100);
       gameTimerRef.current = id;
@@ -153,12 +134,12 @@ const TypingGame: React.FC = () => {
 
     const nextPad = pads[currentPadIdx + 1];
 
-    if (val.trim().toLowerCase() === nextPad.word.toLowerCase()) {
-       // JUMP!
+    if (val.trim() === nextPad.word) {
+       // JUMP! — exact match (case-sensitive for code symbols)
        setFrogPadId(nextPad.id);
        setScore(s => s + 1);
        setInput("");
-       setTimeLeft(prev => Math.min(prev + 5, 60)); // Cap at 60s, +5s bonus
+       setTimeLeft(prev => Math.min(prev + 8, 60)); // Cap at 60s, +8s bonus
        soundService.play('jump');
        soundService.play('correct', 0.3);
 
@@ -323,9 +304,23 @@ const TypingGame: React.FC = () => {
              value={input}
              onChange={handleInputChange}
              disabled={gameState !== 'playing'}
-             placeholder={gameState === 'playing' ? "Type next word to jump!" : ""}
-             className="w-full bg-white/90 backdrop-blur border-4 border-emerald-500 rounded-2xl py-4 px-6 text-center text-3xl font-black text-emerald-800 placeholder:text-emerald-800/30 focus:outline-none focus:ring-4 focus:ring-emerald-400/50 shadow-2xl transition-all"
+             placeholder={gameState === 'playing' ? "Type to jump!" : ""}
+             className="w-full bg-white/90 backdrop-blur border-4 border-emerald-500 rounded-2xl py-4 px-6 text-center text-3xl font-black text-emerald-800 placeholder:text-emerald-800/30 focus:outline-none focus:ring-4 focus:ring-emerald-400/50 shadow-2xl transition-all font-mono"
            />
+           {/* Hint: show next word to type */}
+           {gameState === 'playing' && (() => {
+              const cidx = pads.findIndex(p => p.id === frogPadId);
+              const nPad = cidx >= 0 && cidx < pads.length - 1 ? pads[cidx + 1] : null;
+              if (!nPad) return null;
+              return (
+                 <div className="mt-2 text-center">
+                    <span className="bg-white/80 backdrop-blur px-4 py-2 rounded-xl text-emerald-700 font-bold text-sm inline-flex items-center gap-2 shadow-md border border-emerald-200">
+                       <span className="text-slate-400">Next →</span>
+                       <span className="font-mono text-xl text-emerald-900 bg-emerald-100 px-3 py-0.5 rounded-lg border border-emerald-300">{nPad.word}</span>
+                    </span>
+                 </div>
+              );
+           })()}
         </div>
 
         {/* Start Overlay */}
@@ -334,8 +329,35 @@ const TypingGame: React.FC = () => {
               <div className="bg-white p-8 rounded-[2rem] shadow-2xl text-center max-w-md border-b-8 border-sky-200">
                   <div className="text-6xl mb-4">🐸</div>
                   <h1 className="text-4xl font-black text-sky-900 mb-2">FROGGY JUMP</h1>
-                  <p className="text-sky-600 font-bold mb-6 text-lg">{currentLevel.description}</p>
-                  <p className="text-slate-400 mb-8">Type the words on the lilypads to help the frog cross safely!</p>
+                  
+                  {/* Level selector */}
+                  <div className="mb-4">
+                     <label className="text-sm font-bold text-slate-500 block mb-2">CHOOSE YOUR LEVEL</label>
+                     <select 
+                       value={levelIdx}
+                       onChange={(e) => setLevelIdx(Number(e.target.value))}
+                       className="w-full p-3 rounded-xl border-2 border-sky-200 bg-sky-50 text-sky-900 font-bold text-lg focus:outline-none focus:ring-2 focus:ring-sky-400"
+                     >
+                       {TYPING_LEVELS.map((lvl, idx) => (
+                         <option key={lvl.id} value={idx}>
+                           Level {lvl.id}: {lvl.title}
+                         </option>
+                       ))}
+                     </select>
+                  </div>
+
+                  <p className="text-sky-600 font-bold mb-4 text-lg">{currentLevel.description}</p>
+                  
+                  {/* Sample words preview */}
+                  <div className="flex flex-wrap gap-2 justify-center mb-4">
+                    {currentLevel.words.slice(0, 8).map((w, i) => (
+                      <span key={i} className="bg-emerald-100 text-emerald-800 px-3 py-1 rounded-lg font-mono font-bold text-sm border border-emerald-200">
+                        {w}
+                      </span>
+                    ))}
+                  </div>
+
+                  <p className="text-slate-400 mb-6 text-sm">Type exactly what you see on the lilypads to jump! ⌨️</p>
                   <button onClick={startGame} className="w-full py-4 bg-emerald-500 hover:bg-emerald-400 text-white font-black text-2xl rounded-xl shadow-[0_6px_0_rgb(6,95,70)] active:shadow-none active:translate-y-1 transition-all">
                      START HOPPING!
                   </button>
